@@ -25,8 +25,6 @@ from cleardebt.gitlab_mr import NotEligible, ensure_access, ensure_eligible, ren
 from cleardebt.issue_graph import build_graph
 from run_issue import DB_URI, _find_issue
 
-TOKEN_FILE = ROOT / "deploy" / "gitlab" / ".token"
-
 
 def execute(rule: str | None = None, project: str | None = None) -> dict:
     from cleardebt.checkout import checkout_default
@@ -51,8 +49,8 @@ def execute(rule: str | None = None, project: str | None = None) -> dict:
     if existing:
         return {"action": "skip", **existing}
 
-    default = checkout_default(ROOT / "var" / "gitlab-toy", saved)
-    repo = ROOT / "var" / "gitlab-toy"
+    repo = ROOT / "var" / "merge" / fingerprint[:12]
+    default = checkout_default(repo, saved)
     branch = "cleardebt/" + state["rule"].split(":")[-1].lower() + "-" + fingerprint[:8]
     git(repo, ["config", "user.name", "ClearDebt"])
     git(repo, ["config", "user.email", "cleardebt@localhost"])
@@ -85,8 +83,12 @@ def execute(rule: str | None = None, project: str | None = None) -> dict:
 
 
 def main() -> int:
+    if len(sys.argv) < 2 or not sys.argv[1].strip():
+        print("要写上白名单里的项目。不传项目不会跑。")
+        return 1
+    rule = sys.argv[2].strip() if len(sys.argv) > 2 and sys.argv[2].strip() else None
     try:
-        payload = execute()
+        payload = execute(rule, sys.argv[1].strip())
     except NotEligible as error:
         print(str(error))
         return 1
@@ -99,14 +101,6 @@ def project_access_level(token: str, project_id: int | None = None, gitlab_url: 
     payload = gitlab("GET", f"/projects/{project_id}", token, gitlab_url=gitlab_url)
     access = (payload.get("permissions") or {}).get("project_access") or {}
     return int(access.get("access_level") or 0)
-
-
-def clone_repo(token: str) -> Path:
-    from cleardebt.checkout import checkout_default
-
-    repo = ROOT / "var" / "gitlab-toy"
-    checkout_default(repo)
-    return repo
 
 
 def push(repo: Path, token: str, ref: str) -> None:

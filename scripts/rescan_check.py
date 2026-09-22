@@ -7,6 +7,7 @@ project key would replace its last main-branch analysis.
 
 from __future__ import annotations
 
+import argparse
 import json
 import shutil
 import subprocess
@@ -26,32 +27,38 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from cleardebt.rescan import verdict
 from list_issues import fetch_issues, fingerprint, issue_path, line_span, load_token
 
-BASELINE_KEY = "toy-js"
-PROTECTED_KEYS = {"toy-js", "toy-ts"}
-TEMP_PREFIX = "toy-js-rescan-"
+TEMP_PREFIX = "cleardebt-rescan-"
 FIXED_RULE = "javascript:S1128"
-SOURCES = ROOT / "fixtures" / "toy-js"
 
 
 def main() -> int:
-    host = "http://localhost:9000"
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--project", required=True, help="要对照的正式 Sonar 项目；不传不会跑。")
+    parser.add_argument("--sources", type=Path, required=True, help="改完后的源码目录。")
+    parser.add_argument("--rule", default=FIXED_RULE)
+    parser.add_argument("--host", default="http://localhost:9000")
+    args = parser.parse_args()
+    host = args.host
     token = load_token(None)
-    baseline_stamp = analysis_date(host, token, BASELINE_KEY)
+    baseline = args.project.strip()
+    if not baseline:
+        raise SystemExit("没有写项目，不会重扫。")
+    baseline_stamp = analysis_date(host, token, baseline)
     temp_key = TEMP_PREFIX + uuid.uuid4().hex[:12]
-    if temp_key == BASELINE_KEY or not temp_key.startswith(TEMP_PREFIX):
+    if temp_key == baseline or not temp_key.startswith(TEMP_PREFIX):
         raise SystemExit(f"refusing unsafe project key {temp_key}")
 
     try:
-        scan_temp_project(temp_key, token)
+        scan_temp_project(temp_key, token, sources=args.sources, baseline=baseline)
         wait_until_processed(host, token, temp_key)
-        before = issue_rows(host, token, BASELINE_KEY)
+        before = issue_rows(host, token, baseline)
         after = issue_rows(host, token, temp_key)
-        result = verdict(before, after, FIXED_RULE)
+        result = verdict(before, after, args.rule)
     finally:
         delete_temp_project(host, token, temp_key)
 
-    if analysis_date(host, token, BASELINE_KEY) != baseline_stamp:
-        raise SystemExit(f"{BASELINE_KEY} analysis changed; the baseline scan was overwritten")
+    if analysis_date(host, token, baseline) != baseline_stamp:
+        raise SystemExit(f"{baseline} analysis changed; the baseline scan was overwritten")
     if project_exists(host, token, temp_key):
         raise SystemExit(f"temporary project {temp_key} was not deleted")
 
@@ -59,7 +66,7 @@ def main() -> int:
         json.dumps(
             {
                 "ok": result["ok"],
-                "baseline": BASELINE_KEY,
+                "baseline": baseline,
                 "baseline_unchanged": True,
                 "temp_project_deleted": temp_key,
                 "removed": [_public(row) for row in result["removed"]],
@@ -78,10 +85,15 @@ def scan_temp_project(
     sources: Path | None = None,
     exclusions: str = "",
     sonar_url: str = "http://host.docker.internal:9000",
+    baseline: str | None = None,
 ) -> None:
-    if project_key in PROTECTED_KEYS:
+    if not sources:
+        raise SystemExit("没有源码目录，不会重扫。")
+    if baseline and project_key == baseline:
         raise SystemExit(f"refusing to scan the baseline project {project_key}")
-    origin = sources or SOURCES
+    if not project_key.startswith(TEMP_PREFIX):
+        raise SystemExit(f"refusing to scan non-temporary project {project_key}")
+    origin = sources
     with tempfile.TemporaryDirectory(prefix="cleardebt-rescan-") as directory:
         target = Path(directory)
         shutil.copytree(
@@ -165,7 +177,7 @@ def issue_rows(host: str, token: str, project_key: str) -> list[dict]:
 
 
 def delete_temp_project(host: str, token: str, project_key: str) -> None:
-    if project_key in PROTECTED_KEYS or not project_key.startswith(TEMP_PREFIX):
+    if not project_key.startswith(TEMP_PREFIX):
         raise SystemExit(f"refusing to delete {project_key}")
     try:
         api_post(host, token, "/api/projects/delete", {"project": project_key})

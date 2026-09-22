@@ -132,6 +132,7 @@ def rescan(state: IssueState) -> dict:
             sources=Path(state["work_dir"]),
             exclusions=TEST_EXCLUSIONS,
             sonar_url=_docker_sonar_url(sonar_base_url()),
+            baseline=project,
         )
         rescan_check.wait_until_processed(sonar_base_url(), token, temp_key)
         before = rescan_check.issue_rows(sonar_base_url(), token, project)

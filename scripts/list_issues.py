@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Print open Sonar issues for the toy project, with our own fingerprints.
+"""Print open Sonar issues for a named project, with our own fingerprints.
 
 Identity is sha256(rule + normalized path + sha256(issue line text)).
 Sonar's issue key is shown only so it is obvious we do not use it as identity.
@@ -18,7 +18,6 @@ import urllib.request
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
-DEFAULT_SOURCES = ROOT / "fixtures" / "toy-js"
 DEFAULT_TOKEN_FILE = ROOT / "deploy" / "sonarqube" / ".token"
 
 
@@ -92,8 +91,13 @@ def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--host", default=os.environ.get("SONAR_HOST_URL", "http://localhost:9000"))
     parser.add_argument("--token", default=None)
-    parser.add_argument("--project", default="toy-js")
-    parser.add_argument("--sources", type=Path, default=DEFAULT_SOURCES)
+    parser.add_argument("--project", required=True, help="Sonar 项目 key；不传不会跑。")
+    parser.add_argument(
+        "--sources",
+        type=Path,
+        default=None,
+        help="本地源码目录。省略时只打出规则和路径，不从本地算指纹。",
+    )
     args = parser.parse_args()
 
     token = load_token(args.token)
@@ -109,21 +113,21 @@ def main() -> int:
         text_range = issue.get("textRange") or {}
         start = int(text_range.get("startLine") or 1)
         end = int(text_range.get("endLine") or start)
-        source_file = args.sources / path
-        if not source_file.is_file():
-            raise SystemExit(f"issue points at missing file: {source_file}")
-        text = line_span(source_file.read_text(encoding="utf-8"), start, end)
         rule_key = issue["rule"]
-        rows.append(
-            {
-                "fingerprint": fingerprint(rule_key, path, text),
-                "rule": rule_key,
-                "path": path,
-                "line": start,
-                "message": issue.get("message", ""),
-                "sonar_key_not_identity": issue.get("key", ""),
-            }
-        )
+        row = {
+            "rule": rule_key,
+            "path": path,
+            "line": start,
+            "message": issue.get("message", ""),
+            "sonar_key_not_identity": issue.get("key", ""),
+        }
+        if args.sources is not None:
+            source_file = args.sources / path
+            if not source_file.is_file():
+                raise SystemExit(f"issue points at missing file: {source_file}")
+            text = line_span(source_file.read_text(encoding="utf-8"), start, end)
+            row["fingerprint"] = fingerprint(rule_key, path, text)
+        rows.append(row)
 
     rows.sort(key=lambda row: (row["path"], row["line"], row["rule"]))
     json.dump(rows, sys.stdout, ensure_ascii=False, indent=2)
