@@ -1,0 +1,11 @@
+# 第 5 步的进度库。只给本机这条流水线用。
+services:
+  postgres:
+    image: postgres:16
+    container_name: cleardebt-postgres
+    environment:
+      POSTGRES_USER: cleardebt
+      POSTGRES_PASSWORD: cleardebt
+      POSTGRES_DB: cleardebt
+    ports:
+      - "5433:5432"

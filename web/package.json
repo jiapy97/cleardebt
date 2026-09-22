@@ -1,0 +1,11 @@
+{
+  "name": "cleardebt-ui",
+  "private": true,
+  "scripts": {
+    "build": "tailwindcss -i app.css -o ../cleardebt/static/app.css --minify"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.13",
+    "tailwindcss": "^4.1.13"
+  }
+}

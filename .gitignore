@@ -1,0 +1,13 @@
+.venv/
+var/
+node_modules/
+coverage/
+__pycache__/
+*.py[cod]
+.DS_Store
+.token
+deploy/sonarqube/.token
+deploy/gitlab/.token
+deploy/deepseek/.token
+.scannerwork/
+**/.scannerwork/

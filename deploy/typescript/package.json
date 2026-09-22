@@ -1,0 +1,8 @@
+{
+  "name": "cleardebt-typescript",
+  "private": true,
+  "description": "TypeScript language service used when gathering evidence. Not the repository being fixed.",
+  "dependencies": {
+    "typescript": "5.9.3"
+  }
+}
