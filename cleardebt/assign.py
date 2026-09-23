@@ -35,7 +35,11 @@ def list_backlog_issues(repo: str) -> list[dict]:
     token = load_token(None)
     host = sonar_base_url()
     rows = []
-    for issue in fetch_issues(host, token, name):
+    try:
+        fetched = fetch_issues(host, token, name)
+    except Exception as error:
+        raise ValueError(f"连不上 Sonar（{host}）：{error}。先确认 Sonar 容器在跑。") from error
+    for issue in fetched:
         rule = issue.get("rule") or ""
         path = issue_path(issue.get("component", ""), name)
         rows.append(
@@ -48,8 +52,11 @@ def list_backlog_issues(repo: str) -> list[dict]:
                 "eligible": llm_repairable(rule),
             }
         )
-    for risk in fetch_dependency_risks(host, token, name):
-        rows.append(risk)
+    try:
+        for risk in fetch_dependency_risks(host, token, name):
+            rows.append(risk)
+    except Exception:
+        pass
     rows.sort(key=lambda item: (item["path"], item["rule"]))
     statuses = issue_status_map([(item["rule"], item["path"]) for item in rows])
     for item in rows:

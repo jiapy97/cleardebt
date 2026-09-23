@@ -24,8 +24,13 @@ _guard = threading.Lock()
 _locks: dict[str, threading.Lock] = {}
 
 
-def scan_baseline(repo: str, *, timeout: int = 600) -> dict:
-    """Clone the default branch and scan it as the real Sonar project key."""
+def scan_baseline(repo: str, *, timeout: int = 600, fresh_minutes: int = 10) -> dict:
+    """Clone the default branch and scan it as the real Sonar project key.
+
+    Skips the scan when the last analysis is newer than fresh_minutes:
+    Sonar data does not change between analyses, so repeated clicks in a
+    short window would only burn minutes for an identical list.
+    """
     from cleardebt.checkout import checkout_default
     from cleardebt.controls import gitlab_credentials
     from cleardebt.issue_graph import sonar_base_url
@@ -43,10 +48,13 @@ def scan_baseline(repo: str, *, timeout: int = 600) -> dict:
         saved = gitlab_credentials(name)
         if not saved or not saved.get("remote"):
             raise ValueError("这个项目还没绑定代码仓库地址，重扫不起来。")
-        dest = _SCAN_ROOT / re.sub(r"[^A-Za-z0-9_.-]+", "_", name)
-        checkout_default(dest, saved)
         host = sonar_base_url()
         token = load_token(None)
+        last = _analysis_date(host, token, name)
+        if _is_fresh(last, fresh_minutes):
+            return {"repo": name, "analysis_date": last, "skipped": True}
+        dest = _SCAN_ROOT / re.sub(r"[^A-Za-z0-9_.-]+", "_", name)
+        checkout_default(dest, saved)
         _run_scanner(dest, name, token, sonar_sources_value(dest))
         _wait_processed(host, token, name, timeout=timeout)
         return {"repo": name, "analysis_date": _analysis_date(host, token, name)}
@@ -99,6 +107,18 @@ def _wait_processed(host: str, token: str, project_key: str, *, timeout: int) ->
             raise ValueError(f"Sonar 处理分析失败：{status}。")
         time.sleep(3)
     raise ValueError("等 Sonar 处理分析超时了，稍后再点列出告警。")
+
+
+def _is_fresh(analysis_date: str, fresh_minutes: int) -> bool:
+    from datetime import datetime, timedelta, timezone
+
+    if not analysis_date or fresh_minutes <= 0:
+        return False
+    try:
+        stamp = datetime.strptime(analysis_date, "%Y-%m-%dT%H:%M:%S%z")
+    except ValueError:
+        return False
+    return datetime.now(timezone.utc) - stamp.astimezone(timezone.utc) < timedelta(minutes=fresh_minutes)
 
 
 def _analysis_date(host: str, token: str, project_key: str) -> str:

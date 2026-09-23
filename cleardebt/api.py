@@ -255,7 +255,12 @@ def list_issues_form(repo: str = Form("")) -> HTMLResponse:
     try:
         scan = scan_baseline(name)
         stamp = scan.get("analysis_date") or ""
-        scan_note = f"刚重扫过主分支（分析时间 {stamp}），下面是最新的告警。" if stamp else "刚重扫过主分支，下面是最新的告警。"
+        if scan.get("skipped"):
+            scan_note = f"上次分析是 {stamp}，10 分钟内扫过就不再重扫，下面是最新的告警。"
+        elif stamp:
+            scan_note = f"刚重扫过主分支（分析时间 {stamp}），下面是最新的告警。"
+        else:
+            scan_note = "刚重扫过主分支，下面是最新的告警。"
     except ValueError as error:
         scan_note = f"重扫没跑成（{error}），下面是上次分析的告警。"
     try:

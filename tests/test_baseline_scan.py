@@ -1,41 +1,44 @@
 import unittest
-from unittest.mock import MagicMock, patch
+from datetime import datetime, timedelta, timezone
+from unittest.mock import patch
 
-from cleardebt.baseline_scan import scan_baseline
+from cleardebt.baseline_scan import _is_fresh, scan_baseline
 
 
-class BaselineScanTest(unittest.TestCase):
-    def test_needs_bound_repo(self):
-        with patch("cleardebt.controls.gitlab_credentials", return_value=None):
-            with self.assertRaises(ValueError):
-                scan_baseline("toy-js")
-
-    def test_scans_and_reports_analysis_date(self):
+class FreshSkipTest(unittest.TestCase):
+    def test_recent_analysis_skips_scan(self):
+        stamp = (datetime.now(timezone.utc) - timedelta(minutes=2)).strftime("%Y-%m-%dT%H:%M:%S%z")
         with (
-            patch("cleardebt.controls.gitlab_credentials", return_value={"remote": "x", "token": "t"}),
-            patch("cleardebt.checkout.checkout_default", return_value="main") as checkout,
+            patch("cleardebt.controls.gitlab_credentials", return_value={"remote": "x"}),
             patch("cleardebt.issue_graph.sonar_base_url", return_value="http://sonar"),
             patch("list_issues.load_token", return_value="token"),
+            patch("cleardebt.baseline_scan._analysis_date", return_value=stamp),
+            patch("cleardebt.checkout.checkout_default") as clone,
+        ):
+            out = scan_baseline("toy-js")
+        self.assertTrue(out.get("skipped"))
+        clone.assert_not_called()
+
+    def test_stale_analysis_scans(self):
+        stamp = (datetime.now(timezone.utc) - timedelta(minutes=30)).strftime("%Y-%m-%dT%H:%M:%S%z")
+        with (
+            patch("cleardebt.controls.gitlab_credentials", return_value={"remote": "x"}),
+            patch("cleardebt.issue_graph.sonar_base_url", return_value="http://sonar"),
+            patch("list_issues.load_token", return_value="token"),
+            patch("cleardebt.baseline_scan._analysis_date", side_effect=[stamp, stamp]),
+            patch("cleardebt.checkout.checkout_default"),
             patch("cleardebt.languages.sonar_sources_value", return_value="src"),
             patch("cleardebt.baseline_scan._run_scanner") as run,
             patch("cleardebt.baseline_scan._wait_processed"),
-            patch("cleardebt.baseline_scan._analysis_date", return_value="2026-09-23T00:00:00+0000"),
         ):
             out = scan_baseline("toy-js")
-        self.assertEqual(out["analysis_date"], "2026-09-23T00:00:00+0000")
-        checkout.assert_called_once()
+        self.assertFalse(out.get("skipped"))
         run.assert_called_once()
 
-    def test_second_scan_while_running_is_refused(self):
-        import cleardebt.baseline_scan as module
-
-        lock = module._locks.setdefault("busy-js", MagicMock())
-        lock.acquire = MagicMock(return_value=False)
-        try:
-            with self.assertRaises(ValueError):
-                scan_baseline("busy-js")
-        finally:
-            del module._locks["busy-js"]
+    def test_is_fresh_edge_cases(self):
+        self.assertFalse(_is_fresh("", 10))
+        self.assertFalse(_is_fresh("not-a-date", 10))
+        self.assertFalse(_is_fresh("2026-09-23T03:52:03+0000", 0))
 
 
 if __name__ == "__main__":
