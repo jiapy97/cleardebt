@@ -12,6 +12,11 @@ services:
       - sonarqube_extensions:/opt/sonarqube/extensions
       - sonarqube_logs:/opt/sonarqube/logs
       - sonarqube_temp:/opt/sonarqube/temp
+    deploy:
+      resources:
+        limits:
+          cpus: "1.50"
+          memory: 2G
 
 volumes:
   sonarqube_data:

@@ -107,7 +107,7 @@ class ReviewPageTest(unittest.TestCase):
         )
         self.assertIn("&lt;script&gt;", html)
         self.assertIn("text-zinc-100'>&lt;script&gt;</pre>", html.replace('"', "'"))
-        self.assertEqual(html.count("<script>"), 1)
+        self.assertEqual(html.count("<script>"), 2)
         self.assertIn("这一轮是空跑", html)
 
 

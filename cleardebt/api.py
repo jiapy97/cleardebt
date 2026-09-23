@@ -249,8 +249,15 @@ def mr_remediate(body: dict = Body(...)) -> dict:
 @app.post("/issues/list", response_class=HTMLResponse)
 def list_issues_form(repo: str = Form("")) -> HTMLResponse:
     from cleardebt.assign import list_backlog_issues, list_sessions
+    from cleardebt.baseline_scan import scan_baseline
 
     name = repo.strip()
+    try:
+        scan = scan_baseline(name)
+        stamp = scan.get("analysis_date") or ""
+        scan_note = f"刚重扫过主分支（分析时间 {stamp}），下面是最新的告警。" if stamp else "刚重扫过主分支，下面是最新的告警。"
+    except ValueError as error:
+        scan_note = f"重扫没跑成（{error}），下面是上次分析的告警。"
     try:
         issues = list_backlog_issues(name)
     except ValueError as error:
@@ -269,6 +276,7 @@ def list_issues_form(repo: str = Form("")) -> HTMLResponse:
             sessions=list_sessions(),
             issues=issues,
             assign_repo=name,
+            assign_notice=scan_note,
         )
     )
 
@@ -285,7 +293,7 @@ def assign_issues_form(repo: str = Form(""), selected: list[str] = Form(default=
         rule, path = item.split("|", 1)
         picks.append({"rule": rule, "path": path})
     try:
-        assign_to_agent(name, picks)
+        result = assign_to_agent(name, picks)
     except ValueError as error:
         try:
             issues = list_backlog_issues(name) if name else []
@@ -300,7 +308,38 @@ def assign_issues_form(repo: str = Form(""), selected: list[str] = Form(default=
             assign_repo=name,
         )
         return HTMLResponse(page, status_code=400)
-    return RedirectResponse("/", status_code=303)
+    try:
+        issues = list_backlog_issues(name)
+    except ValueError:
+        issues = []
+    return HTMLResponse(
+        render_page(
+            latest_sheet(),
+            _form_settings(),
+            sessions=list_sessions(),
+            issues=issues,
+            assign_repo=name,
+            assign_notice=_assign_notice(result),
+        )
+    )
+
+
+def _assign_notice(result: dict) -> str:
+    actions = [(item.get("action") or "") for item in result.get("decisions") or []]
+    opened = sum(1 for action in actions if action in ("opened", "already"))
+    dry = sum(1 for action in actions if action == "dry_run")
+    rest = len(actions) - opened - dry
+    parts = [f"已指派 {len(actions)} 条"]
+    if opened:
+        parts.append(f"开请求 {opened}")
+    if dry:
+        parts.append(f"空跑 {dry}（没开请求）")
+    if rest:
+        parts.append(f"未开请求 {rest}")
+    skipped = result.get("skipped_ineligible") or 0
+    if skipped:
+        parts.append(f"跳过不可修 {skipped}")
+    return "；".join(parts) + "。下面是刷新后的列表，最新状态已更新。"
 
 
 @app.post("/issues/run")

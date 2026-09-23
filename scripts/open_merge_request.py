@@ -104,6 +104,8 @@ def execute(
     record = {
         "action": "opened",
         "fingerprint": fingerprint,
+        "rule": state.get("rule") or issue.get("rule") or "",
+        "path": state.get("path") or issue.get("path") or "",
         "merge_request_iid": opened["iid"],
         "web_url": opened["web_url"],
         "source_branch": branch,
@@ -225,11 +227,18 @@ def find_merge_request(fingerprint: str) -> dict | None:
 
 def save_merge_request(record: dict) -> None:
     with psycopg.connect(DB_URI) as conn:
+        conn.execute("ALTER TABLE issue_merge_requests ADD COLUMN IF NOT EXISTS rule TEXT NOT NULL DEFAULT ''")
+        conn.execute("ALTER TABLE issue_merge_requests ADD COLUMN IF NOT EXISTS path TEXT NOT NULL DEFAULT ''")
         conn.execute(
             """
             INSERT INTO issue_merge_requests
-                (fingerprint, merge_request_iid, web_url, source_branch, target_branch)
-            VALUES (%s, %s, %s, %s, %s)
+                (fingerprint, merge_request_iid, web_url, source_branch, target_branch, rule, path)
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
+            ON CONFLICT (fingerprint) DO UPDATE SET
+                merge_request_iid = EXCLUDED.merge_request_iid,
+                web_url = EXCLUDED.web_url,
+                rule = EXCLUDED.rule,
+                path = EXCLUDED.path
             """,
             (
                 record["fingerprint"],
@@ -237,6 +246,8 @@ def save_merge_request(record: dict) -> None:
                 record["web_url"],
                 record["source_branch"],
                 record["target_branch"],
+                record.get("rule") or "",
+                record.get("path") or "",
             ),
         )
 

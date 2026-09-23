@@ -51,7 +51,96 @@ def list_backlog_issues(repo: str) -> list[dict]:
     for risk in fetch_dependency_risks(host, token, name):
         rows.append(risk)
     rows.sort(key=lambda item: (item["path"], item["rule"]))
+    statuses = issue_status_map([(item["rule"], item["path"]) for item in rows])
+    for item in rows:
+        item["status"] = statuses.get((item["rule"], item["path"]))
     return rows
+
+
+def issue_status_map(pairs: list[tuple[str, str]]) -> dict[tuple[str, str], dict]:
+    """Latest known state per (rule, path) from our own ledger.
+
+    Sonar only shows OPEN issues, so "already fixed, waiting for re-analysis"
+    is invisible there. We join issue_suggestions (L1/L2/L3 + reason) with
+    issue_merge_requests (opened MR link). Match is by rule+path because the
+    list view does not carry line text for exact fingerprints. Never raises:
+    on DB trouble the list still renders, just without status.
+    """
+    keys = []
+    for rule, path in pairs or []:
+        key = ((rule or "").strip(), (path or "").strip())
+        if key[0] and key not in keys:
+            keys.append(key)
+    if not keys:
+        return {}
+    try:
+        with psycopg.connect(DB_URI) as conn:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS issue_suggestions (
+                    fingerprint TEXT PRIMARY KEY,
+                    rule TEXT NOT NULL,
+                    path TEXT NOT NULL,
+                    level TEXT NOT NULL,
+                    reason TEXT NOT NULL,
+                    old_string TEXT NOT NULL,
+                    new_string TEXT NOT NULL
+                )
+                """
+            )
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS issue_merge_requests (
+                    fingerprint TEXT PRIMARY KEY,
+                    merge_request_iid INTEGER NOT NULL,
+                    web_url TEXT NOT NULL,
+                    source_branch TEXT NOT NULL,
+                    target_branch TEXT NOT NULL
+                )
+                """
+            )
+            suggestions = conn.execute(
+                """
+                SELECT fingerprint, rule, path, level, reason
+                FROM issue_suggestions
+                WHERE rule = ANY(%s) AND path = ANY(%s)
+                """,
+                ([key[0] for key in keys], [key[1] for key in keys]),
+            ).fetchall()
+            fingerprints = [row[0] for row in suggestions]
+            mr_by_fingerprint = {}
+            if fingerprints:
+                for row in conn.execute(
+                    "SELECT fingerprint, web_url FROM issue_merge_requests WHERE fingerprint = ANY(%s)",
+                    (fingerprints,),
+                ).fetchall():
+                    mr_by_fingerprint[row[0]] = row[1]
+            direct_mrs = {}
+            try:
+                for row in conn.execute(
+                    "SELECT rule, path, web_url FROM issue_merge_requests WHERE rule = ANY(%s) AND path = ANY(%s)",
+                    ([key[0] for key in keys], [key[1] for key in keys]),
+                ).fetchall():
+                    if (row[0], row[1]) in keys:
+                        direct_mrs[(row[0], row[1])] = row[2]
+            except Exception:
+                direct_mrs = {}
+    except Exception:
+        return {}
+    out: dict[tuple[str, str], dict] = {}
+    for key, web_url in direct_mrs.items():
+        out[key] = {"level": "L1", "reason": "已开过合并请求。", "mr_url": web_url}
+    for fingerprint, rule, path, level, reason in suggestions:
+        key = (rule, path)
+        if key not in keys:
+            continue
+        entry = {"level": level, "reason": reason or "", "mr_url": mr_by_fingerprint.get(fingerprint, "")}
+        current = out.get(key)
+        if current is None or (not current["mr_url"] and entry["mr_url"]):
+            out[key] = entry
+        elif entry["level"] == "L1" and current["level"] != "L1" and not current["mr_url"]:
+            out[key] = entry
+    return out
 
 
 def assign_to_agent(repo: str, selections: list[dict], *, source: str = "manual") -> dict:

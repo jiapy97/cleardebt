@@ -42,6 +42,7 @@ def render_page(
     issues: list[dict] | None = None,
     sessions: list[dict] | None = None,
     assign_repo: str = "",
+    assign_notice: str = "",
 ) -> str:
     settings = settings or {}
     notice = (
@@ -74,6 +75,13 @@ def render_page(
 .toggle-knob {{ position:absolute; left:0.125rem; top:0.125rem; width:1.25rem; height:1.25rem; border-radius:999px; background:#fff; box-shadow:0 1px 2px rgb(0 0 0 / 0.2); }}
 .toggle-input:checked + .toggle-track {{ background:#18181b; }}
 .toggle-input:checked + .toggle-track + .toggle-knob {{ transform:translateX(1.25rem); }}
+button.is-loading {{ opacity:.7; cursor:wait; }}
+button.is-loading .spinner {{ display:inline-block; width:.9em; height:.9em; margin-right:.45em; border-radius:999px; border:2px solid rgb(255 255 255 / .35); border-top-color:#fff; vertical-align:-0.15em; animation:cdspin .7s linear infinite; }}
+button.is-loading.bg-white .spinner {{ border-color:rgb(0 0 0 / .2); border-top-color:#18181b; }}
+@keyframes cdspin {{ to {{ transform:rotate(360deg); }} }}
+#toast {{ position:fixed; left:50%; bottom:1.5rem; transform:translateX(-50%) translateY(1rem); z-index:50; max-width:min(90vw,32rem); border-radius:.75rem; background:#18181b; color:#fff; font-size:.875rem; padding:.65rem 1rem; opacity:0; pointer-events:none; transition:opacity .2s, transform .2s; }}
+#toast.show {{ opacity:1; transform:translateX(-50%) translateY(0); }}
+#toast.error {{ background:#9f1239; }}
 </style>
 </head>
 <body class="min-h-screen bg-zinc-100 text-zinc-900 antialiased">
@@ -148,7 +156,7 @@ def render_page(
 </form>
 </section>
 </div>
-{_assign_section(settings, issues, assign_repo)}
+{_assign_section(settings, issues, assign_repo, assign_notice)}
 {_request_fix_section(settings)}
 {_activity_section(sessions)}
 <section class="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-zinc-200">
@@ -176,12 +184,87 @@ def render_page(
 </div>
 </section>
 </div>
+<div id="toast" role="status"></div>
+<script>
+(function () {{
+  var toastEl = document.getElementById("toast");
+  var toastTimer = null;
+  function toast(text, isError) {{
+    if (!toastEl) return;
+    toastEl.textContent = text;
+    toastEl.className = isError ? "error show" : "show";
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () {{ toastEl.className = isError ? "error" : ""; }}, 4000);
+  }}
+  function setLoading(btn, on, label) {{
+    if (!btn) return;
+    if (on) {{
+      if (btn.disabled) return;
+      btn.dataset.orig = btn.innerHTML;
+      btn.disabled = true;
+      btn.classList.add("is-loading");
+      btn.innerHTML = '<span class="spinner"></span>' + (label || "正在处理…");
+    }} else {{
+      btn.disabled = false;
+      btn.classList.remove("is-loading");
+      if (btn.dataset.orig) btn.innerHTML = btn.dataset.orig;
+    }}
+  }}
+  // 所有整页表单改成异步提交：按钮只转圈，不刷新整页。
+  document.addEventListener("submit", function (e) {{
+    var form = e.target;
+    if (!form || form.tagName !== "FORM") return;
+    if ((form.method || "get").toLowerCase() !== "post") return;
+    e.preventDefault();
+    var btn = e.submitter || form.querySelector('button[type="submit"]');
+    setLoading(btn, true);
+    var y = window.scrollY;
+    fetch(form.action, {{ method: "POST", body: new FormData(form), redirect: "follow", headers: {{ "x-requested-with": "fetch" }} }})
+      .then(function (resp) {{ return resp.text().then(function (text) {{ return {{ ok: resp.ok, text: text }}; }}); }})
+      .then(function (result) {{
+        if (result.text.indexOf("<html") !== -1 || result.text.indexOf("<!DOCTYPE") !== -1) {{
+          document.open();
+          document.write(result.text);
+          document.close();
+          requestAnimationFrame(function () {{ window.scrollTo(0, y); }});
+        }} else if (result.ok) {{
+          setLoading(btn, false);
+          toast("已保存");
+        }} else {{
+          setLoading(btn, false);
+          toast(result.text.slice(0, 200) || "请求失败，请重试", true);
+        }}
+      }})
+      .catch(function () {{
+        setLoading(btn, false);
+        toast("请求失败，请检查服务后重试", true);
+      }});
+  }}, true);
+  // 请求修复区的三个按钮：点后转圈，状态文案变化时恢复。
+  var mrIds = ["mr_list_btn", "mr_offer_btn", "mr_run_btn"];
+  document.addEventListener("click", function (e) {{
+    var b = e.target && e.target.closest ? e.target.closest("button") : null;
+    if (!b || mrIds.indexOf(b.id) === -1) return;
+    var labels = {{ mr_list_btn: "正在列出…", mr_offer_btn: "正在留言…", mr_run_btn: "正在运行…" }};
+    setLoading(b, true, labels[b.id]);
+  }}, true);
+  var mrStatus = document.getElementById("mr_status");
+  if (mrStatus && window.MutationObserver) {{
+    new MutationObserver(function () {{
+      mrIds.forEach(function (id) {{
+        var b = document.getElementById(id);
+        if (b && b.disabled) setLoading(b, false);
+      }});
+    }}).observe(mrStatus, {{ childList: true, characterData: true, subtree: true }});
+  }}
+}})();
+</script>
 </body>
 </html>
 """
 
 
-def _assign_section(settings: dict, issues: list[dict] | None, assign_repo: str) -> str:
+def _assign_section(settings: dict, issues: list[dict] | None, assign_repo: str, notice: str = "") -> str:
     choices = settings.get("repo_choices") or []
     repo = assign_repo or next((item["key"] for item in choices if item.get("selected")), "")
     options = _repo_options(
@@ -190,9 +273,15 @@ def _assign_section(settings: dict, issues: list[dict] | None, assign_repo: str)
         else ([{"key": repo, "selected": True}] if repo else [])
     )
     rows = _issue_rows(issues)
+    done = (
+        f"<p class='mt-5 rounded-xl bg-emerald-50 px-4 py-3 text-sm text-emerald-800 ring-1 ring-emerald-200'>{escape(notice)}</p>"
+        if notice
+        else ""
+    )
     return f"""<section class="mt-6 rounded-2xl bg-white p-6 shadow-sm ring-1 ring-zinc-200">
 <h2 class="text-lg font-semibold tracking-tight">指派给 Agent</h2>
-<p class="mt-1 text-sm text-zinc-500">勾选主分支上的可修告警，不必等定时。不可修的会跳过并提示。</p>
+<p class="mt-1 text-sm text-zinc-500">勾选主分支上的可修告警，不必等定时。不可修的会跳过并提示。每次列出都是 Sonar 最新告警，并带上我们账本里的最新状态。</p>
+{done}
 <form method="post" action="/issues/list" class="mt-5 flex flex-wrap items-end gap-3">
 <div class="min-w-[12rem] flex-1">
 <label class="mb-1 block text-sm font-medium text-zinc-700" for="assign_repo">项目</label>
@@ -213,6 +302,7 @@ def _assign_section(settings: dict, issues: list[dict] | None, assign_repo: str)
 <th class="border-b border-zinc-200 px-3 py-2 font-medium">文件</th>
 <th class="border-b border-zinc-200 px-3 py-2 font-medium">说明</th>
 <th class="border-b border-zinc-200 px-3 py-2 font-medium">可修</th>
+<th class="border-b border-zinc-200 px-3 py-2 font-medium">最新状态</th>
 </tr>
 </thead>
 <tbody>
@@ -227,9 +317,9 @@ def _assign_section(settings: dict, issues: list[dict] | None, assign_repo: str)
 
 def _issue_rows(issues: list[dict] | None) -> str:
     if issues is None:
-        return "<tr><td class='px-3 py-6 text-sm text-zinc-500' colspan='5'>选好项目后点「列出告警」。</td></tr>"
+        return "<tr><td class='px-3 py-6 text-sm text-zinc-500' colspan='6'>选好项目后点「列出告警」。</td></tr>"
     if not issues:
-        return "<tr><td class='px-3 py-6 text-sm text-zinc-500' colspan='5'>这个项目没有打开的告警。</td></tr>"
+        return "<tr><td class='px-3 py-6 text-sm text-zinc-500' colspan='6'>这个项目没有打开的告警。</td></tr>"
     lines = []
     for item in issues:
         eligible = bool(item.get("eligible"))
@@ -254,9 +344,33 @@ def _issue_rows(issues: list[dict] | None) -> str:
             f"<td class='border-b border-zinc-100 px-3 py-3'>"
             f"<span class='inline-flex rounded-full px-2 py-0.5 text-xs font-medium ring-1 {mark_class}'>{mark}</span>"
             "</td>"
+            f"<td class='border-b border-zinc-100 px-3 py-3'>{_status_cell(item.get('status'))}</td>"
             "</tr>"
         )
     return "".join(lines)
+
+
+def _status_cell(status: dict | None) -> str:
+    if not status:
+        return (
+            "<span class='inline-flex whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ring-1 "
+            "bg-zinc-100 text-zinc-600 ring-zinc-200'>待处理</span>"
+        )
+    if status.get("mr_url"):
+        url = escape(str(status["mr_url"]))
+        return (
+            "<span class='inline-flex whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ring-1 "
+            "bg-emerald-50 text-emerald-800 ring-emerald-200'>已开请求</span> "
+            f'<a class="text-sky-700 underline-offset-2 hover:underline" href="{url}">查看请求</a>'
+        )
+    level = (status.get("level") or "").strip()
+    reason = escape(str(status.get("reason") or ""))
+    label = {"L1": "L1 已验证", "L2": "L2 仅建议", "L3": "L3 未通过"}.get(level, level or "已跑过")
+    classes = _LEVEL_CLASS.get(level, "bg-zinc-100 text-zinc-700 ring-zinc-200")
+    return (
+        "<span class='inline-flex whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ring-1 "
+        f"{classes}' title='{reason}'>{escape(label)}</span>"
+    )
 
 
 def _activity_section(sessions: list[dict] | None) -> str:
