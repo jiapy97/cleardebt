@@ -348,6 +348,81 @@ def api_scan_progress(repo: str = "") -> dict:
     return {"repo": (repo or "").strip(), **read(repo)}
 
 
+@app.post("/api/rules/refresh")
+def api_rules_refresh() -> dict:
+    from cleardebt.rules import refresh
+
+    try:
+        catalog = refresh()
+    except Exception as error:
+        raise HTTPException(status_code=502, detail=f"Sonar 规则拉取失败：{error}") from error
+    return {"ok": True, "count": len(catalog)}
+
+
+@app.post("/api/rules/pin")
+def api_rules_pin(body: dict = Body(...)) -> dict:
+    from cleardebt.rules import save_pin
+
+    try:
+        return save_pin(
+            body.get("rule") or "",
+            tier=body.get("tier") or "",
+            zh=body.get("zh") or "",
+            zh_source="manual",
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+
+
+@app.post("/api/rules/translate")
+def api_rules_translate(body: dict = Body(...)) -> dict:
+    from cleardebt.rules import translate_missing
+
+    try:
+        count = int(body.get("limit") or 20)
+    except (TypeError, ValueError):
+        count = 20
+    try:
+        done = translate_missing(limit=max(1, min(count, 100)))
+    except Exception as error:
+        raise HTTPException(status_code=502, detail=f"机翻失败：{error}") from error
+    return {"ok": True, "translated": done}
+
+
+@app.get("/api/rules")
+def api_rules_list(prefix: str = "") -> dict:
+    from cleardebt.rules import pins
+    from cleardebt.triage import describe, tier_for
+
+    catalog = {}
+    try:
+        from cleardebt.rules import catalog as live_catalog
+
+        catalog = live_catalog()
+    except Exception:
+        catalog = {}
+    wanted = (prefix or "").strip().lower()
+    rows = []
+    for key in sorted(catalog):
+        if wanted and wanted not in key.lower():
+            continue
+        number = key.split(":")[-1]
+        pin = pins().get(number, {})
+        rows.append(
+            {
+                "key": key,
+                "number": number,
+                "tier": tier_for(key),
+                "label": describe(key),
+                "pinned": bool(pin),
+                "zh_source": pin.get("zh_source") or "",
+            }
+        )
+        if len(rows) >= 500:
+            break
+    return {"total": len(catalog), "rules": rows}
+
+
 @app.post("/api/issues/list")
 def api_list_issues(body: dict = Body(...)) -> dict:
     name = (body.get("repo") or "").strip()

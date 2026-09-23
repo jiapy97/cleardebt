@@ -92,6 +92,29 @@ export const api = {
     req<{ repo: string; step: string; stale: boolean }>(
       `/api/scan/progress?repo=${encodeURIComponent(repo)}`,
     ),
+  rulesList: (prefix: string) =>
+    req<{
+      total: number;
+      rules: Array<{
+        key: string;
+        number: string;
+        tier: string;
+        label: string;
+        pinned: boolean;
+        zh_source: string;
+      }>;
+    }>(`/api/rules?prefix=${encodeURIComponent(prefix)}`),
+  rulesRefresh: () => req<{ ok: boolean; count: number }>("/api/rules/refresh", { method: "POST", body: "{}" }),
+  rulePin: (rule: string, tier: string, zh: string) =>
+    req<{ rule: string }>("/api/rules/pin", {
+      method: "POST",
+      body: JSON.stringify({ rule, tier, zh }),
+    }),
+  rulesTranslate: (limit: number) =>
+    req<{ ok: boolean; translated: number }>("/api/rules/translate", {
+      method: "POST",
+      body: JSON.stringify({ limit }),
+    }),
   assign: (repo: string, issues: Array<{ rule: string; path: string }>) =>
     req<{ session_id: number; decisions: Array<{ action: string }> }>("/issues/assign", {
       method: "POST",

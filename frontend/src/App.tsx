@@ -11,9 +11,11 @@ import {
   HistoryOutlined,
   SettingOutlined,
   ThunderboltOutlined,
+  UnorderedListOutlined,
 } from "@ant-design/icons";
 import AssignPage from "./pages/Assign";
 import ControlsPage from "./pages/Controls";
+import RulesPage from "./pages/Rules";
 import MrsPage from "./pages/Mrs";
 import ActivityPage from "./pages/Activity";
 import SheetPage from "./pages/Sheet";
@@ -28,6 +30,7 @@ const menus = [
   { path: "mrs", name: "请求修复", icon: <BranchesOutlined /> },
   { path: "activity", name: "Agent 活动", icon: <HistoryOutlined /> },
   { path: "sheet", name: "清算单", icon: <AuditOutlined /> },
+  { path: "rules", name: "规则管理", icon: <UnorderedListOutlined /> },
   { path: "setup", name: "接入配置", icon: <SettingOutlined /> },
 ];
 
@@ -37,6 +40,7 @@ const pageMeta: Record<string, { title: string; sub: string; node: React.ReactNo
   mrs: { title: "请求修复", sub: "质量门失败的合并请求，开出打向原源分支的修复请求", node: <MrsPage /> },
   activity: { title: "Agent 活动", sub: "最近会话，每 10 秒自动刷新", node: <ActivityPage /> },
   sheet: { title: "清算单", sub: "最近一轮的决策与建议片段", node: <SheetPage /> },
+  rules: { title: "规则管理", sub: "档位与中文名都是数据，改完即时生效", node: <RulesPage /> },
   setup: { title: "接入配置", sub: "地址、令牌和允许修改的仓库", node: <SetupPage /> },
 };
 
