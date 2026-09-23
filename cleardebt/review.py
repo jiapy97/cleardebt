@@ -340,9 +340,9 @@ def _issue_rows(issues: list[dict] | None) -> str:
             f"<td class='border-b border-zinc-100 px-3 py-3'>{box}</td>"
             f"<td class='border-b border-zinc-100 px-3 py-3 font-medium'>{escape(str(item.get('rule') or ''))}</td>"
             f"<td class='border-b border-zinc-100 px-3 py-3 text-zinc-600'>{escape(str(item.get('path') or '—'))}</td>"
-            f"<td class='border-b border-zinc-100 px-3 py-3 text-zinc-700'>{escape(str(item.get('message') or '—'))}</td>"
+            f"<td class='border-b border-zinc-100 px-3 py-3 text-zinc-700'><span class='block max-w-64 truncate' title='{escape(str(item.get('message') or ''))}'>{escape(str(item.get('message') or '—'))}</span></td>"
             f"<td class='border-b border-zinc-100 px-3 py-3'>"
-            f"<span class='inline-flex rounded-full px-2 py-0.5 text-xs font-medium ring-1 {mark_class}'>{mark}</span>"
+            f"<span class='inline-flex whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ring-1 {mark_class}'>{mark}</span>"
             "</td>"
             f"<td class='border-b border-zinc-100 px-3 py-3'>{_status_cell(item.get('status'))}</td>"
             "</tr>"
@@ -359,9 +359,11 @@ def _status_cell(status: dict | None) -> str:
     if status.get("mr_url"):
         url = escape(str(status["mr_url"]))
         return (
+            "<span class='inline-flex flex-wrap items-center gap-x-2 gap-y-1'>"
             "<span class='inline-flex whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ring-1 "
-            "bg-emerald-50 text-emerald-800 ring-emerald-200'>已开请求</span> "
-            f'<a class="text-sky-700 underline-offset-2 hover:underline" href="{url}">查看请求</a>'
+            "bg-emerald-50 text-emerald-800 ring-emerald-200'>已开请求</span>"
+            f'<a class="whitespace-nowrap text-sky-700 underline-offset-2 hover:underline" href="{url}">查看请求</a>'
+            "</span>"
         )
     level = (status.get("level") or "").strip()
     reason = escape(str(status.get("reason") or ""))
