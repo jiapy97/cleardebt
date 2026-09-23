@@ -56,6 +56,13 @@ export default function MrsPage() {
     { title: "规则", dataIndex: "rule", key: "rule", width: 180 },
     { title: "文件", dataIndex: "path", key: "path", width: 160 },
     {
+      title: "行",
+      dataIndex: "line",
+      key: "line",
+      width: 70,
+      render: (v: number) => (v ? `L${v}` : "—"),
+    },
+    {
       title: "可修",
       key: "eligible",
       width: 90,
@@ -93,7 +100,7 @@ export default function MrsPage() {
       </Card>
       <Card title="请求上的告警">
         <Table<Issue>
-          rowKey={(r) => `${r.rule}|${r.path}`}
+          rowKey={(r) => `${r.rule}|${r.path}|${r.line ?? 0}`}
           columns={columns}
           dataSource={issues ?? []}
           pagination={false}

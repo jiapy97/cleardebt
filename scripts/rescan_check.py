@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -60,7 +61,11 @@ def main() -> int:
     if analysis_date(host, token, baseline) != baseline_stamp:
         raise SystemExit(f"{baseline} analysis changed; the baseline scan was overwritten")
     if project_exists(host, token, temp_key):
-        raise SystemExit(f"temporary project {temp_key} was not deleted")
+        print(
+            f"warning: temporary project {temp_key} is still in Sonar; "
+            "delete it by hand when Sonar is healthy again.",
+            file=sys.stderr,
+        )
 
     print(
         json.dumps(
@@ -124,11 +129,15 @@ def scan_temp_project(
         if exclusions:
             properties.append(f"sonar.exclusions={exclusions}")
         (target / "sonar-project.properties").write_text("\n".join(properties) + "\n", encoding="utf-8")
+        cpus = os.environ.get("CLEARDEBT_SCANNER_CPUS", "1.0").strip() or "1.0"
+        memory = os.environ.get("CLEARDEBT_SCANNER_MEMORY", "2g").strip() or "2g"
         completed = subprocess.run(
             [
                 "docker",
                 "run",
                 "--rm",
+                f"--cpus={cpus}",
+                f"--memory={memory}",
                 "-e",
                 f"SONAR_HOST_URL={sonar_url}",
                 "-e",
@@ -191,12 +200,24 @@ def issue_rows(host: str, token: str, project_key: str) -> list[dict]:
 def delete_temp_project(host: str, token: str, project_key: str) -> None:
     if not project_key.startswith(TEMP_PREFIX):
         raise SystemExit(f"refusing to delete {project_key}")
-    try:
-        api_post(host, token, "/api/projects/delete", {"project": project_key})
-    except urllib.error.HTTPError as error:
-        if error.code != 404:
+    last_error = ""
+    for attempt in range(3):
+        try:
+            api_post(host, token, "/api/projects/delete", {"project": project_key})
+            return
+        except urllib.error.HTTPError as error:
+            if error.code == 404:
+                return
             detail = error.read().decode("utf-8", errors="replace")
-            raise SystemExit(f"failed to delete {project_key}: {error.code} {detail}") from error
+            last_error = f"{error.code} {detail}"
+        except OSError as error:
+            last_error = str(error)
+        time.sleep(2 * (attempt + 1))
+    print(
+        f"warning: failed to delete {project_key} after 3 tries ({last_error}); "
+        "leaving it in Sonar, the verdict above still stands.",
+        file=sys.stderr,
+    )
 
 
 def analysis_date(host: str, token: str, project_key: str) -> str:

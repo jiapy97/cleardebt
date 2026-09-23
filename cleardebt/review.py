@@ -300,6 +300,7 @@ def _assign_section(settings: dict, issues: list[dict] | None, assign_repo: str,
 <th class="border-b border-zinc-200 px-3 py-2 font-medium">选</th>
 <th class="border-b border-zinc-200 px-3 py-2 font-medium">规则</th>
 <th class="border-b border-zinc-200 px-3 py-2 font-medium">文件</th>
+<th class="border-b border-zinc-200 px-3 py-2 font-medium">行</th>
 <th class="border-b border-zinc-200 px-3 py-2 font-medium">说明</th>
 <th class="border-b border-zinc-200 px-3 py-2 font-medium">可修</th>
 <th class="border-b border-zinc-200 px-3 py-2 font-medium">最新状态</th>
@@ -315,11 +316,19 @@ def _assign_section(settings: dict, issues: list[dict] | None, assign_repo: str,
 </section>"""
 
 
+def _line_cell(line: object) -> str:
+    try:
+        number = int(line or 0)
+    except (TypeError, ValueError):
+        number = 0
+    return f"L{number}" if number > 0 else "—"
+
+
 def _issue_rows(issues: list[dict] | None) -> str:
     if issues is None:
-        return "<tr><td class='px-3 py-6 text-sm text-zinc-500' colspan='6'>选好项目后点「列出告警」。</td></tr>"
+        return "<tr><td class='px-3 py-6 text-sm text-zinc-500' colspan='7'>选好项目后点「列出告警」。</td></tr>"
     if not issues:
-        return "<tr><td class='px-3 py-6 text-sm text-zinc-500' colspan='6'>这个项目没有打开的告警。</td></tr>"
+        return "<tr><td class='px-3 py-6 text-sm text-zinc-500' colspan='7'>这个项目没有打开的告警。</td></tr>"
     lines = []
     for item in issues:
         eligible = bool(item.get("eligible"))
@@ -340,6 +349,7 @@ def _issue_rows(issues: list[dict] | None) -> str:
             f"<td class='border-b border-zinc-100 px-3 py-3'>{box}</td>"
             f"<td class='border-b border-zinc-100 px-3 py-3 font-medium'>{escape(str(item.get('rule') or ''))}</td>"
             f"<td class='border-b border-zinc-100 px-3 py-3 text-zinc-600'>{escape(str(item.get('path') or '—'))}</td>"
+            f"<td class='border-b border-zinc-100 px-3 py-3 text-zinc-600 whitespace-nowrap'>{_line_cell(item.get('line'))}</td>"
             f"<td class='border-b border-zinc-100 px-3 py-3 text-zinc-700'><span class='block max-w-64 truncate' title='{escape(str(item.get('message') or ''))}'>{escape(str(item.get('message') or '—'))}</span></td>"
             f"<td class='border-b border-zinc-100 px-3 py-3'>"
             f"<span class='inline-flex whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ring-1 {mark_class}'>{mark}</span>"

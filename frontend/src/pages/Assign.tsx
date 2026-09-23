@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Alert, Button, Card, Select, Space, Table, message } from "antd";
+import { Alert, Button, Card, Select, Space, Spin, Table, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { api, type Issue } from "../lib/api";
 import { useRepoChoices } from "../lib/useOverview";
@@ -13,6 +13,10 @@ export default function AssignPage() {
   const [picked, setPicked] = useState<string[]>([]);
   const cur = repo || def;
   const shown = (cur && cache[cur]) || null;
+  const [phase, setPhase] = useState("");
+  const [scanning, setScanning] = useState(false);
+  const [assigning, setAssigning] = useState(false);
+  const [assignPhase, setAssignPhase] = useState("");
 
   const list = useMutation({
     mutationFn: (target?: string) => api.listIssues(target ?? cur),
@@ -21,7 +25,23 @@ export default function AssignPage() {
       setPicked([]);
     },
     onError: (e: Error) => message.error(e.message),
+    onSettled: () => setScanning(false),
   });
+
+  useEffect(() => {
+    if (!scanning || !cur) return;
+    setPhase("正在准备重扫…");
+    const timer = setInterval(() => {
+      api
+        .scanProgress(cur)
+        .then((p) => {
+          if (p.step && !p.stale) setPhase(p.step);
+        })
+        .catch(() => {});
+    }, 2000);
+    return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [scanning, cur]);
 
   const load = useMutation({
     mutationFn: (target: string) => api.issueSnapshot(target),
@@ -38,14 +58,18 @@ export default function AssignPage() {
   }, [cur, Object.keys(cache).join(",")]);
 
   const assign = useMutation({
-    mutationFn: () =>
-      api.assign(
-        cur,
-        picked.map((p) => {
-          const [rule, path] = p.split("|");
-          return { rule, path };
-        }),
-      ),
+    mutationFn: () => {
+      const seen = new Set<string>();
+      const deduped: Array<{ rule: string; path: string }> = [];
+      for (const p of picked) {
+        const [rule, path] = p.split("|");
+        const k = `${rule}|${path}`;
+        if (seen.has(k)) continue;
+        seen.add(k);
+        deduped.push({ rule, path });
+      }
+      return api.assign(cur, deduped);
+    },
     onSuccess: (d) => {
       const actions = (d.decisions || []).map((x) => x.action);
       const opened = actions.filter((a) => a === "opened" || a === "already").length;
@@ -53,7 +77,22 @@ export default function AssignPage() {
       list.mutate();
     },
     onError: (e: Error) => message.error(e.message),
+    onSettled: () => setAssigning(false),
   });
+
+  useEffect(() => {
+    if (!assigning || !cur) return;
+    const timer = setInterval(() => {
+      api
+        .scanProgress(cur)
+        .then((p) => {
+          if (p.step && !p.stale) setAssignPhase(p.step);
+        })
+        .catch(() => {});
+    }, 2000);
+    return () => clearInterval(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [assigning, cur]);
 
   const columns: ColumnsType<Issue> = [
     {
@@ -65,6 +104,13 @@ export default function AssignPage() {
       render: (v: string) => <strong>{v}</strong>,
     },
     { title: "文件", dataIndex: "path", key: "path", width: 160, ellipsis: true },
+    {
+      title: "行",
+      dataIndex: "line",
+      key: "line",
+      width: 70,
+      render: (v: number) => (v ? `L${v}` : "—"),
+    },
     {
       title: "说明",
       dataIndex: "message",
@@ -100,9 +146,23 @@ export default function AssignPage() {
             }}
             options={choices.map((c) => ({ label: c.key, value: c.key }))}
           />
-          <Button type="primary" loading={list.isPending} disabled={!cur} onClick={() => list.mutate(cur)}>
+          <Button
+            type="primary"
+            loading={list.isPending}
+            disabled={!cur}
+            onClick={() => {
+              setScanning(true);
+              setPhase("正在准备重扫…");
+              list.mutate(cur);
+            }}
+          >
             {list.isPending ? "正在重扫入库…" : shown ? "重新扫描" : "列出告警"}
           </Button>
+          {list.isPending && (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "#595959" }}>
+              <Spin size="small" /> {phase || "正在准备重扫…"}
+            </span>
+          )}
         </Space>
         {load.isPending && !shown && (
           <Alert style={{ marginTop: 12 }} type="info" showIcon message="正在读库里快照…" />
@@ -111,7 +171,7 @@ export default function AssignPage() {
       </Card>
       <Card title={`告警列表${shown ? `（${shown.issues.length} 条）` : ""}`}>
         <Table<Issue>
-          rowKey={(r) => `${r.rule}|${r.path}`}
+          rowKey={(r) => `${r.rule}|${r.path}|${r.line ?? 0}`}
           columns={columns}
           dataSource={shown?.issues ?? []}
           pagination={{ pageSize: 20, showSizeChanger: false }}
@@ -126,10 +186,19 @@ export default function AssignPage() {
           type="primary"
           loading={assign.isPending}
           disabled={picked.length === 0}
-          onClick={() => assign.mutate()}
+          onClick={() => {
+            setAssigning(true);
+            setAssignPhase("正在准备指派…");
+            assign.mutate();
+          }}
         >
           指派给 Agent{picked.length > 0 ? `（${picked.length}）` : ""}
         </Button>
+        {assign.isPending && (
+          <span style={{ display: "inline-flex", alignItems: "center", gap: 8, marginLeft: 12, color: "#595959" }}>
+            <Spin size="small" /> {assignPhase || "正在准备指派…"}
+          </span>
+        )}
       </Card>
     </Space>
   );

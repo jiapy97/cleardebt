@@ -3,6 +3,7 @@ services:
   sonarqube:
     image: sonarqube:community
     container_name: cleardebt-sonarqube
+    restart: unless-stopped
     ports:
       - "9000:9000"
     environment:

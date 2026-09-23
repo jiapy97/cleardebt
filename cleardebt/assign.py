@@ -54,10 +54,12 @@ def _sonar_row(name: str, issue: dict) -> dict:
     rule = issue.get("rule") or ""
     path = issue_path(issue.get("component", ""), name)
     text = issue.get("message") or ""
+    text_range = issue.get("textRange") or {}
     return {
         "repo": name,
         "rule": rule,
         "path": path,
+        "line": int(text_range.get("startLine") or 0),
         "message": text,
         "sonar_key": issue.get("key") or "",
     }
@@ -70,10 +72,21 @@ def _enrich(name: str, rows: list[dict]) -> list[dict]:
         text = item.get("message") or ""
         item["message_zh"] = item.get("message_zh") or describe_message(rule, text)
         item["eligible"] = llm_repairable(rule)
+        item["line"] = item.get("line") or 0
     statuses = issue_status_map([(item.get("rule") or "", item.get("path") or "") for item in rows])
     for item in rows:
         item["status"] = statuses.get((item.get("rule") or "", item.get("path") or ""))
     return rows
+
+
+def _assign_workers(total: int) -> int:
+    import os
+
+    try:
+        configured = int(os.environ.get("CLEARDEBT_ASSIGN_WORKERS", "2"))
+    except ValueError:
+        configured = 2
+    return max(1, min(configured, total or 1))
 
 
 def refresh_backlog(repo: str) -> tuple[list[dict], str, str]:
@@ -123,7 +136,7 @@ def save_snapshot(repo: str, analysis_date: str, issues: list[dict]) -> None:
 
     _ensure()
     raw = [
-        {k: item.get(k) for k in ("rule", "path", "message", "sonar_key")}
+        {k: item.get(k) for k in ("rule", "path", "line", "message", "message_zh", "sonar_key")}
         for item in issues or []
     ]
     with psycopg.connect(DB_URI) as conn:
@@ -270,11 +283,16 @@ def assign_to_agent(repo: str, selections: list[dict], *, source: str = "manual"
     if refused:
         raise ValueError(refused)
     picks = []
+    seen_picks = set()
     for item in selections or []:
         rule = (item.get("rule") or "").strip()
         path = (item.get("path") or "").strip()
         if not rule or not path:
             continue
+        key = f"{rule}|{path}"
+        if key in seen_picks:
+            continue
+        seen_picks.add(key)
         picks.append(
             {
                 "rule": rule,
@@ -289,11 +307,24 @@ def assign_to_agent(repo: str, selections: list[dict], *, source: str = "manual"
         raise ValueError("没有勾选告警。")
     ineligible = [item for item in picks if not item["eligible"]]
     eligible = [item for item in picks if item["eligible"]]
+    from cleardebt.scan_progress import clear as clear_step, report as report_step
+
     session_id = create_session(source=source, repo=name, issue_count=len(picks), status="running")
     results = []
     decisions = []
     try:
-        for item in eligible:
+        import threading
+        from concurrent.futures import ThreadPoolExecutor
+
+        total = len(eligible)
+        workers = _assign_workers(total)
+        report_step(name, f"正在并行处理 {total} 条（{workers} 路）…")
+        done_count = 0
+        done_lock = threading.Lock()
+
+        def _run_one(index_item: tuple[int, dict]) -> dict:
+            nonlocal done_count
+            index, item = index_item
             try:
                 ran = run_issue.execute(
                     item["rule"],
@@ -312,6 +343,16 @@ def assign_to_agent(repo: str, selections: list[dict], *, source: str = "manual"
                     "reason": text or "没有跑完。",
                     "project": name,
                 }
+            with done_lock:
+                done_count += 1
+                report_step(name, f"第 {done_count}/{total} 条跑完（{item['rule']} {item['path']}）。")
+            return {"index": index, "item": item, "ran": ran}
+
+        with ThreadPoolExecutor(max_workers=workers) as pool:
+            ran_all = list(pool.map(_run_one, list(enumerate(eligible, start=1))))
+        for entry in ran_all:
+            item = entry["item"]
+            ran = entry["ran"]
             results.append(ran)
             decision = {
                 "repo": name,
@@ -361,6 +402,11 @@ def assign_to_agent(repo: str, selections: list[dict], *, source: str = "manual"
     except Exception as error:
         finish_session(session_id, status="failed", details={"error": str(error)})
         raise
+    finally:
+        try:
+            clear_step(name)
+        except Exception:
+            pass
     return {
         "started": True,
         "session_id": session_id,

@@ -87,11 +87,13 @@ def list_mr_issues(repo: str, mr_iid: int) -> dict:
         rule = issue.get("rule") or ""
         path = issue_path(issue.get("component", ""), mr["repo"])
         text = issue.get("message") or ""
+        text_range = issue.get("textRange") or {}
         rows.append(
             {
                 "repo": mr["repo"],
                 "rule": rule,
                 "path": path,
+                "line": int(text_range.get("startLine") or 0),
                 "message": text,
                 "message_zh": describe_message(rule, text),
                 "sonar_key": issue.get("key") or "",

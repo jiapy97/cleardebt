@@ -17,6 +17,9 @@ import urllib.parse
 import urllib.request
 from pathlib import Path
 
+from cleardebt.scan_progress import clear as clear_progress
+from cleardebt.scan_progress import report as report_progress
+
 ROOT = Path(__file__).resolve().parents[1]
 _SCAN_ROOT = ROOT / "var" / "scan"
 
@@ -24,12 +27,11 @@ _guard = threading.Lock()
 _locks: dict[str, threading.Lock] = {}
 
 
-def scan_baseline(repo: str, *, timeout: int = 600, fresh_minutes: int = 10) -> dict:
+def scan_baseline(repo: str, *, timeout: int = 600) -> dict:
     """Clone the default branch and scan it as the real Sonar project key.
 
-    Skips the scan when the last analysis is newer than fresh_minutes:
-    Sonar data does not change between analyses, so repeated clicks in a
-    short window would only burn minutes for an identical list.
+    Every click rescans: the caller asked for fresh data, so no freshness
+    window is applied here.
     """
     from cleardebt.checkout import checkout_default
     from cleardebt.controls import gitlab_credentials
@@ -50,13 +52,14 @@ def scan_baseline(repo: str, *, timeout: int = 600, fresh_minutes: int = 10) -> 
             raise ValueError("这个项目还没绑定代码仓库地址，重扫不起来。")
         host = sonar_base_url()
         token = load_token(None)
-        last = _analysis_date(host, token, name)
-        if _is_fresh(last, fresh_minutes):
-            return {"repo": name, "analysis_date": last, "skipped": True}
         dest = _SCAN_ROOT / re.sub(r"[^A-Za-z0-9_.-]+", "_", name)
+        report_progress(name, "正在拉取主分支代码…")
         checkout_default(dest, saved)
+        report_progress(name, "正在跑 Sonar 扫描器（推代码给 Sonar）…")
         _run_scanner(dest, name, token, sonar_sources_value(dest))
+        report_progress(name, "等 Sonar 处理分析结果…")
         _wait_processed(host, token, name, timeout=timeout)
+        report_progress(name, "正在读最新告警列表…")
         return {"repo": name, "analysis_date": _analysis_date(host, token, name)}
     except ValueError:
         raise
@@ -65,7 +68,16 @@ def scan_baseline(repo: str, *, timeout: int = 600, fresh_minutes: int = 10) -> 
     except Exception as error:
         raise ValueError(f"扫描时出错：{error}") from error
     finally:
+        clear_progress(name)
         lock.release()
+
+
+def _scanner_limits() -> list[str]:
+    import os
+
+    cpus = os.environ.get("CLEARDEBT_SCANNER_CPUS", "1.0").strip() or "1.0"
+    memory = os.environ.get("CLEARDEBT_SCANNER_MEMORY", "2g").strip() or "2g"
+    return [f"--cpus={cpus}", f"--memory={memory}"]
 
 
 def _run_scanner(sources: Path, project_key: str, token: str, sonar_sources: str) -> None:
@@ -74,6 +86,7 @@ def _run_scanner(sources: Path, project_key: str, token: str, sonar_sources: str
             "docker",
             "run",
             "--rm",
+            *_scanner_limits(),
             "-e",
             "SONAR_HOST_URL=http://host.docker.internal:9000",
             "-e",

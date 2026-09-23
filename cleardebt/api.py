@@ -304,6 +304,13 @@ def api_issue_snapshot(repo: str = "") -> dict:
     return {"repo": name, "issues": issues, "scan_note": note, "analysis_date": stamp}
 
 
+@app.get("/api/scan/progress")
+def api_scan_progress(repo: str = "") -> dict:
+    from cleardebt.scan_progress import read
+
+    return {"repo": (repo or "").strip(), **read(repo)}
+
+
 @app.post("/api/issues/list")
 def api_list_issues(body: dict = Body(...)) -> dict:
     name = (body.get("repo") or "").strip()

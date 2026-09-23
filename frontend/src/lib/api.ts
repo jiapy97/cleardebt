@@ -29,6 +29,7 @@ export interface Issue {
   repo: string;
   rule: string;
   path: string;
+  line?: number;
   message: string;
   message_zh?: string;
   eligible: boolean;
@@ -73,6 +74,10 @@ export const api = {
   issueSnapshot: (repo: string) =>
     req<{ repo: string; issues: Issue[]; scan_note: string }>(
       `/api/issues/snapshot?repo=${encodeURIComponent(repo)}`,
+    ),
+  scanProgress: (repo: string) =>
+    req<{ repo: string; step: string; stale: boolean }>(
+      `/api/scan/progress?repo=${encodeURIComponent(repo)}`,
     ),
   assign: (repo: string, issues: Array<{ rule: string; path: string }>) =>
     req<{ session_id: number; decisions: Array<{ action: string }> }>("/issues/assign", {
