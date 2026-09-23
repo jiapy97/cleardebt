@@ -286,21 +286,22 @@ def list_issues_form(repo: str = Form("")) -> HTMLResponse:
 
 
 def _list_issues_with_scan(name: str) -> tuple[list, str]:
-    from cleardebt.assign import list_backlog_issues
-    from cleardebt.baseline_scan import scan_baseline
+    from cleardebt.assign import refresh_backlog
 
+    issues, scan_note, _stamp = refresh_backlog(name)
+    return issues, scan_note
+
+
+@app.get("/api/issues/snapshot")
+def api_issue_snapshot(repo: str = "") -> dict:
+    from cleardebt.assign import read_backlog
+
+    name = (repo or "").strip()
     try:
-        scan = scan_baseline(name)
-        stamp = scan.get("analysis_date") or ""
-        if scan.get("skipped"):
-            scan_note = f"上次分析是 {stamp}，10 分钟内扫过就不再重扫，下面是最新的告警。"
-        elif stamp:
-            scan_note = f"刚重扫过主分支（分析时间 {stamp}），下面是最新的告警。"
-        else:
-            scan_note = "刚重扫过主分支，下面是最新的告警。"
+        issues, note, stamp = read_backlog(name)
     except ValueError as error:
-        scan_note = f"重扫没跑成（{error}），下面是上次分析的告警。"
-    return list_backlog_issues(name), scan_note
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    return {"repo": name, "issues": issues, "scan_note": note, "analysis_date": stamp}
 
 
 @app.post("/api/issues/list")

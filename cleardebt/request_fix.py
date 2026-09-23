@@ -19,7 +19,7 @@ from cleardebt.assign import create_session, finish_session
 from cleardebt.controls import gate, gitlab_credentials, load_controls, save_report, unbound_reason
 from cleardebt.gitlab_mr import NotEligible
 from cleardebt.issue_graph import sonar_base_url
-from cleardebt.triage import llm_repairable
+from cleardebt.triage import describe_message, llm_repairable
 from list_issues import fetch_issues, issue_path, load_token
 
 
@@ -86,12 +86,14 @@ def list_mr_issues(repo: str, mr_iid: int) -> dict:
     ):
         rule = issue.get("rule") or ""
         path = issue_path(issue.get("component", ""), mr["repo"])
+        text = issue.get("message") or ""
         rows.append(
             {
                 "repo": mr["repo"],
                 "rule": rule,
                 "path": path,
-                "message": issue.get("message") or "",
+                "message": text,
+                "message_zh": describe_message(rule, text),
                 "sonar_key": issue.get("key") or "",
                 "eligible": llm_repairable(rule),
             }

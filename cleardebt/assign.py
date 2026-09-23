@@ -18,7 +18,7 @@ from cleardebt.controls import backlog_gate, gate, load_controls, save_report
 from cleardebt.gitlab_mr import NotEligible
 from cleardebt.issue_graph import sonar_base_url
 from cleardebt.sca import fetch_dependency_risks
-from cleardebt.triage import llm_repairable
+from cleardebt.triage import describe_message, llm_repairable
 from list_issues import fetch_issues, issue_path, load_token
 
 DB_URI = os.environ.get(
@@ -40,28 +40,138 @@ def list_backlog_issues(repo: str) -> list[dict]:
     except Exception as error:
         raise ValueError(f"连不上 Sonar（{host}）：{error}。先确认 Sonar 容器在跑。") from error
     for issue in fetched:
-        rule = issue.get("rule") or ""
-        path = issue_path(issue.get("component", ""), name)
-        rows.append(
-            {
-                "repo": name,
-                "rule": rule,
-                "path": path,
-                "message": issue.get("message") or "",
-                "sonar_key": issue.get("key") or "",
-                "eligible": llm_repairable(rule),
-            }
-        )
+        rows.append(_sonar_row(name, issue))
     try:
         for risk in fetch_dependency_risks(host, token, name):
             rows.append(risk)
     except Exception:
         pass
     rows.sort(key=lambda item: (item["path"], item["rule"]))
-    statuses = issue_status_map([(item["rule"], item["path"]) for item in rows])
+    return _enrich(name, rows)
+
+
+def _sonar_row(name: str, issue: dict) -> dict:
+    rule = issue.get("rule") or ""
+    path = issue_path(issue.get("component", ""), name)
+    text = issue.get("message") or ""
+    return {
+        "repo": name,
+        "rule": rule,
+        "path": path,
+        "message": text,
+        "sonar_key": issue.get("key") or "",
+    }
+
+
+def _enrich(name: str, rows: list[dict]) -> list[dict]:
+    """Attach display fields computed from local data (no Sonar call)."""
     for item in rows:
-        item["status"] = statuses.get((item["rule"], item["path"]))
+        rule = item.get("rule") or ""
+        text = item.get("message") or ""
+        item["message_zh"] = item.get("message_zh") or describe_message(rule, text)
+        item["eligible"] = llm_repairable(rule)
+    statuses = issue_status_map([(item.get("rule") or "", item.get("path") or "") for item in rows])
+    for item in rows:
+        item["status"] = statuses.get((item.get("rule") or "", item.get("path") or ""))
     return rows
+
+
+def refresh_backlog(repo: str) -> tuple[list[dict], str, str]:
+    """Rescan the main branch, list live issues, and persist the snapshot.
+
+    Returns (issues, scan_note, analysis_date). Only this path touches
+    Sonar analysis; page entries read the snapshot instead.
+    """
+    from cleardebt.baseline_scan import scan_baseline
+
+    name = (repo or "").strip()
+    try:
+        scan = scan_baseline(name)
+        stamp = scan.get("analysis_date") or ""
+        if scan.get("skipped"):
+            scan_note = f"上次分析是 {stamp}，10 分钟内扫过就不再重扫，下面是最新的告警。"
+        elif stamp:
+            scan_note = f"刚重扫过主分支（分析时间 {stamp}），下面是最新的告警。"
+        else:
+            scan_note = "刚重扫过主分支，下面是最新的告警。"
+    except ValueError as error:
+        scan_note = f"重扫没跑成（{error}），下面是上次分析的告警。"
+        stamp = ""
+    issues = list_backlog_issues(name)
+    save_snapshot(name, stamp, issues)
+    return issues, scan_note, stamp
+
+
+def read_backlog(repo: str) -> tuple[list[dict], str, str]:
+    """Read the persisted snapshot; never triggers a Sonar scan."""
+    name = (repo or "").strip()
+    if not name:
+        raise ValueError("没有写项目，列不出告警。")
+    snapshot = load_snapshot(name)
+    if snapshot is None:
+        raise ValueError("这个项目还没扫过，点重新扫描先扫一遍。")
+    rows = []
+    for item in snapshot["issues"]:
+        row = dict(item)
+        row["repo"] = name
+        rows.append(row)
+    return _enrich(name, rows), snapshot["note"], snapshot["analysis_date"]
+
+
+def save_snapshot(repo: str, analysis_date: str, issues: list[dict]) -> None:
+    from psycopg.types.json import Json
+
+    _ensure()
+    raw = [
+        {k: item.get(k) for k in ("rule", "path", "message", "sonar_key")}
+        for item in issues or []
+    ]
+    with psycopg.connect(DB_URI) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS backlog_snapshots (
+                repo TEXT PRIMARY KEY,
+                analysis_date TEXT NOT NULL DEFAULT '',
+                issues JSONB NOT NULL DEFAULT '[]'::jsonb,
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+            )
+            """
+        )
+        conn.execute(
+            """
+            INSERT INTO backlog_snapshots (repo, analysis_date, issues, updated_at)
+            VALUES (%s, %s, %s, now())
+            ON CONFLICT (repo) DO UPDATE SET
+                analysis_date = EXCLUDED.analysis_date,
+                issues = EXCLUDED.issues,
+                updated_at = now()
+            """,
+            (repo, analysis_date or "", Json(raw)),
+        )
+
+
+def load_snapshot(repo: str) -> dict | None:
+    _ensure()
+    with psycopg.connect(DB_URI) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS backlog_snapshots (
+                repo TEXT PRIMARY KEY,
+                analysis_date TEXT NOT NULL DEFAULT '',
+                issues JSONB NOT NULL DEFAULT '[]'::jsonb,
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
+            )
+            """
+        )
+        row = conn.execute(
+            "SELECT analysis_date, issues, updated_at FROM backlog_snapshots WHERE repo = %s",
+            (repo,),
+        ).fetchone()
+    if row is None:
+        return None
+    stamp = row[2].astimezone().strftime("%Y-%m-%d %H:%M") if row[2] else ""
+    note = f"库里快照（分析时间 {row[0]}，入库于 {stamp}）。点重新扫描才重扫入库。"
+    return {"analysis_date": row[0] or "", "issues": row[1] or [], "note": note}
 
 
 def issue_status_map(pairs: list[tuple[str, str]]) -> dict[tuple[str, str], dict]:

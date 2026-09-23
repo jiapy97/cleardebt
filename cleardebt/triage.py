@@ -1,5 +1,4 @@
 """Rule tiers for one issue. The model does not choose the tier.
-
 Keys are Sonar rule numbers. javascript:S1128 and python:S1128 are the same rule.
 
 Surfaces covered:
@@ -12,6 +11,8 @@ A/B are repaired by an LLM patch by default. A rules still have an optional
 mechanical fast path when CLEARDEBT_MECHANICAL_FIX=1. C is record-only.
 Only javascript / typescript / python / java / csharp / secrets prefixes.
 """
+
+import re
 
 from cleardebt.languages import language_of, language_supported
 from cleardebt.sca import SCA_RULE, is_sca_rule
@@ -106,6 +107,37 @@ def describe(rule: str) -> str:
     if language_of(rule) == "secrets":
         return "硬编码密钥（Secrets）"
     return number
+
+
+_QUOTED = re.compile(r"'([^']{1,60})'|\"([^\"]{1,60})\"")
+_LINE_REF = re.compile(r"\bline (\d{1,4})\b", re.IGNORECASE)
+
+
+def describe_message(rule: str, message: str) -> str:
+    """Chinese one-liner for the issue list: short label + key details.
+
+    Sonar messages are English templates with embedded identifiers
+    (function names, variables, line numbers). Keep those, translate the
+    framing: e.g. "空函数不自动填实现（emptyHandler）".
+    """
+    base = describe(rule)
+    text = (message or "").strip()
+    if not text or text == base:
+        return base
+    if is_sca_rule(rule):
+        return base if base in text else f"{base}：{text}"
+    extras: list[str] = []
+    for single, double in _QUOTED.findall(text):
+        token = (single or double).strip()
+        if token and token not in extras and token not in base:
+            extras.append(token)
+    for lineno in _LINE_REF.findall(text):
+        token = f"第 {lineno} 行"
+        if token not in extras:
+            extras.append(token)
+    if not extras:
+        return base
+    return f"{base}（{'、'.join(extras[:3])}）"
 
 
 def llm_repairable(rule: str) -> bool:

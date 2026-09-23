@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Alert, Button, Card, Select, Space, Table, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
@@ -9,27 +9,34 @@ import { StatusBadge } from "./widgets";
 export default function AssignPage() {
   const { choices, def } = useRepoChoices();
   const [repo, setRepo] = useState("");
-  const [issues, setIssues] = useState<Issue[] | null>(null);
-  const [note, setNote] = useState("");
+  const [cache, setCache] = useState<Record<string, { issues: Issue[]; note: string }>>({});
   const [picked, setPicked] = useState<string[]>([]);
   const cur = repo || def;
-  const autoRan = useRef(false);
-  useEffect(() => {
-    if (autoRan.current || !cur || issues !== null) return;
-    autoRan.current = true;
-    list.mutate();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [cur]);
+  const shown = (cur && cache[cur]) || null;
 
   const list = useMutation({
-    mutationFn: () => api.listIssues(cur),
-    onSuccess: (d) => {
-      setIssues(d.issues);
-      setNote(d.scan_note);
+    mutationFn: (target?: string) => api.listIssues(target ?? cur),
+    onSuccess: (d, target) => {
+      setCache((c) => ({ ...c, [target ?? cur]: { issues: d.issues, note: d.scan_note } }));
       setPicked([]);
     },
     onError: (e: Error) => message.error(e.message),
   });
+
+  const load = useMutation({
+    mutationFn: (target: string) => api.issueSnapshot(target),
+    onSuccess: (d, target) => {
+      setCache((c) => ({ ...c, [target]: { issues: d.issues, note: d.scan_note } }));
+    },
+    onError: () => {},
+  });
+
+  useEffect(() => {
+    if (!cur || cache[cur] || load.isPending) return;
+    load.mutate(cur);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [cur, Object.keys(cache).join(",")]);
+
   const assign = useMutation({
     mutationFn: () =>
       api.assign(
@@ -63,7 +70,7 @@ export default function AssignPage() {
       dataIndex: "message",
       key: "message",
       ellipsis: true,
-      render: (v: string) => <span title={v}>{v}</span>,
+      render: (v: string, r) => <span title={v}>{r.message_zh || v}</span>,
     },
     {
       title: "可修",
@@ -87,27 +94,33 @@ export default function AssignPage() {
             style={{ width: 220 }}
             placeholder="先在接入配置里选仓库"
             value={cur || undefined}
-            onChange={setRepo}
+            onChange={(v) => {
+              setRepo(v);
+              setPicked([]);
+            }}
             options={choices.map((c) => ({ label: c.key, value: c.key }))}
           />
-          <Button type="primary" loading={list.isPending} disabled={!cur} onClick={() => list.mutate()}>
-            {list.isPending ? "正在重扫并列出…" : "列出告警"}
+          <Button type="primary" loading={list.isPending} disabled={!cur} onClick={() => list.mutate(cur)}>
+            {list.isPending ? "正在重扫入库…" : shown ? "重新扫描" : "列出告警"}
           </Button>
         </Space>
-        {note && <Alert style={{ marginTop: 12 }} type="success" showIcon message={note} />}
+        {load.isPending && !shown && (
+          <Alert style={{ marginTop: 12 }} type="info" showIcon message="正在读库里快照…" />
+        )}
+        {shown?.note && <Alert style={{ marginTop: 12 }} type="success" showIcon message={shown.note} />}
       </Card>
-      <Card title={`告警列表${issues ? `（${issues.length} 条）` : ""}`}>
+      <Card title={`告警列表${shown ? `（${shown.issues.length} 条）` : ""}`}>
         <Table<Issue>
           rowKey={(r) => `${r.rule}|${r.path}`}
           columns={columns}
-          dataSource={issues ?? []}
+          dataSource={shown?.issues ?? []}
           pagination={{ pageSize: 20, showSizeChanger: false }}
           rowSelection={{
             selectedRowKeys: picked,
             onChange: (keys) => setPicked(keys as string[]),
             getCheckboxProps: (r) => ({ disabled: !r.eligible }),
           }}
-          locale={{ emptyText: "选好项目后点「列出告警」" }}
+          locale={{ emptyText: cur ? "库里还没有这个项目的快照，点「重新扫描」扫一遍入库" : "选好项目后点「重新扫描」" }}
         />
         <Button
           type="primary"

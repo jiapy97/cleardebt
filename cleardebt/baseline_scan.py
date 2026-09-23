@@ -58,6 +58,12 @@ def scan_baseline(repo: str, *, timeout: int = 600, fresh_minutes: int = 10) -> 
         _run_scanner(dest, name, token, sonar_sources_value(dest))
         _wait_processed(host, token, name, timeout=timeout)
         return {"repo": name, "analysis_date": _analysis_date(host, token, name)}
+    except ValueError:
+        raise
+    except SystemExit as error:
+        raise ValueError(str(error.code) if isinstance(error.code, str) else "重扫时拉代码失败。") from error
+    except Exception as error:
+        raise ValueError(f"扫描时出错：{error}") from error
     finally:
         lock.release()
 
@@ -122,7 +128,14 @@ def _is_fresh(analysis_date: str, fresh_minutes: int) -> bool:
 
 
 def _analysis_date(host: str, token: str, project_key: str) -> str:
-    payload = _api_json(host, token, "/api/components/show", {"component": project_key})
+    import urllib.error
+
+    try:
+        payload = _api_json(host, token, "/api/components/show", {"component": project_key})
+    except urllib.error.HTTPError as error:
+        if error.code == 404:
+            return ""
+        raise
     return (payload.get("component") or {}).get("analysisDate") or ""
 
 

@@ -30,6 +30,7 @@ export interface Issue {
   rule: string;
   path: string;
   message: string;
+  message_zh?: string;
   eligible: boolean;
   status?: { level: string; reason: string; mr_url: string } | null;
 }
@@ -69,6 +70,10 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ repo }),
     }),
+  issueSnapshot: (repo: string) =>
+    req<{ repo: string; issues: Issue[]; scan_note: string }>(
+      `/api/issues/snapshot?repo=${encodeURIComponent(repo)}`,
+    ),
   assign: (repo: string, issues: Array<{ rule: string; path: string }>) =>
     req<{ session_id: number; decisions: Array<{ action: string }> }>("/issues/assign", {
       method: "POST",

@@ -3,9 +3,13 @@
 from __future__ import annotations
 
 import os
+import threading
 from pathlib import Path
 
 import psycopg
+
+_ensure_lock = threading.Lock()
+_ensured = False
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -446,6 +450,17 @@ def _snippets() -> dict[tuple[str, str], dict]:
 
 
 def _ensure() -> None:
+    global _ensured
+    if _ensured:
+        return
+    with _ensure_lock:
+        if _ensured:
+            return
+        _ensure_once()
+        _ensured = True
+
+
+def _ensure_once() -> None:
     with psycopg.connect(DB_URI) as conn:
         conn.execute(
             """
