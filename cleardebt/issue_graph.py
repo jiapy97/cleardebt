@@ -126,9 +126,9 @@ def fix(state: IssueState) -> dict:
         }
 
     before = file_path.read_text(encoding="utf-8")
-    if mechanical_fix_enabled():
+    if int(state.get("fix_attempt") or 0) == 0:
         after = apply_mechanical(rule, before, state.get("path", ""))
-        if after is not None:
+        if isinstance(after, str) and after != before:
             file_path.write_text(after, encoding="utf-8")
             return {
                 "before": before,
@@ -388,7 +388,9 @@ def route_after_test(state: IssueState) -> str:
 
 
 def _can_retry(state: IssueState) -> bool:
-    if state.get("fix_method") == "sca" or mechanical_fix_enabled():
+    if state.get("fix_method") == "sca":
+        return False
+    if state.get("fix_method") == "mechanical" and mechanical_fix_enabled():
         return False
     attempt = int(state.get("fix_attempt") or 0)
     return attempt + 1 < len(model_ladder())

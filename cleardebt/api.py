@@ -292,6 +292,36 @@ def _list_issues_with_scan(name: str) -> tuple[list, str]:
     return issues, scan_note
 
 
+@app.post("/api/issues/suppress")
+def api_suppress_issue(body: dict = Body(...)) -> dict:
+    from cleardebt.assign import suppress_issue
+
+    try:
+        suppress_issue(
+            body.get("repo") or "",
+            body.get("rule") or "",
+            body.get("path") or "",
+            int(body.get("line") or 0),
+            (body.get("reason") or ""),
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+    return {"ok": True}
+
+
+@app.post("/api/issues/unsuppress")
+def api_unsuppress_issue(body: dict = Body(...)) -> dict:
+    from cleardebt.assign import unsuppress_issue
+
+    unsuppress_issue(
+        body.get("repo") or "",
+        body.get("rule") or "",
+        body.get("path") or "",
+        int(body.get("line") or 0),
+    )
+    return {"ok": True}
+
+
 @app.get("/api/issues/snapshot")
 def api_issue_snapshot(repo: str = "") -> dict:
     from cleardebt.assign import read_backlog
@@ -301,7 +331,14 @@ def api_issue_snapshot(repo: str = "") -> dict:
         issues, note, stamp = read_backlog(name)
     except ValueError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
-    return {"repo": name, "issues": issues, "scan_note": note, "analysis_date": stamp}
+    hidden = sum(1 for item in issues if item.get("suppressed"))
+    return {
+        "repo": name,
+        "issues": issues,
+        "scan_note": note,
+        "analysis_date": stamp,
+        "suppressed_count": hidden,
+    }
 
 
 @app.get("/api/scan/progress")

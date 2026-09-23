@@ -172,7 +172,7 @@ class IssueGraphTest(unittest.TestCase):
             with (
                 patch.dict(os.environ, {"CLEARDEBT_MECHANICAL_FIX": "0"}, clear=False),
                 patch("cleardebt.issue_graph.propose_patch", return_value=(old, new)) as propose,
-                patch("cleardebt.issue_graph.apply_mechanical") as mechanical,
+                patch("cleardebt.issue_graph.apply_mechanical", return_value=None) as mechanical,
                 patch("cleardebt.controls.load_controls", return_value={"retrieve": False}),
             ):
                 result = graph.invoke(
@@ -187,7 +187,7 @@ class IssueGraphTest(unittest.TestCase):
                 )
             updated = (source / "labels.js").read_text(encoding="utf-8")
         propose.assert_called_once()
-        mechanical.assert_not_called()
+        mechanical.assert_called_once()
         self.assertEqual(result["fix_method"], "llm")
         self.assertEqual(result["proposed_old"], old)
         self.assertEqual(result["proposed_new"], new)

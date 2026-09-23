@@ -34,11 +34,23 @@ export function StatusBadge({
     );
   const label =
     status.level === "L1"
-      ? "L1 已验证"
+      ? "已验证"
       : status.level === "L2"
-        ? "L2 仅建议"
+        ? "待人工看"
         : status.level === "L3"
-          ? "L3 未通过"
+          ? "修不好"
           : status.level || "已跑过";
-  return <span className={`pill ${toneClass[status.level] ?? "pill-mute"}`}>{label}</span>;
+  const hint =
+    status.level === "L1"
+      ? "重扫和测试都过了，可以合"
+      : status.level === "L2"
+        ? "只有建议片段，需要人动手"
+        : status.level === "L3"
+          ? "自动修没通过，点行看原因"
+          : "";
+  return (
+    <span className={`pill ${toneClass[status.level] ?? "pill-mute"}`} title={hint}>
+      {label}
+    </span>
+  );
 }

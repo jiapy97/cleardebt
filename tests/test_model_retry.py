@@ -119,6 +119,7 @@ class ModelRetryGraphTest(unittest.TestCase):
                     clear=False,
                 ),
                 patch("cleardebt.issue_graph.propose_patch", side_effect=propose),
+                patch("cleardebt.issue_graph.apply_mechanical", return_value=None),
                 patch("cleardebt.issue_graph.collect", return_value={"nearby": "1|import"}),
                 patch("cleardebt.controls.load_controls", return_value={"retrieve": False}),
             ):
@@ -154,6 +155,7 @@ class ModelRetryGraphTest(unittest.TestCase):
                     clear=False,
                 ),
                 patch("cleardebt.issue_graph.propose_patch", side_effect=propose),
+                patch("cleardebt.issue_graph.apply_mechanical", return_value=None),
                 patch("cleardebt.issue_graph.collect", return_value={}),
                 patch("cleardebt.controls.load_controls", return_value={"retrieve": False}),
             ):

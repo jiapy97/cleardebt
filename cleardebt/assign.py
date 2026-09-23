@@ -70,13 +70,34 @@ def _enrich(name: str, rows: list[dict]) -> list[dict]:
     for item in rows:
         rule = item.get("rule") or ""
         text = item.get("message") or ""
-        item["message_zh"] = item.get("message_zh") or describe_message(rule, text)
+        item["message_zh"] = describe_message(rule, text)
         item["eligible"] = llm_repairable(rule)
         item["line"] = item.get("line") or 0
+    suppressed = suppressed_map(name)
+    seen = first_seen_map(name)
+    for item in rows:
+        key = _suppression_key(item)
+        item["suppressed"] = key in suppressed
+        item["first_seen"] = seen.get(key) or ""
+        item["is_new"] = _is_recent(seen.get(key))
     statuses = issue_status_map([(item.get("rule") or "", item.get("path") or "") for item in rows])
     for item in rows:
         item["status"] = statuses.get((item.get("rule") or "", item.get("path") or ""))
+    rows.sort(key=lambda item: (not item.get("is_new"), item.get("path") or "", item.get("rule") or ""))
     return rows
+
+
+def _is_recent(stamp: str | None, days: int = 7) -> bool:
+    if not stamp:
+        return True
+    from datetime import datetime, timedelta
+
+    try:
+        seen_at = datetime.strptime(stamp, "%Y-%m-%d %H:%M").astimezone()
+        now = datetime.now().astimezone()
+    except ValueError:
+        return False
+    return now - seen_at < timedelta(days=days)
 
 
 def _assign_workers(total: int) -> int:
@@ -111,11 +132,17 @@ def refresh_backlog(repo: str) -> tuple[list[dict], str, str]:
         scan_note = f"重扫没跑成（{error}），下面是上次分析的告警。"
         stamp = ""
     issues = list_backlog_issues(name)
+    record_first_seen(name, issues)
     save_snapshot(name, stamp, issues)
     return issues, scan_note, stamp
 
 
 def read_backlog(repo: str) -> tuple[list[dict], str, str]:
+    """Read the persisted snapshot; never triggers a Sonar scan.
+
+    Returns every row with suppressed/is_new flags attached; the caller
+    (console) decides whether hidden rows are shown.
+    """
     """Read the persisted snapshot; never triggers a Sonar scan."""
     name = (repo or "").strip()
     if not name:
@@ -128,7 +155,126 @@ def read_backlog(repo: str) -> tuple[list[dict], str, str]:
         row = dict(item)
         row["repo"] = name
         rows.append(row)
-    return _enrich(name, rows), snapshot["note"], snapshot["analysis_date"]
+    issues = _enrich(name, rows)
+    return issues, snapshot["note"], snapshot["analysis_date"]
+
+
+def _suppression_key(item: dict) -> tuple[str, str, int]:
+    return (
+        (item.get("rule") or "").strip(),
+        (item.get("path") or "").strip(),
+        int(item.get("line") or 0),
+    )
+
+
+def suppress_issue(repo: str, rule: str, path: str, line: int = 0, reason: str = "") -> None:
+    """Remember 'don't bother me with this one'; survives rescans."""
+    name = (repo or "").strip()
+    if not name or not (rule or "").strip() or not (path or "").strip():
+        raise ValueError("仓库、规则、文件都要有，才能忽略。")
+    with psycopg.connect(DB_URI) as conn:
+        conn.execute(
+            """
+            CREATE TABLE IF NOT EXISTS suppressed_issues (
+                repo TEXT NOT NULL,
+                rule TEXT NOT NULL,
+                path TEXT NOT NULL,
+                line INTEGER NOT NULL DEFAULT 0,
+                reason TEXT NOT NULL DEFAULT '',
+                created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+                PRIMARY KEY (repo, rule, path, line)
+            )
+            """
+        )
+        conn.execute(
+            """
+            INSERT INTO suppressed_issues (repo, rule, path, line, reason)
+            VALUES (%s, %s, %s, %s, %s)
+            ON CONFLICT (repo, rule, path, line) DO UPDATE SET reason = EXCLUDED.reason
+            """,
+            (name, rule.strip(), path.strip(), int(line or 0), reason or ""),
+        )
+
+
+def unsuppress_issue(repo: str, rule: str, path: str, line: int = 0) -> None:
+    name = (repo or "").strip()
+    with psycopg.connect(DB_URI) as conn:
+        conn.execute(
+            "DELETE FROM suppressed_issues WHERE repo = %s AND rule = %s AND path = %s AND line = %s",
+            (name, (rule or "").strip(), (path or "").strip(), int(line or 0)),
+        )
+
+
+def suppressed_map(repo: str) -> set[tuple[str, str, int]]:
+    name = (repo or "").strip()
+    if not name:
+        return set()
+    try:
+        with psycopg.connect(DB_URI) as conn:
+            rows = conn.execute(
+                "SELECT rule, path, line FROM suppressed_issues WHERE repo = %s",
+                (name,),
+            ).fetchall()
+    except Exception:
+        return set()
+    return {(row[0], row[1], int(row[2] or 0)) for row in rows}
+
+
+def record_first_seen(repo: str, rows: list[dict]) -> None:
+    """Remember when each issue first appeared; never overwrites."""
+    name = (repo or "").strip()
+    if not name or not rows:
+        return
+    try:
+        with psycopg.connect(DB_URI) as conn:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS seen_issues (
+                    repo TEXT NOT NULL,
+                    rule TEXT NOT NULL,
+                    path TEXT NOT NULL,
+                    line INTEGER NOT NULL DEFAULT 0,
+                    first_seen TIMESTAMPTZ NOT NULL DEFAULT now(),
+                    PRIMARY KEY (repo, rule, path, line)
+                )
+                """
+            )
+            for item in rows:
+                rule, path, line = _suppression_key(item)
+                if not rule:
+                    continue
+                conn.execute(
+                    """
+                    INSERT INTO seen_issues (repo, rule, path, line)
+                    VALUES (%s, %s, %s, %s)
+                    ON CONFLICT DO NOTHING
+                    """,
+                    (name, rule, path, line),
+                )
+    except Exception:
+        pass
+
+
+def first_seen_map(repo: str) -> dict[tuple[str, str, int], str]:
+    name = (repo or "").strip()
+    if not name:
+        return {}
+    try:
+        with psycopg.connect(DB_URI) as conn:
+            rows = conn.execute(
+                "SELECT rule, path, line, first_seen FROM seen_issues WHERE repo = %s",
+                (name,),
+            ).fetchall()
+    except Exception:
+        return {}
+    out = {}
+    for rule, path, line, seen in rows:
+        try:
+            stamp = seen.astimezone().strftime("%Y-%m-%d %H:%M")
+        except Exception:
+            stamp = ""
+        out[(rule, path, int(line or 0))] = stamp
+    return out
 
 
 def save_snapshot(repo: str, analysis_date: str, issues: list[dict]) -> None:

@@ -50,6 +50,8 @@ C_RULES = {
     "S1135": "TODO 不自动完成",
     "S3516": "函数总是返回同一个值，要人决定",
     "S2301": "用布尔参数决定走哪条路，要人拆开",
+    "S107": "参数太多，要人拆",
+    "S1126": "if 包着布尔返回，要人直返",
 }
 
 
@@ -109,7 +111,7 @@ def describe(rule: str) -> str:
     return number
 
 
-_QUOTED = re.compile(r"'([^']{1,60})'|\"([^\"]{1,60})\"")
+_QUOTED = re.compile(r"'([^']{1,60})'|\"([^\"]{1,60})\"|`([^`]{1,60})`")
 _LINE_REF = re.compile(r"\bline (\d{1,4})\b", re.IGNORECASE)
 
 
@@ -127,8 +129,8 @@ def describe_message(rule: str, message: str) -> str:
     if is_sca_rule(rule):
         return base if base in text else f"{base}：{text}"
     extras: list[str] = []
-    for single, double in _QUOTED.findall(text):
-        token = (single or double).strip()
+    for single, double, ticked in _QUOTED.findall(text):
+        token = (single or double or ticked).strip()
         if token and token not in extras and token not in base:
             extras.append(token)
     for lineno in _LINE_REF.findall(text):

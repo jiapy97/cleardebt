@@ -33,6 +33,9 @@ export interface Issue {
   message: string;
   message_zh?: string;
   eligible: boolean;
+  suppressed?: boolean;
+  is_new?: boolean;
+  first_seen?: string;
   status?: { level: string; reason: string; mr_url: string } | null;
 }
 
@@ -72,9 +75,19 @@ export const api = {
       body: JSON.stringify({ repo }),
     }),
   issueSnapshot: (repo: string) =>
-    req<{ repo: string; issues: Issue[]; scan_note: string }>(
+    req<{ repo: string; issues: Issue[]; scan_note: string; suppressed_count: number }>(
       `/api/issues/snapshot?repo=${encodeURIComponent(repo)}`,
     ),
+  suppress: (repo: string, rule: string, path: string, line: number) =>
+    req<{ ok: boolean }>("/api/issues/suppress", {
+      method: "POST",
+      body: JSON.stringify({ repo, rule, path, line }),
+    }),
+  unsuppress: (repo: string, rule: string, path: string, line: number) =>
+    req<{ ok: boolean }>("/api/issues/unsuppress", {
+      method: "POST",
+      body: JSON.stringify({ repo, rule, path, line }),
+    }),
   scanProgress: (repo: string) =>
     req<{ repo: string; step: string; stale: boolean }>(
       `/api/scan/progress?repo=${encodeURIComponent(repo)}`,

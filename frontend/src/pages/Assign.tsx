@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Alert, Button, Card, Select, Space, Spin, Table, message } from "antd";
+import { Alert, Button, Card, Checkbox, Select, Space, Spin, Table, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { api, type Issue } from "../lib/api";
 import { useRepoChoices } from "../lib/useOverview";
@@ -17,6 +17,16 @@ export default function AssignPage() {
   const [scanning, setScanning] = useState(false);
   const [assigning, setAssigning] = useState(false);
   const [assignPhase, setAssignPhase] = useState("");
+  const [showHidden, setShowHidden] = useState(false);
+
+  const visible = (shown?.issues ?? []).filter((r) => showHidden || !r.suppressed);
+  const hiddenCount = (shown?.issues ?? []).filter((r) => r.suppressed).length;
+
+  const toggleSuppress = (r: Issue, off: boolean) => {
+    (off ? api.unsuppress(cur, r.rule, r.path, r.line ?? 0) : api.suppress(cur, r.rule, r.path, r.line ?? 0))
+      .then(() => load.mutate(cur))
+      .catch((e: Error) => message.error(e.message));
+  };
 
   const list = useMutation({
     mutationFn: (target?: string) => api.listIssues(target ?? cur),
@@ -116,7 +126,21 @@ export default function AssignPage() {
       dataIndex: "message",
       key: "message",
       ellipsis: true,
-      render: (v: string, r) => <span title={v}>{r.message_zh || v}</span>,
+      render: (v: string, r) => (
+        <span title={v}>
+          {r.is_new && !r.suppressed && (
+            <span className="pill pill-warn" style={{ marginRight: 6 }}>
+              新
+            </span>
+          )}
+          {r.suppressed && (
+            <span className="pill pill-mute" style={{ marginRight: 6 }}>
+              已忽略
+            </span>
+          )}
+          {r.message_zh || v}
+        </span>
+      ),
     },
     {
       title: "可修",
@@ -129,6 +153,17 @@ export default function AssignPage() {
       key: "status",
       width: 170,
       render: (_, r) => <StatusBadge status={r.status} />,
+    },
+    {
+      title: "操作",
+      key: "op",
+      width: 90,
+      render: (_, r) =>
+        r.suppressed ? (
+          <a onClick={() => toggleSuppress(r, true)}>取消忽略</a>
+        ) : (
+          <a onClick={() => toggleSuppress(r, false)}>忽略</a>
+        ),
     },
   ];
 
@@ -169,11 +204,18 @@ export default function AssignPage() {
         )}
         {shown?.note && <Alert style={{ marginTop: 12 }} type="success" showIcon message={shown.note} />}
       </Card>
-      <Card title={`告警列表${shown ? `（${shown.issues.length} 条）` : ""}`}>
+      <Card title={`告警列表（${visible.length} 条${hiddenCount > 0 ? `，已忽略 ${hiddenCount} 条` : ""}）`}>
+        {hiddenCount > 0 && (
+          <div style={{ marginBottom: 8 }}>
+            <Checkbox checked={showHidden} onChange={(e) => setShowHidden(e.target.checked)}>
+              显示已忽略（{hiddenCount}）
+            </Checkbox>
+          </div>
+        )}
         <Table<Issue>
           rowKey={(r) => `${r.rule}|${r.path}|${r.line ?? 0}`}
           columns={columns}
-          dataSource={shown?.issues ?? []}
+          dataSource={visible}
           pagination={{ pageSize: 20, showSizeChanger: false }}
           rowSelection={{
             selectedRowKeys: picked,
