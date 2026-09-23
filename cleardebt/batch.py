@@ -1,28 +1,51 @@
-"""Group finished issues into small per-rule merge requests, with a daily cap."""
+"""Group finished issues into small merge requests by rule and file kind."""
 
 from __future__ import annotations
+
+from pathlib import Path
 
 DAILY_MR_CAP = 2
 
 
-def plan_merges(rows: list[dict], existing: dict[str, dict], opened_today: int, cap: int = DAILY_MR_CAP) -> list[dict]:
-    """rows are finished issue results. existing maps fingerprint to a saved merge request."""
-    grouped: dict[str, list[dict]] = {}
+def file_kind(path: str) -> str:
+    suffix = Path(path or "").suffix.lower().lstrip(".")
+    return suffix or "unknown"
+
+
+def group_key(row: dict) -> tuple[str, str]:
+    return (row.get("rule") or "", file_kind(row.get("path") or ""))
+
+
+def plan_merges(
+    rows: list[dict],
+    existing: dict[str, dict],
+    opened_today: int,
+    cap: int = DAILY_MR_CAP,
+    *,
+    open_agent_mrs: int = 0,
+    pause_when_open_mrs: int | None = None,
+) -> list[dict]:
+    """rows are finished issue results. existing maps fingerprint to a saved merge request.
+
+    Groups by Sonar rule and file kind (extension), matching Remediation Agent style.
+    """
+    grouped: dict[tuple[str, str], list[dict]] = {}
     for row in rows:
-        grouped.setdefault(row["rule"], []).append(row)
+        grouped.setdefault(group_key(row), []).append(row)
     slots = cap - opened_today
+    paused = pause_when_open_mrs is not None and open_agent_mrs >= pause_when_open_mrs
     decisions = []
-    for rule in sorted(grouped):
-        group = grouped[rule]
+    for rule, kind in sorted(grouped):
+        group = grouped[(rule, kind)]
         passed = [row for row in group if row.get("level") == "L1"]
+        label = {"rule": rule, "file_kind": kind, "path": group[0].get("path")}
         if not passed:
             decisions.append(
                 {
-                    "rule": rule,
+                    **label,
                     "action": "no_mr",
                     "level": group[0].get("level"),
                     "reason": group[0].get("reason"),
-                    "path": group[0].get("path"),
                     "count": len(group),
                 }
             )
@@ -31,7 +54,7 @@ def plan_merges(rows: list[dict], existing: dict[str, dict], opened_today: int, 
         if len(saved) == len(passed):
             decisions.append(
                 {
-                    "rule": rule,
+                    **label,
                     "action": "already",
                     "level": "L1",
                     "web_url": saved[0]["web_url"],
@@ -39,21 +62,31 @@ def plan_merges(rows: list[dict], existing: dict[str, dict], opened_today: int, 
                 }
             )
             continue
+        if paused:
+            decisions.append(
+                {
+                    **label,
+                    "action": "held",
+                    "level": "L1",
+                    "reason": f"打开的 Agent 请求已有 {open_agent_mrs} 个，达到暂停上限 {pause_when_open_mrs}，先不开新的。",
+                    "count": len(passed),
+                }
+            )
+            continue
         if slots <= 0:
             decisions.append(
                 {
-                    "rule": rule,
+                    **label,
                     "action": "held",
                     "level": "L1",
                     "reason": "今天的合并请求额度已满，留下次再开。",
-                    "path": passed[0].get("path"),
                     "count": len(passed),
                 }
             )
             continue
         decisions.append(
             {
-                "rule": rule,
+                **label,
                 "action": "open",
                 "level": "L1",
                 "count": len(passed),

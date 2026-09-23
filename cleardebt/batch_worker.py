@@ -24,9 +24,87 @@ async def run_one(ctx, rule: str, project: str | None = None) -> dict:
 
 
 async def nightly(ctx) -> dict:
-    from run_batch import run_whitelist
+    """Tick every hour; each whitelist repo runs only when its schedule is due."""
+    from cleardebt.controls import automation_for, load_controls, save_report
+    from cleardebt.schedule import schedule_skip_reason
+    from run_batch import run_controlled
 
-    result = await asyncio.to_thread(run_whitelist)
+    settings = load_controls()
+    if not settings.get("configured"):
+        result = {"started": False, "reason": "还没填写接入信息，服务碰不到任何仓库。", "repos": []}
+        _note(result)
+        return result
+    if not settings.get("enabled"):
+        result = {"started": False, "reason": "总开关关掉了，这一轮不开始。", "repos": []}
+        _note(result)
+        return result
+    names = [name for name in settings.get("whitelist") or [] if name]
+    if not names:
+        result = {"started": False, "reason": "白名单是空的，这一轮碰不到任何仓库。", "repos": []}
+        _note(result)
+        return result
+    repos = []
+    decisions = []
+    for name in names:
+        auto = automation_for(settings, name)
+        skipped = schedule_skip_reason(auto)
+        if skipped:
+            outcome = {
+                "started": False,
+                "reason": skipped,
+                "opened_now": [],
+                "decisions": [
+                    {
+                        "repo": name,
+                        "rule": "",
+                        "path": "",
+                        "level": "",
+                        "action": "no_mr",
+                        "reason": skipped,
+                    }
+                ],
+            }
+        else:
+            from cleardebt.assign import create_session, finish_session
+
+            session_id = create_session(source="scheduled", repo=name, issue_count=0, status="running")
+            try:
+                outcome = dict(await asyncio.to_thread(run_controlled, name))
+                finish_session(
+                    session_id,
+                    status="completed" if outcome.get("started") else "failed",
+                    details={
+                        "decisions": outcome.get("decisions") or [],
+                        "reason": outcome.get("reason") or "",
+                        "opened_now": outcome.get("opened_now") or [],
+                    },
+                    issue_count=len(outcome.get("decisions") or []),
+                )
+            except Exception as error:
+                finish_session(session_id, status="failed", details={"error": str(error)})
+                raise
+        outcome["repo"] = name
+        repos.append(outcome)
+        rows = outcome.get("decisions") or []
+        if rows:
+            for item in rows:
+                row = dict(item)
+                row.setdefault("repo", name)
+                decisions.append(row)
+        elif outcome.get("reason"):
+            decisions.append(
+                {
+                    "repo": name,
+                    "rule": "",
+                    "path": "",
+                    "level": "",
+                    "action": "no_mr",
+                    "reason": outcome["reason"],
+                }
+            )
+    if decisions:
+        save_report("、".join(names), bool(settings.get("dry_run")), decisions)
+    result = {"started": True, "repos": repos}
     _note(result)
     return result
 
@@ -63,7 +141,8 @@ def _note(result: dict) -> None:
 
 class WorkerSettings:
     functions = [run_one]
-    cron_jobs = [cron(nightly, hour=8, minute=0)]
+    # Hourly tick; schedule_due() / schedule_skip_reason() decide whether each repo runs.
+    cron_jobs = [cron(nightly, minute={0})]
     redis_settings = RedisSettings(host="127.0.0.1", port=6379)
     job_timeout = 600
     max_jobs = 4

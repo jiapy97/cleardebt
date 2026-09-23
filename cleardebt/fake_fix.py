@@ -13,17 +13,11 @@ from pathlib import Path
 from tree_sitter import Node
 
 from cleardebt.grammar import parser_for
+from cleardebt.languages import is_js_ts_path, is_test_path
 
-_SUPPRESSION = re.compile(r"NOSONAR|eslint-disable", re.IGNORECASE)
-_TEST_SUFFIXES = (
-    ".test.js",
-    ".test.jsx",
-    ".test.ts",
-    ".test.tsx",
-    ".spec.js",
-    ".spec.jsx",
-    ".spec.ts",
-    ".spec.tsx",
+_SUPPRESSION = re.compile(
+    r"NOSONAR|eslint-disable|pragma:\s*no cover|#\s*noqa|@SuppressWarnings",
+    re.IGNORECASE,
 )
 
 
@@ -73,13 +67,12 @@ def _added_suppression(before: str, after: str) -> bool:
 
 
 def _is_test_path(path: str) -> bool:
-    name = Path(path).name
-    if name.endswith(_TEST_SUFFIXES):
-        return True
-    return "__tests__" in Path(path).parts
+    return is_test_path(path)
 
 
 def _emptied_functions(before: str, after: str, path: str) -> list[str]:
+    if not is_js_ts_path(path):
+        return []
     before_bodies = _function_emptiness(before, path)
     after_bodies = _function_emptiness(after, path)
     emptied = []

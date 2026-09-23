@@ -26,6 +26,8 @@ class SandboxCommandTest(unittest.TestCase):
     def test_the_graph_asks_the_sandbox_not_the_host(self):
         with tempfile.TemporaryDirectory() as directory:
             work = Path(directory)
+            (work / "package.json").write_text('{"name":"app"}\n', encoding="utf-8")
+            (work / "package-lock.json").write_text("{}\n", encoding="utf-8")
             seen = []
 
             def fake(path):
@@ -44,6 +46,7 @@ class SandboxCommandTest(unittest.TestCase):
             finally:
                 issue_graph.run_project_tests = original
         self.assertEqual(result["tests_passed"], True)
+        self.assertFalse(result.get("tests_skipped"))
         self.assertEqual(result["uncovered_lines"], [])
         self.assertEqual(seen, [work])
 

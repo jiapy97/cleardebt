@@ -22,6 +22,8 @@ def ensure_access(access_level: int) -> None:
 
 
 def render_description(state: dict) -> str:
+    from cleardebt.triage import is_secret_rule, problem_surface
+
     removed = state.get("rescan_removed") or []
     added = state.get("rescan_added") or []
     removed_text = "、".join(f"{row['rule']} {row['path']}" for row in removed) or "无"
@@ -35,17 +37,28 @@ def render_description(state: dict) -> str:
         coverage = "未覆盖的行：" + ", ".join(str(line) for line in uncovered)
     else:
         coverage = "没有新增需要覆盖的代码行"
-    return "\n".join(
-        [
-            "ClearDebt 自动修复，待审。",
-            "",
-            f"- 规则：{state.get('rule')}",
-            f"- 文件：{state.get('path')}",
-            f"- 指纹：{state.get('fingerprint')}",
-            f"- 重扫：去掉了 {removed_text}。{added_text}。",
-            f"- 测试：{tests}",
-            f"- 覆盖率：{coverage}",
-            "",
-            "同一条指纹再跑不会开第二个合并请求。",
-        ]
-    )
+    rule = state.get("rule") or ""
+    surface = problem_surface(rule)
+    lines = [
+        "ClearDebt 自动修复，待审。",
+        "",
+        "合入须人工在代码托管平台审核；Agent 不会自动合并。",
+        "",
+        f"- 规则：{rule}",
+        f"- 问题面：{surface}",
+        f"- 文件：{state.get('path')}",
+        f"- 指纹：{state.get('fingerprint')}",
+        f"- 重扫：去掉了 {removed_text}。{added_text}。",
+        f"- 测试：{tests}",
+        f"- 覆盖率：{coverage}",
+        "",
+    ]
+    if is_secret_rule(rule):
+        lines.extend(
+            [
+                "这是密钥类修复：代码里的硬编码已去掉，**请人工轮换已泄露的密钥**（Agent 不会替你轮换）。",
+                "",
+            ]
+        )
+    lines.append("同一条指纹再跑不会开第二个合并请求。")
+    return "\n".join(lines)

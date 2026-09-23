@@ -33,6 +33,22 @@ class GitlabMergeRequestTest(unittest.TestCase):
         self.assertIn("没有新告警", text)
         self.assertIn("通过", text)
         self.assertIn("没有新增需要覆盖的代码行", text)
+        self.assertIn("问题面：maintainability", text)
+
+    def test_secret_description_reminds_to_rotate(self):
+        text = render_description(
+            {
+                "rule": "javascript:S2068",
+                "path": "src/auth.js",
+                "fingerprint": "sec",
+                "rescan_removed": [],
+                "rescan_added": [],
+                "tests_passed": True,
+                "uncovered_lines": [],
+            }
+        )
+        self.assertIn("问题面：secrets", text)
+        self.assertIn("人工轮换", text)
 
 
 if __name__ == "__main__":

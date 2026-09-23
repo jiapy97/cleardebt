@@ -19,8 +19,8 @@ DB_URI = os.environ.get(
 def _blank_state(**overrides) -> dict:
     state = {
         "fingerprint": "fp",
-        "rule": "javascript:S2068",
-        "path": "src/secret.js",
+        "rule": "javascript:S3649",
+        "path": "src/query.js",
         "message": "",
         "tier": "",
         "level": "",
@@ -83,10 +83,19 @@ class IssueGraphTest(unittest.TestCase):
         graph = build_graph(MemorySaver())
         result = graph.invoke(_blank_state(), {"configurable": {"thread_id": "c-tier"}})
         self.assertEqual(result["level"], "C")
-        self.assertIn("硬编码密钥", result["reason"])
+        self.assertIn("SQL 注入", result["reason"])
         self.assertNotIn("不是已接入的规则", result["reason"])
         self.assertEqual(result["history"], ["triage", "decide"])
         self.assertNotIn("fix", result["history"])
+
+    def test_secret_rule_is_repairable_a_tier(self):
+        from cleardebt.triage import llm_repairable, problem_surface, tier_for
+
+        self.assertEqual(tier_for("javascript:S2068"), "A")
+        self.assertTrue(llm_repairable("javascript:S2068"))
+        self.assertEqual(problem_surface("javascript:S2068"), "secrets")
+        self.assertEqual(tier_for("secrets:S6290"), "A")
+        self.assertTrue(llm_repairable("secrets:S6290"))
 
     def test_unknown_rule_is_l3_without_a_fix(self):
         graph = build_graph(MemorySaver())
@@ -132,21 +141,58 @@ class IssueGraphTest(unittest.TestCase):
                 encoding="utf-8",
             )
             graph = build_graph(MemorySaver(), rescan_node=_passing_rescan, test_node=_passing_tests)
-            result = graph.invoke(
-                _blank_state(
-                    fingerprint="fp-ts",
-                    rule="typescript:S1128",
-                    path="src/labels.ts",
-                    work_dir=str(work),
-                ),
-                {"configurable": {"thread_id": "ts-import"}},
-            )
+            with patch.dict(os.environ, {"CLEARDEBT_MECHANICAL_FIX": "1"}):
+                result = graph.invoke(
+                    _blank_state(
+                        fingerprint="fp-ts",
+                        rule="typescript:S1128",
+                        path="src/labels.ts",
+                        work_dir=str(work),
+                    ),
+                    {"configurable": {"thread_id": "ts-import"}},
+                )
             updated = (source / "labels.ts").read_text(encoding="utf-8")
         self.assertEqual(result["tier"], "A")
+        self.assertEqual(result["fix_method"], "mechanical")
         self.assertEqual(result["level"], "L1")
         self.assertEqual(result["history"], ["triage", "fix", "anti_cheat", "rescan", "test", "decide"])
         self.assertNotIn("readFileSync", updated)
         self.assertIn("formatLabel", updated)
+
+    def test_default_path_asks_the_model_for_an_a_rule_patch(self):
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            source = work / "src"
+            source.mkdir()
+            before = 'import { readFileSync } from "node:fs";\n\nexport function formatLabel(name) {\n  return name;\n}\n'
+            (source / "labels.js").write_text(before, encoding="utf-8")
+            old = 'import { readFileSync } from "node:fs";\n\n'
+            new = ""
+            graph = build_graph(MemorySaver(), rescan_node=_passing_rescan, test_node=_passing_tests)
+            with (
+                patch.dict(os.environ, {"CLEARDEBT_MECHANICAL_FIX": "0"}, clear=False),
+                patch("cleardebt.issue_graph.propose_patch", return_value=(old, new)) as propose,
+                patch("cleardebt.issue_graph.apply_mechanical") as mechanical,
+                patch("cleardebt.controls.load_controls", return_value={"retrieve": False}),
+            ):
+                result = graph.invoke(
+                    _blank_state(
+                        fingerprint="fp-llm",
+                        rule="javascript:S1128",
+                        path="src/labels.js",
+                        work_dir=str(work),
+                        message="Remove this unused import",
+                    ),
+                    {"configurable": {"thread_id": "llm-import"}},
+                )
+            updated = (source / "labels.js").read_text(encoding="utf-8")
+        propose.assert_called_once()
+        mechanical.assert_not_called()
+        self.assertEqual(result["fix_method"], "llm")
+        self.assertEqual(result["proposed_old"], old)
+        self.assertEqual(result["proposed_new"], new)
+        self.assertEqual(result["level"], "L1")
+        self.assertNotIn("readFileSync", updated)
 
     def test_resume_continues_from_postgres_without_repeating_the_fix(self):
         with tempfile.TemporaryDirectory() as directory:
@@ -173,7 +219,8 @@ class IssueGraphTest(unittest.TestCase):
                     test_node=_passing_tests,
                     interrupt_before=["rescan"],
                 )
-                paused.invoke(initial, config)
+                with patch.dict(os.environ, {"CLEARDEBT_MECHANICAL_FIX": "1"}):
+                    paused.invoke(initial, config)
                 midpoint = paused.get_state(config)
                 self.assertEqual(midpoint.next, ("rescan",))
                 self.assertEqual(midpoint.values["history"], ["triage", "fix", "anti_cheat"])

@@ -18,11 +18,10 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from cleardebt.batch import DAILY_MR_CAP, plan_merges
 from cleardebt.checkout import checkout_default
-from cleardebt.controls import gate, gitlab_credentials, load_controls, save_report, unbound_reason
+from cleardebt.controls import automation_for, backlog_gate, gitlab_credentials, load_controls, save_report, unbound_reason
 from cleardebt.triage import A_RULES, B_RULES, C_RULES
 from list_issues import fetch_issues, load_token
 from open_merge_request import (
-    create_merge_request,
     find_merge_request,
     git,
     push,
@@ -87,7 +86,7 @@ def run_whitelist() -> dict:
 
 def run_controlled(repo: str) -> dict:
     settings = load_controls()
-    refused = gate(settings, repo)
+    refused = backlog_gate(settings, repo)
     if refused:
         return {"started": False, "reason": refused, "opened_now": [], "decisions": []}
     saved = gitlab_credentials(repo)
@@ -174,12 +173,20 @@ def _settle(results: list[dict], dry_run: bool = False, repo: str | None = None)
         saved = find_merge_request(row["fingerprint"])
         if saved:
             existing[row["fingerprint"]] = saved
-    decisions = plan_merges(results, existing, _opened_today())
+    settings = load_controls()
+    automation = automation_for(settings, repo) if repo else (settings.get("backlog_automation") or {})
+    decisions = plan_merges(
+        results,
+        existing,
+        _opened_today(),
+        open_agent_mrs=_mr_count(),
+        pause_when_open_mrs=automation.get("pause_when_open_mrs"),
+    )
     opened = []
     saved = gitlab_credentials(repo)
     gitlab_token = "" if dry_run else (saved or {}).get("token") or ""
     if not dry_run and not gitlab_token:
-        raise SystemExit("还没填写 GitLab 地址，服务碰不到任何仓库。")
+        raise SystemExit("还没填写代码仓库令牌，服务碰不到任何仓库。")
     for decision in decisions:
         if decision["action"] != "open":
             continue
@@ -207,6 +214,8 @@ def _settle(results: list[dict], dry_run: bool = False, repo: str | None = None)
 
 
 def _open_one(token: str, issue: dict, repo: str | None = None) -> dict:
+    from cleardebt.hosting import HostingError, create_request
+
     existing = find_merge_request(issue["fingerprint"])
     if existing:
         return existing
@@ -224,22 +233,24 @@ def _open_one(token: str, issue: dict, repo: str | None = None) -> dict:
     target.write_text(Path(issue["work_dir"], issue["path"]).read_text(encoding="utf-8"), encoding="utf-8")
     git(work, ["add", issue["path"]])
     git(work, ["commit", "-m", f"{_title(issue['rule'])}（{issue['rule']}）"])
-    push(work, saved["token"], branch)
-    opened = create_merge_request(
-        saved["token"],
-        source_branch=branch,
-        target_branch=default,
-        title=f"{_title(issue['rule'])}（{issue['rule']}）",
-        description=_description(issue),
-        project_id=saved["project_id"],
-        gitlab_url=saved.get("url"),
-    )
+    push(work, saved["token"], branch, provider=saved.get("provider") or "gitlab")
+    try:
+        opened = create_request(
+            saved,
+            source_branch=branch,
+            target_branch=default,
+            title=f"{_title(issue['rule'])}（{issue['rule']}）",
+            description=_description(issue),
+        )
+    except HostingError as error:
+        raise SystemExit(str(error)) from error
     record = {
         "fingerprint": issue["fingerprint"],
         "merge_request_iid": opened["iid"],
         "web_url": opened["web_url"],
         "source_branch": branch,
         "target_branch": default,
+        "provider": opened.get("provider") or saved.get("provider") or "gitlab",
     }
     save_merge_request(record)
     return record
@@ -281,8 +292,18 @@ def _opened_today() -> int:
 
 
 def _mr_count() -> int:
+    """Count Agent requests opened in the last 30 days (proxy for still-open backlog)."""
     with psycopg.connect(DB_URI) as conn:
-        row = conn.execute("SELECT COUNT(DISTINCT merge_request_iid) FROM issue_merge_requests").fetchone()
+        conn.execute(
+            "ALTER TABLE issue_merge_requests ADD COLUMN IF NOT EXISTS created_at TIMESTAMPTZ DEFAULT now()"
+        )
+        row = conn.execute(
+            """
+            SELECT COUNT(DISTINCT merge_request_iid)
+            FROM issue_merge_requests
+            WHERE created_at >= now() - interval '30 days'
+            """
+        ).fetchone()
     return int(row[0])
 
 

@@ -36,10 +36,21 @@ class ReviewPageTest(unittest.TestCase):
                 "enabled": True,
                 "dry_run": False,
                 "sonar_url": "http://localhost:9000",
-                "sonar_token": "sonar-secret",
+                "sonar_token": "",
+                "sonar_token_set": True,
                 "gitlab_url": "https://gitlab.example/group/test",
-                "gitlab_token": "gitlab-secret",
+                "gitlab_token": "",
+                "gitlab_token_set": True,
+                "github_token": "",
+                "azure_token": "",
+                "llm_token": "",
+                "llm_token_set": True,
                 "binding_lines": "toy-js https://gitlab.example/group/js\ntoy-ts https://gitlab.example/group/ts",
+                "whitelist": ["toy-js", "toy-ts"],
+                "bindings": [
+                    {"sonar_key": "toy-js", "gitlab_url": "https://gitlab.example/group/js", "backlog_fix": True, "request_fix": True},
+                    {"sonar_key": "toy-ts", "gitlab_url": "https://gitlab.example/group/ts", "backlog_fix": True, "request_fix": True},
+                ],
                 "repo_choices": [{"key": "toy-js", "selected": True}, {"key": "toy-ts", "selected": False}],
             },
         )
@@ -57,10 +68,25 @@ class ReviewPageTest(unittest.TestCase):
         self.assertIn('name="enabled" value="true" checked', html)
         self.assertNotIn('name="dry_run" value="true" checked', html)
         self.assertIn("toy-ts", html)
-        self.assertIn("每个仓库的 GitLab 地址", html)
-        self.assertIn("不会去改另一个仓库", html)
+        self.assertIn("每个仓库的托管地址", html)
+        self.assertIn("GitHub 令牌", html)
+        self.assertIn("Azure DevOps 令牌", html)
+        self.assertIn("大模型密钥", html)
+        self.assertIn("已保存，留空则不变", html)
+        self.assertNotIn("sonar-secret", html)
+        self.assertNotIn("gitlab-secret", html)
         self.assertIn("https://gitlab.example/group/js", html)
         self.assertIn("https://gitlab.example/group/ts", html)
+        self.assertIn("指派给 Agent", html)
+        self.assertIn("Agent 活动", html)
+        self.assertIn("列出告警", html)
+        self.assertIn("请求修复", html)
+        self.assertIn("按项目开关", html)
+        self.assertIn("覆盖日程", html)
+        self.assertIn("运行修复 Agent", html)
+        self.assertIn("定时清 backlog", html)
+        self.assertIn('action="/schedule"', html)
+        self.assertIn("打开自动清 backlog", html)
 
     def test_suggestion_text_is_escaped(self):
         html = render_page(
@@ -80,7 +106,8 @@ class ReviewPageTest(unittest.TestCase):
             }
         )
         self.assertIn("&lt;script&gt;", html)
-        self.assertNotIn("<script>", html)
+        self.assertIn("text-zinc-100'>&lt;script&gt;</pre>", html.replace('"', "'"))
+        self.assertEqual(html.count("<script>"), 1)
         self.assertIn("这一轮是空跑", html)
 
 

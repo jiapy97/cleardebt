@@ -22,12 +22,14 @@ FOREIGN = {
         "url": "https://git.example/acme/alpha",
         "token": "their-gitlab-token",
         "project_id": 101,
+        "provider": "gitlab",
         "remote": "/repos/alpha",
     },
     "beta": {
         "url": "https://git.example/acme/beta",
         "token": "their-gitlab-token",
         "project_id": 202,
+        "provider": "gitlab",
         "remote": "/repos/beta",
     },
 }
@@ -61,7 +63,6 @@ class CleanMachineTest(unittest.TestCase):
             "dry_run": True,
             "whitelist": ["alpha", "beta"],
         }
-        opened = []
         reports = []
 
         def creds(key=None):
@@ -90,7 +91,7 @@ class CleanMachineTest(unittest.TestCase):
             ),
             patch("run_batch.execute", side_effect=execute),
             patch("run_batch.find_merge_request", return_value=None),
-            patch("run_batch.create_merge_request", side_effect=lambda *a, **k: opened.append(k) or {"iid": 1, "web_url": "x"}),
+            patch("cleardebt.hosting.create_request") as create,
             patch("run_batch.checkout_default") as clone,
             patch("run_batch.save_report", side_effect=lambda repo, dry_run, decisions: reports.append((repo, dry_run, decisions))),
         ):
@@ -100,7 +101,7 @@ class CleanMachineTest(unittest.TestCase):
         self.assertEqual([item["repo"] for item in result["repos"]], ["alpha", "beta"])
         self.assertEqual(result["repos"][0]["opened_now"], [])
         self.assertEqual(result["repos"][1]["opened_now"], [])
-        self.assertEqual(opened, [])
+        create.assert_not_called()
         clone.assert_not_called()
         combined = reports[-1]
         self.assertTrue(combined[1])
@@ -133,10 +134,14 @@ class CleanMachineTest(unittest.TestCase):
                 (dest / "src").mkdir(parents=True, exist_ok=True)
                 return "main"
 
-            def create(token: str, **kwargs):
-                opened.append(kwargs)
-                self.assertNotEqual(kwargs["project_id"], THIS_MACHINE_PROJECT)
-                return {"iid": kwargs["project_id"], "web_url": kwargs["gitlab_url"] + "/-/merge_requests/1"}
+            def create(saved, **kwargs):
+                opened.append({"saved": saved, **kwargs})
+                self.assertNotEqual(saved["project_id"], THIS_MACHINE_PROJECT)
+                return {
+                    "iid": saved["project_id"],
+                    "web_url": saved["url"] + "/-/merge_requests/1",
+                    "provider": "gitlab",
+                }
 
             alpha = {
                 "rule": "javascript:S1128",
@@ -162,23 +167,24 @@ class CleanMachineTest(unittest.TestCase):
                 patch("run_batch.checkout_default", side_effect=checkout),
                 patch("run_batch.git"),
                 patch("run_batch.push"),
-                patch("run_batch.create_merge_request", side_effect=create),
+                patch("cleardebt.hosting.create_request", side_effect=create),
                 patch("run_batch.save_merge_request"),
                 patch("run_batch.find_merge_request", return_value=None),
                 patch("run_batch._opened_today", return_value=0),
                 patch("run_batch._mr_count", return_value=0),
+                patch("run_batch.load_controls", return_value={"backlog_automation": {}, "bindings": []}),
             ):
                 first = _settle([alpha], dry_run=False, repo="alpha")
                 second = _settle([beta], dry_run=False, repo="beta")
 
         self.assertEqual(clones, [101, 202])
-        self.assertEqual([item["project_id"] for item in opened], [101, 202])
-        self.assertEqual(opened[0]["gitlab_url"], "https://git.example/acme/alpha")
-        self.assertEqual(opened[1]["gitlab_url"], "https://git.example/acme/beta")
+        self.assertEqual([item["saved"]["project_id"] for item in opened], [101, 202])
+        self.assertEqual(opened[0]["saved"]["url"], "https://git.example/acme/alpha")
+        self.assertEqual(opened[1]["saved"]["url"], "https://git.example/acme/beta")
         self.assertEqual(first["opened_now"][0]["target_branch"], "main")
         self.assertEqual(second["opened_now"][0]["target_branch"], "main")
         self.assertNotIn(THIS_MACHINE_PROJECT, clones)
-        self.assertNotIn(THIS_MACHINE_PROJECT, [item["project_id"] for item in opened])
+        self.assertNotIn(THIS_MACHINE_PROJECT, [item["saved"]["project_id"] for item in opened])
 
     def test_token_loader_prefers_page_credentials_over_missing_files(self):
         import os

@@ -21,6 +21,13 @@ class RecordDefaultBranchTest(unittest.TestCase):
         def find(fp: str) -> dict | None:
             return store.get(fp)
 
+        saved = {
+            "token": "t",
+            "project_id": 5,
+            "url": "https://example.test/g/one",
+            "provider": "gitlab",
+            "remote": "https://example.test/g/one.git",
+        }
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             work = root / "work"
@@ -36,21 +43,22 @@ class RecordDefaultBranchTest(unittest.TestCase):
             }
             with (
                 patch("run_batch.ROOT", root),
-                patch("run_batch.gitlab_credentials", return_value={"token": "t", "project_id": 5}),
+                patch("run_batch.gitlab_credentials", return_value=saved),
                 patch("run_batch.checkout_default", return_value="develop") as clone,
                 patch("run_batch.git"),
                 patch("run_batch.push"),
                 patch(
-                    "run_batch.create_merge_request",
-                    return_value={"iid": 9, "web_url": "https://example.test/9"},
+                    "cleardebt.hosting.create_request",
+                    return_value={"iid": 9, "web_url": "https://example.test/9", "provider": "gitlab"},
                 ) as create,
                 patch("run_batch.save_merge_request", side_effect=save),
                 patch("run_batch.find_merge_request", side_effect=find),
                 patch("run_batch._opened_today", return_value=0),
                 patch("run_batch._mr_count", return_value=1),
+                patch("run_batch.load_controls", return_value={"backlog_automation": {}, "bindings": []}),
             ):
-                first = _settle([issue], dry_run=False)
-                second = _settle([issue], dry_run=False)
+                first = _settle([issue], dry_run=False, repo="toy-js")
+                second = _settle([issue], dry_run=False, repo="toy-js")
                 again = _open_one("t", issue)
 
         batch_source = (ROOT / "scripts" / "run_batch.py").read_text(encoding="utf-8")
@@ -59,6 +67,7 @@ class RecordDefaultBranchTest(unittest.TestCase):
         self.assertNotIn("TARGET_BRANCH", opener_source)
         self.assertEqual(store[fingerprint]["target_branch"], "develop")
         self.assertEqual(create.call_args.kwargs["target_branch"], "develop")
+        self.assertEqual(create.call_args.args[0]["project_id"], 5)
         self.assertEqual(create.call_count, 1)
         self.assertEqual(clone.call_count, 1)
         self.assertEqual(first["opened_now"][0]["target_branch"], "develop")

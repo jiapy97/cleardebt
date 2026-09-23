@@ -84,6 +84,7 @@ def scan_temp_project(
     token: str,
     sources: Path | None = None,
     exclusions: str = "",
+    sonar_sources: str = "src",
     sonar_url: str = "http://host.docker.internal:9000",
     baseline: str | None = None,
 ) -> None:
@@ -94,18 +95,29 @@ def scan_temp_project(
     if not project_key.startswith(TEMP_PREFIX):
         raise SystemExit(f"refusing to scan non-temporary project {project_key}")
     origin = sources
+    sources_value = (sonar_sources or "src").strip() or "src"
     with tempfile.TemporaryDirectory(prefix="cleardebt-rescan-") as directory:
         target = Path(directory)
         shutil.copytree(
             origin,
             target,
             dirs_exist_ok=True,
-            ignore=shutil.ignore_patterns("node_modules", "coverage", ".scannerwork", ".git"),
+            ignore=shutil.ignore_patterns(
+                "node_modules",
+                "coverage",
+                ".scannerwork",
+                ".git",
+                "target",
+                "bin",
+                "obj",
+                ".venv",
+                "venv",
+            ),
         )
         properties = [
             f"sonar.projectKey={project_key}",
             f"sonar.projectName={project_key}",
-            "sonar.sources=src",
+            f"sonar.sources={sources_value}",
             "sonar.sourceEncoding=UTF-8",
             "sonar.scm.disabled=true",
         ]

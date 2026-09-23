@@ -16,8 +16,51 @@ DB_URI = os.environ.get(
 DEFAULT_WHITELIST = ()
 
 
+def automation_for(settings: dict, repo: str | None = None) -> dict:
+    from cleardebt.schedule import normalize_automation
+
+    base = normalize_automation(settings.get("backlog_automation") or {})
+    if not repo:
+        return base
+    for item in settings.get("bindings") or []:
+        if item.get("sonar_key") != repo:
+            continue
+        override = item.get("automation")
+        if isinstance(override, dict) and override:
+            merged = dict(base)
+            merged.update(override)
+            return normalize_automation(merged)
+    return base
+
+
+def project_switches(settings: dict, repo: str) -> dict:
+    """Per-project backlog / request-fix flags (default on; global request_fix can force off)."""
+    backlog = True
+    request = True
+    for item in settings.get("bindings") or []:
+        if item.get("sonar_key") != repo:
+            continue
+        if "backlog_fix" in item:
+            backlog = bool(item.get("backlog_fix"))
+        if "request_fix" in item:
+            request = bool(item.get("request_fix"))
+        break
+    if not settings.get("request_fix", True):
+        request = False
+    return {"backlog_fix": backlog, "request_fix": request}
+
+
+def backlog_gate(settings: dict, repo: str) -> str | None:
+    refused = gate(settings, repo)
+    if refused:
+        return refused
+    if not project_switches(settings, repo)["backlog_fix"]:
+        return f"{repo} 的 backlog 修复关掉了。"
+    return None
+
+
 def unbound_reason(repo: str) -> str:
-    return f"{repo} 没有对应的 GitLab 项目，这一轮跳过，不去改别的仓库。"
+    return f"{repo} 没有对应的代码仓库绑定，这一轮跳过，不去改别的仓库。"
 
 
 def parse_binding_lines(text: str) -> list[dict]:
@@ -76,9 +119,11 @@ def legacy_bindings(
     return [{"sonar_key": name, "gitlab_url": "", "project_id": None} for name in whitelist]
 
 
-def credentials_for(bindings: list[dict], token: str, sonar_key: str | None) -> dict | None:
-    if not token:
-        return None
+def credentials_for(bindings: list[dict], token: str, sonar_key: str | None, tokens: dict | None = None) -> dict | None:
+    """Pick credentials for a Sonar project. `token` is the GitLab token (legacy)."""
+    from cleardebt.hosting import credentials_bundle, detect_provider
+
+    tokens = tokens or {}
     usable = [item for item in bindings if item.get("project_id") and item.get("gitlab_url")]
     if sonar_key:
         chosen = next((item for item in usable if item.get("sonar_key") == sonar_key), None)
@@ -89,14 +134,36 @@ def credentials_for(bindings: list[dict], token: str, sonar_key: str | None) -> 
     if not chosen:
         return None
     url = str(chosen["gitlab_url"]).rstrip("/")
-    return {
-        "url": url,
-        "token": token,
-        "project_id": int(chosen["project_id"]),
-        "project_path": _project_path(url),
-        "remote": url + ".git",
-        "sonar_key": chosen.get("sonar_key") or "",
-    }
+    provider = chosen.get("provider") or detect_provider(url)
+    chosen_token = (
+        tokens.get(provider)
+        or (token if provider == "gitlab" else "")
+        or tokens.get("gitlab")
+        or token
+    )
+    if not chosen_token:
+        return None
+    path = chosen.get("project_path") or ""
+    if not path:
+        try:
+            from cleardebt.hosting import _azure_parts, _github_project_path, _gitlab_project_path
+
+            if provider == "github":
+                path = _github_project_path(url)
+            elif provider == "azure_devops":
+                path = "/".join(_azure_parts(url))
+            else:
+                path = _gitlab_project_path(url)
+        except Exception:
+            path = url
+    return credentials_bundle(
+        url=url,
+        token=chosen_token,
+        project_id=chosen["project_id"],
+        project_path=path,
+        provider=provider,
+        sonar_key=chosen.get("sonar_key") or "",
+    )
 
 
 def binding_lines(bindings: list[dict]) -> str:
@@ -120,12 +187,64 @@ def gate(settings: dict, repo: str) -> str | None:
     return None
 
 
+def save_project_switches(updates: list[dict]) -> dict:
+    """Update per-project backlog_fix / request_fix / automation on existing bindings."""
+    _ensure()
+    current = load_controls()
+    # Prefer full stored bindings (with project_id) from DB.
+    stored = _bindings_from_row(_row())
+    by_stored = {item.get("sonar_key"): dict(item) for item in stored if item.get("sonar_key")}
+    for item in updates or []:
+        key = (item.get("sonar_key") or "").strip()
+        if not key or key not in by_stored:
+            continue
+        row = by_stored[key]
+        if "backlog_fix" in item:
+            row["backlog_fix"] = bool(item.get("backlog_fix"))
+        if "request_fix" in item:
+            row["request_fix"] = bool(item.get("request_fix"))
+        if "automation" in item:
+            auto = item.get("automation")
+            row["automation"] = auto if isinstance(auto, dict) else {}
+        by_stored[key] = row
+    ordered = []
+    for name in current.get("whitelist") or []:
+        if name in by_stored:
+            ordered.append(by_stored[name])
+    for key, row in by_stored.items():
+        if key not in {item.get("sonar_key") for item in ordered}:
+            ordered.append(row)
+    with psycopg.connect(DB_URI) as conn:
+        conn.execute(
+            "UPDATE controls SET repo_bindings = %s WHERE id = 1",
+            (_json(ordered),),
+        )
+    return load_controls()
+
+
+def llm_token() -> str:
+    """Token from DB (management page), if any."""
+    row = _row()
+    if len(row) > 15 and row[15]:
+        return str(row[15]).strip()
+    return ""
+
+
 def form_values() -> dict:
     row = _row()
     sonar_url = row[4] or "http://localhost:9000"
     gitlab_url = row[5] or ""
     sonar_token = row[6] or _file_token(ROOT / "deploy" / "sonarqube" / ".token")
     gitlab_token = row[7] or _file_token(ROOT / "deploy" / "gitlab" / ".token")
+    github_token = (row[13] if len(row) > 13 and row[13] else "") or _file_token(
+        ROOT / "deploy" / "github" / ".token"
+    )
+    azure_token = (row[14] if len(row) > 14 and row[14] else "") or _file_token(
+        ROOT / "deploy" / "azure" / ".token"
+    )
+    llm = (row[15] if len(row) > 15 and row[15] else "") or _file_token(
+        ROOT / "deploy" / "llm" / ".token"
+    ) or _file_token(ROOT / "deploy" / "deepseek" / ".token")
     bindings = _bindings_from_row(row)
     return {
         "configured": row[3],
@@ -133,9 +252,19 @@ def form_values() -> dict:
         "gitlab_url": gitlab_url,
         "sonar_token": sonar_token,
         "gitlab_token": gitlab_token,
+        "github_token": github_token,
+        "azure_token": azure_token,
+        "llm_token": llm,
         "whitelist": list(row[2]),
         "bindings": [
-            {"sonar_key": item.get("sonar_key") or "", "gitlab_url": item.get("gitlab_url") or ""}
+            {
+                "sonar_key": item.get("sonar_key") or "",
+                "gitlab_url": item.get("gitlab_url") or "",
+                "provider": item.get("provider") or "",
+                "backlog_fix": item.get("backlog_fix", True),
+                "request_fix": item.get("request_fix", True),
+                "automation": item.get("automation") or {},
+            }
             for item in bindings
         ],
         "binding_lines": binding_lines(bindings),
@@ -178,11 +307,23 @@ def load_controls() -> dict:
         "gitlab_url": row[5] or "",
         "sonar_token_set": bool(row[6]),
         "gitlab_token_set": bool(row[7]),
+        "github_token_set": bool(row[13]) if len(row) > 13 else False,
+        "azure_token_set": bool(row[14]) if len(row) > 14 else False,
+        "llm_token_set": bool(row[15]) if len(row) > 15 else False,
         "retrieve": bool(row[9]),
         "bindings": [
-            {"sonar_key": item.get("sonar_key") or "", "gitlab_url": item.get("gitlab_url") or ""}
+            {
+                "sonar_key": item.get("sonar_key") or "",
+                "gitlab_url": item.get("gitlab_url") or "",
+                "provider": item.get("provider") or "",
+                "backlog_fix": item.get("backlog_fix", True),
+                "request_fix": item.get("request_fix", True),
+                "automation": item.get("automation") or {},
+            }
             for item in _bindings_from_row(row)
         ],
+        "backlog_automation": _automation_from_row(row),
+        "request_fix": bool(row[12]) if len(row) > 12 else True,
     }
 
 
@@ -195,9 +336,16 @@ def sonar_credentials() -> dict | None:
 
 def gitlab_credentials(sonar_key: str | None = None) -> dict | None:
     row = _row()
-    if not row[3] or not row[7]:
+    if not row[3]:
         return None
-    return credentials_for(_bindings_from_row(row), row[7], sonar_key)
+    tokens = {
+        "gitlab": row[7] or "",
+        "github": (row[13] if len(row) > 13 else None) or "",
+        "azure_devops": (row[14] if len(row) > 14 else None) or "",
+    }
+    if not any(tokens.values()):
+        return None
+    return credentials_for(_bindings_from_row(row), tokens.get("gitlab") or "", sonar_key, tokens=tokens)
 
 
 def save_controls(
@@ -205,7 +353,11 @@ def save_controls(
     enabled: bool | None = None,
     dry_run: bool | None = None,
     retrieve: bool | None = None,
+    backlog_automation: dict | None = None,
+    request_fix: bool | None = None,
 ) -> dict:
+    from cleardebt.schedule import normalize_automation
+
     current = load_controls()
     if enabled is not None:
         current["enabled"] = enabled
@@ -213,12 +365,26 @@ def save_controls(
         current["dry_run"] = dry_run
     if retrieve is not None:
         current["retrieve"] = retrieve
+    if backlog_automation is not None:
+        current["backlog_automation"] = normalize_automation(backlog_automation)
+    if request_fix is not None:
+        current["request_fix"] = request_fix
     with psycopg.connect(DB_URI) as conn:
         conn.execute(
-            "UPDATE controls SET enabled = %s, dry_run = %s, retrieve = %s WHERE id = 1",
-            (current["enabled"], current["dry_run"], current["retrieve"]),
+            """
+            UPDATE controls
+            SET enabled = %s, dry_run = %s, retrieve = %s, backlog_automation = %s, request_fix = %s
+            WHERE id = 1
+            """,
+            (
+                current["enabled"],
+                current["dry_run"],
+                current["retrieve"],
+                _json(current["backlog_automation"]),
+                current["request_fix"],
+            ),
         )
-    return current
+    return load_controls()
 
 
 def save_report(repo: str, dry_run: bool, decisions: list[dict]) -> None:
@@ -310,6 +476,15 @@ def _ensure() -> None:
             "ALTER TABLE controls ADD COLUMN IF NOT EXISTS repo_bindings JSONB NOT NULL DEFAULT '[]'::jsonb"
         )
         conn.execute(
+            "ALTER TABLE controls ADD COLUMN IF NOT EXISTS backlog_automation JSONB NOT NULL DEFAULT '{}'::jsonb"
+        )
+        conn.execute(
+            "ALTER TABLE controls ADD COLUMN IF NOT EXISTS request_fix BOOLEAN NOT NULL DEFAULT TRUE"
+        )
+        conn.execute("ALTER TABLE controls ADD COLUMN IF NOT EXISTS github_token TEXT")
+        conn.execute("ALTER TABLE controls ADD COLUMN IF NOT EXISTS azure_token TEXT")
+        conn.execute("ALTER TABLE controls ADD COLUMN IF NOT EXISTS llm_token TEXT")
+        conn.execute(
             """
             CREATE TABLE IF NOT EXISTS batch_reports (
                 id SERIAL PRIMARY KEY,
@@ -329,37 +504,80 @@ def connect_integration(
     gitlab_token: str,
     whitelist: list[str],
     bindings: list[dict],
+    github_token: str = "",
+    azure_token: str = "",
+    llm_token: str = "",
 ) -> dict:
+    from cleardebt.hosting import HostingError, detect_provider, resolve_repository
+
     current = _row()
     if not sonar_token:
         sonar_token = current[6] or ""
     if not gitlab_token:
         gitlab_token = current[7] or ""
-    if not sonar_url or not sonar_token or not gitlab_token:
-        raise ValueError("地址和令牌都要填")
+    if not github_token:
+        github_token = (current[13] if len(current) > 13 else None) or ""
+    if not azure_token:
+        azure_token = (current[14] if len(current) > 14 else None) or ""
+    if not llm_token:
+        llm_token = (current[15] if len(current) > 15 else None) or ""
+    if not sonar_url or not sonar_token:
+        raise ValueError("Sonar 地址和令牌都要填")
     if not whitelist:
         raise ValueError("白名单至少要有一个仓库")
     _check_sonar(sonar_url, sonar_token)
+    tokens = {"gitlab": gitlab_token, "github": github_token, "azure_devops": azure_token}
     urls = {item["sonar_key"]: (item.get("gitlab_url") or "").strip() for item in bindings}
+    previous = {item.get("sonar_key"): item for item in _bindings_from_row(current) if item.get("sonar_key")}
     stored = []
     for key in whitelist:
         url = urls.get(key, "")
+        old = previous.get(key) or {}
         if not url:
-            stored.append({"sonar_key": key, "gitlab_url": "", "project_id": None})
+            stored.append(
+                {
+                    "sonar_key": key,
+                    "gitlab_url": "",
+                    "project_id": None,
+                    "provider": "",
+                    "backlog_fix": old.get("backlog_fix", True),
+                    "request_fix": old.get("request_fix", True),
+                    "automation": old.get("automation") or {},
+                }
+            )
             continue
+        provider = detect_provider(url)
+        token = tokens.get(provider) or ""
+        if not token:
+            label = {"gitlab": "GitLab", "github": "GitHub", "azure_devops": "Azure DevOps"}[provider]
+            raise ValueError(f"{key} 绑的是 {label}，请填上对应令牌。")
+        try:
+            resolved = resolve_repository(url, token, provider)
+        except HostingError as error:
+            raise ValueError(str(error)) from error
         stored.append(
             {
                 "sonar_key": key,
-                "gitlab_url": url.rstrip("/"),
-                "project_id": _check_gitlab(url, gitlab_token),
+                "gitlab_url": resolved["url"],
+                "project_id": resolved["project_id"],
+                "project_path": resolved["project_path"],
+                "provider": resolved["provider"],
+                "backlog_fix": old.get("backlog_fix", True),
+                "request_fix": old.get("request_fix", True),
+                "automation": old.get("automation") or {},
             }
         )
+    if not any(tokens.values()):
+        raise ValueError("至少填一种代码托管令牌（GitLab / GitHub / Azure DevOps）")
     return save_integration(
         sonar_url=sonar_url,
         sonar_token=sonar_token,
         gitlab_token=gitlab_token,
         whitelist=whitelist,
         bindings=stored,
+        github_token=github_token,
+        azure_token=azure_token,
+        llm_token=llm_token,
     )
 
 
@@ -410,13 +628,17 @@ def save_integration(
     gitlab_token: str,
     whitelist: list[str],
     bindings: list[dict],
+    github_token: str = "",
+    azure_token: str = "",
+    llm_token: str = "",
 ) -> dict:
     _ensure()
     if not whitelist:
         raise ValueError("白名单至少要有一个仓库")
     bound = [item for item in bindings if item.get("project_id") and item.get("gitlab_url")]
     legacy_url = bound[0]["gitlab_url"] if bound else None
-    legacy_id = bound[0]["project_id"] if bound else None
+    raw_id = bound[0]["project_id"] if bound else None
+    legacy_id = raw_id if isinstance(raw_id, int) else None
     with psycopg.connect(DB_URI) as conn:
         conn.execute(
             """
@@ -428,7 +650,10 @@ def save_integration(
                 gitlab_token = %s,
                 gitlab_project_id = %s,
                 whitelist = %s,
-                repo_bindings = %s
+                repo_bindings = %s,
+                github_token = %s,
+                azure_token = %s,
+                llm_token = %s
             WHERE id = 1
             """,
             (
@@ -439,6 +664,9 @@ def save_integration(
                 legacy_id,
                 whitelist,
                 _json(bindings),
+                github_token or None,
+                azure_token or None,
+                llm_token or None,
             ),
         )
     return load_controls()
@@ -450,7 +678,8 @@ def _row() -> tuple:
         row = conn.execute(
             """
             SELECT enabled, dry_run, whitelist, configured, sonar_url, gitlab_url,
-                   sonar_token, gitlab_token, gitlab_project_id, retrieve, repo_bindings
+                   sonar_token, gitlab_token, gitlab_project_id, retrieve, repo_bindings,
+                   backlog_automation, request_fix, github_token, azure_token, llm_token
             FROM controls WHERE id = 1
             """
         ).fetchone()
@@ -460,6 +689,17 @@ def _row() -> tuple:
 def _bindings_from_row(row) -> list[dict]:
     stored = row[10] if len(row) > 10 else []
     return legacy_bindings(list(row[2] or []), row[5] or "", row[8], stored)
+
+
+def _automation_from_row(row) -> dict:
+    from cleardebt.schedule import normalize_automation
+
+    raw = row[11] if len(row) > 11 else {}
+    if isinstance(raw, str):
+        import json
+
+        raw = json.loads(raw)
+    return normalize_automation(raw or {})
 
 
 def _project_path(gitlab_url: str) -> str:

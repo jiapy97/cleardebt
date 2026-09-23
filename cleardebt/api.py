@@ -30,7 +30,9 @@ app.mount("/static", StaticFiles(directory=ROOT / "cleardebt" / "static"), name=
 
 @app.get("/", response_class=HTMLResponse)
 def review_page() -> str:
-    return render_page(latest_sheet(), _form_settings())
+    from cleardebt.assign import list_sessions
+
+    return render_page(latest_sheet(), _form_settings(), sessions=list_sessions())
 
 
 @app.post("/setup", response_class=HTMLResponse)
@@ -38,6 +40,9 @@ def setup(
     sonar_url: str = Form(...),
     sonar_token: str = Form(""),
     gitlab_token: str = Form(""),
+    github_token: str = Form(""),
+    azure_token: str = Form(""),
+    llm_token: str = Form(""),
     whitelist: list[str] = Form(default=[]),
     project_keys: str = Form(""),
     bindings: str = Form(""),
@@ -53,11 +58,16 @@ def setup(
             sonar_url=sonar_url.strip(),
             sonar_token=sonar_token.strip(),
             gitlab_token=gitlab_token.strip(),
+            github_token=github_token.strip(),
+            azure_token=azure_token.strip(),
+            llm_token=llm_token.strip(),
             whitelist=[item["sonar_key"] for item in paired],
             bindings=paired,
         )
     except (ValueError, RuntimeError) as error:
-        page = render_page(latest_sheet(), _form_settings(), error=str(error))
+        from cleardebt.assign import list_sessions
+
+        page = render_page(latest_sheet(), _form_settings(), error=str(error), sessions=list_sessions())
         return HTMLResponse(page, status_code=400)
     return RedirectResponse("/", status_code=303)
 
@@ -69,11 +79,62 @@ def read_controls() -> dict:
 
 @app.post("/controls")
 def update_controls(body: dict = Body(...)) -> dict:
-    return save_controls(
+    from cleardebt.controls import save_project_switches
+
+    saved = save_controls(
         enabled=body.get("enabled"),
         dry_run=body.get("dry_run"),
         retrieve=body.get("retrieve"),
+        backlog_automation=body.get("backlog_automation"),
+        request_fix=body.get("request_fix"),
     )
+    if body.get("project_switches") is not None:
+        saved = save_project_switches(body.get("project_switches") or [])
+    return saved
+
+
+@app.post("/project-switches")
+def project_switches_form(
+    project: list[str] = Form(default=[]),
+    backlog_fix: list[str] = Form(default=[]),
+    request_fix: list[str] = Form(default=[]),
+    schedule_override: list[str] = Form(default=[]),
+    schedule_enabled: list[str] = Form(default=[]),
+    pause_project: list[str] = Form(default=[]),
+    pause_value: list[str] = Form(default=[]),
+) -> RedirectResponse:
+    from cleardebt.controls import save_project_switches
+
+    backlog_on = set(backlog_fix)
+    request_on = set(request_fix)
+    override_on = set(schedule_override)
+    schedule_on = set(schedule_enabled)
+    pause_by_key = {}
+    for key, value in zip(pause_project, pause_value):
+        name = (key or "").strip()
+        if name:
+            pause_by_key[name] = (value or "").strip()
+    updates = []
+    for name in project:
+        key = (name or "").strip()
+        if not key:
+            continue
+        item = {
+            "sonar_key": key,
+            "backlog_fix": key in backlog_on,
+            "request_fix": key in request_on,
+        }
+        if key in override_on:
+            pause = pause_by_key.get(key) or None
+            item["automation"] = {
+                "enabled": key in schedule_on,
+                "pause_when_open_mrs": pause,
+            }
+        else:
+            item["automation"] = {}
+        updates.append(item)
+    save_project_switches(updates)
+    return RedirectResponse("/", status_code=303)
 
 
 @app.post("/switches")
@@ -81,8 +142,39 @@ def switches(
     enabled: str = Form(""),
     dry_run: str = Form(""),
     retrieve: str = Form(""),
+    request_fix: str = Form(""),
 ) -> RedirectResponse:
-    save_controls(enabled=enabled == "true", dry_run=dry_run == "true", retrieve=retrieve == "true")
+    save_controls(
+        enabled=enabled == "true",
+        dry_run=dry_run == "true",
+        retrieve=retrieve == "true",
+        request_fix=request_fix == "true",
+    )
+    return RedirectResponse("/", status_code=303)
+
+
+@app.post("/schedule")
+def schedule_form(
+    schedule_enabled: str = Form(""),
+    frequency: str = Form("daily"),
+    weekday: str = Form("0"),
+    hour: str = Form("8"),
+    minute: str = Form("0"),
+    timezone: str = Form("Asia/Shanghai"),
+    pause_when_open_mrs: str = Form(""),
+) -> RedirectResponse:
+    pause = (pause_when_open_mrs or "").strip()
+    save_controls(
+        backlog_automation={
+            "enabled": schedule_enabled == "true",
+            "frequency": frequency,
+            "weekday": weekday,
+            "hour": hour,
+            "minute": minute,
+            "timezone": timezone,
+            "pause_when_open_mrs": pause or None,
+        }
+    )
     return RedirectResponse("/", status_code=303)
 
 
@@ -91,6 +183,124 @@ def run_batch(repo: str | None = None) -> dict:
     if repo:
         return run_controlled(repo)
     return run_whitelist()
+
+
+@app.get("/issues")
+def list_issues(repo: str = "") -> dict:
+    from cleardebt.assign import list_backlog_issues
+
+    try:
+        return {"repo": repo.strip(), "issues": list_backlog_issues(repo)}
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+
+
+@app.post("/issues/assign")
+def assign_issues(body: dict = Body(...)) -> dict:
+    from cleardebt.assign import assign_to_agent
+
+    try:
+        return assign_to_agent(body.get("repo") or "", body.get("issues") or [])
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+
+
+@app.get("/sessions")
+def sessions(limit: int = 20) -> dict:
+    from cleardebt.assign import list_sessions
+
+    return {"sessions": list_sessions(limit)}
+
+
+@app.get("/mrs/issues")
+def mr_issues(repo: str = "", mr_iid: int = 0) -> dict:
+    from cleardebt.request_fix import list_mr_issues
+
+    try:
+        return list_mr_issues(repo, mr_iid)
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+
+
+@app.post("/mrs/offer")
+def mr_offer(body: dict = Body(...)) -> dict:
+    from cleardebt.request_fix import post_run_agent_note
+
+    try:
+        return post_run_agent_note(body.get("repo") or "", body.get("mr_iid") or 0)
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+
+
+@app.post("/mrs/remediate")
+def mr_remediate(body: dict = Body(...)) -> dict:
+    from cleardebt.request_fix import remediate_merge_request
+
+    try:
+        return remediate_merge_request(
+            body.get("repo") or "",
+            body.get("mr_iid") or 0,
+            body.get("issues") or [],
+        )
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+
+
+@app.post("/issues/list", response_class=HTMLResponse)
+def list_issues_form(repo: str = Form("")) -> HTMLResponse:
+    from cleardebt.assign import list_backlog_issues, list_sessions
+
+    name = repo.strip()
+    try:
+        issues = list_backlog_issues(name)
+    except ValueError as error:
+        page = render_page(
+            latest_sheet(),
+            _form_settings(),
+            error=str(error),
+            sessions=list_sessions(),
+            assign_repo=name,
+        )
+        return HTMLResponse(page, status_code=400)
+    return HTMLResponse(
+        render_page(
+            latest_sheet(),
+            _form_settings(),
+            sessions=list_sessions(),
+            issues=issues,
+            assign_repo=name,
+        )
+    )
+
+
+@app.post("/issues/assign-form", response_class=HTMLResponse)
+def assign_issues_form(repo: str = Form(""), selected: list[str] = Form(default=[])) -> HTMLResponse:
+    from cleardebt.assign import assign_to_agent, list_backlog_issues, list_sessions
+
+    name = repo.strip()
+    picks = []
+    for item in selected:
+        if "|" not in item:
+            continue
+        rule, path = item.split("|", 1)
+        picks.append({"rule": rule, "path": path})
+    try:
+        assign_to_agent(name, picks)
+    except ValueError as error:
+        try:
+            issues = list_backlog_issues(name) if name else []
+        except ValueError:
+            issues = []
+        page = render_page(
+            latest_sheet(),
+            _form_settings(),
+            error=str(error),
+            sessions=list_sessions(),
+            issues=issues,
+            assign_repo=name,
+        )
+        return HTMLResponse(page, status_code=400)
+    return RedirectResponse("/", status_code=303)
 
 
 @app.post("/issues/run")
@@ -149,10 +359,23 @@ def _form_settings() -> dict:
     settings["enabled"] = controls["enabled"]
     settings["dry_run"] = controls["dry_run"]
     settings["retrieve"] = controls["retrieve"]
+    settings["request_fix"] = controls.get("request_fix", True)
+    settings["backlog_automation"] = controls.get("backlog_automation") or {}
+    settings["bindings"] = controls.get("bindings") or settings.get("bindings") or []
+    settings["whitelist"] = controls.get("whitelist") or settings.get("whitelist") or []
     selected = set(settings["whitelist"])
-    choices = sonar_projects(settings["sonar_url"], settings["sonar_token"])
+    sonar_token = settings.get("sonar_token") or ""
+    choices = sonar_projects(settings["sonar_url"], sonar_token)
     for name in selected:
         if name not in choices:
             choices.append(name)
     settings["repo_choices"] = [{"key": name, "selected": name in selected} for name in choices]
+    # Never echo secrets into HTML; show "already saved" placeholders instead.
+    settings["sonar_token_set"] = bool(sonar_token) or bool(controls.get("sonar_token_set"))
+    settings["gitlab_token_set"] = bool(settings.get("gitlab_token")) or bool(controls.get("gitlab_token_set"))
+    settings["github_token_set"] = bool(settings.get("github_token")) or bool(controls.get("github_token_set"))
+    settings["azure_token_set"] = bool(settings.get("azure_token")) or bool(controls.get("azure_token_set"))
+    settings["llm_token_set"] = bool(settings.get("llm_token")) or bool(controls.get("llm_token_set"))
+    for key in ("sonar_token", "gitlab_token", "github_token", "azure_token", "llm_token"):
+        settings[key] = ""
     return settings

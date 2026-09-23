@@ -25,17 +25,44 @@ DB_URI = os.environ.get(
 RULE = "javascript:S1128"
 
 
-def execute(rule: str = RULE, project: str | None = None) -> dict:
+def execute(
+    rule: str = RULE,
+    project: str | None = None,
+    path: str | None = None,
+    git_branch: str | None = None,
+    pull_request: str | None = None,
+    message: str = "",
+    sca_package: str = "",
+    sca_to_version: str = "",
+) -> dict:
     project = (project or "").strip()
     if not project:
         raise SystemExit("没有写项目，不会跑。")
     from cleardebt.controls import gate, load_controls
+    from cleardebt.sca import is_sca_rule
 
     refused = gate(load_controls(), project)
     if refused:
         raise SystemExit(refused)
-    token = load_token(None)
-    issue = _find_issue(token, rule, project)
+    if is_sca_rule(rule):
+        issue = _sca_issue(
+            rule,
+            project,
+            path=path or "",
+            message=message,
+            package=sca_package,
+            to_version=sca_to_version,
+        )
+    else:
+        token = load_token(None)
+        issue = _find_issue(
+            token,
+            rule,
+            project,
+            path=path,
+            pull_request=pull_request,
+            branch=None if pull_request else git_branch,
+        )
     work = ROOT / "var" / "work" / issue["fingerprint"]
     config = {"configurable": {"thread_id": issue["fingerprint"]}}
     with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
@@ -44,14 +71,14 @@ def execute(rule: str = RULE, project: str | None = None) -> dict:
         snapshot = graph.get_state(config)
         action = next_action(snapshot)
         if action == "start":
-            _prepare_work_dir(work, issue)
+            _prepare_work_dir(work, issue, git_branch=git_branch)
             result = graph.invoke(_initial_state(issue, work), config)
         elif action == "resume":
             result = graph.invoke(None, config)
         else:
             result = snapshot.values
         steps = _steps(graph, config)
-    return {
+    payload = {
         "action": action,
         "fingerprint": result["fingerprint"],
         "rule": result["rule"],
@@ -64,8 +91,12 @@ def execute(rule: str = RULE, project: str | None = None) -> dict:
         "proposed_old": result.get("proposed_old"),
         "proposed_new": result.get("proposed_new"),
         "project": result.get("project") or project,
+        "model_attempts": result.get("model_attempts"),
         "checkpoints": steps,
     }
+    if payload.get("proposed_old") and payload.get("level") in {"L1", "L2", "L3"}:
+        payload["suggestion"] = _save_suggestion(payload)
+    return payload
 
 
 def main() -> int:
@@ -73,8 +104,6 @@ def main() -> int:
         print("要写上规则和白名单里的项目。不传项目不会跑。")
         return 1
     payload = execute(sys.argv[1].strip(), sys.argv[2].strip())
-    if payload.get("level") in {"L2", "L3"} and payload.get("proposed_old"):
-        payload["suggestion"] = _save_suggestion(payload)
     print(json.dumps(payload, ensure_ascii=False, indent=2))
     return 0 if payload.get("level") else 1
 
@@ -121,15 +150,32 @@ def _save_suggestion(payload: dict) -> dict:
     return record
 
 
-def _find_issue(token: str, rule: str = RULE, project: str | None = None) -> dict:
+def _find_issue(
+    token: str,
+    rule: str = RULE,
+    project: str | None = None,
+    path: str | None = None,
+    *,
+    pull_request: str | None = None,
+    branch: str | None = None,
+) -> dict:
     project = (project or "").strip()
     if not project:
         raise SystemExit("没有写项目，不会跑。")
+    want = (path or "").strip()
     sources: dict[str, str] = {}
-    for issue in fetch_issues(sonar_base_url(), token, project):
+    for issue in fetch_issues(
+        sonar_base_url(),
+        token,
+        project,
+        pull_request=pull_request,
+        branch=branch,
+    ):
         if issue["rule"] != rule:
             continue
-        path = issue_path(issue.get("component", ""), project)
+        issue_file = issue_path(issue.get("component", ""), project)
+        if want and issue_file != want:
+            continue
         text_range = issue.get("textRange") or {}
         start = int(text_range.get("startLine") or 1)
         end = int(text_range.get("endLine") or start)
@@ -138,28 +184,71 @@ def _find_issue(token: str, rule: str = RULE, project: str | None = None) -> dic
             sources[component] = rescan_check.api_text(sonar_base_url(), token, "/api/sources/raw", {"key": component})
         line_text = line_span(sources[component], start, end)
         return {
-            "fingerprint": fingerprint(issue["rule"], path, line_text),
+            "fingerprint": fingerprint(issue["rule"], issue_file, line_text),
             "rule": issue["rule"],
-            "path": path,
+            "path": issue_file,
             "message": issue.get("message", ""),
+            "start_line": start,
+            "end_line": end,
             "source": sources[component],
             "project": project,
         }
-    raise SystemExit(f"no open {rule} issue on {project}")
+    where = f" on {project}" + (f" path {want}" if want else "")
+    if pull_request:
+        where += f" pullRequest {pull_request}"
+    elif branch:
+        where += f" branch {branch}"
+    raise SystemExit(f"no open {rule} issue{where}")
 
 
-def _prepare_work_dir(work: Path, issue: dict) -> None:
-    from cleardebt.checkout import checkout_default
+def _sca_issue(
+    rule: str,
+    project: str,
+    *,
+    path: str,
+    message: str,
+    package: str,
+    to_version: str,
+) -> dict:
+    from cleardebt.sca import fingerprint_risk, parse_risk
+
+    try:
+        risk = parse_risk(message, path, package=package, to_version=to_version)
+    except ValueError as error:
+        raise SystemExit(str(error)) from error
+    file_path = path or risk.get("path") or "package.json"
+    return {
+        "fingerprint": fingerprint_risk(
+            risk["package"], file_path, risk["to_version"], message[:80]
+        ),
+        "rule": rule,
+        "path": file_path,
+        "message": message or f"Upgrade {risk['package']} to version {risk['to_version']}",
+        "source": "",
+        "project": project,
+        "sca_package": risk["package"],
+        "sca_to_version": risk["to_version"],
+    }
+
+
+def _prepare_work_dir(work: Path, issue: dict, git_branch: str | None = None) -> None:
+    from cleardebt.checkout import checkout_branch, checkout_default
     from cleardebt.controls import gitlab_credentials, unbound_reason
+    from cleardebt.sca import is_sca_rule
 
     project = issue.get("project") or ""
     saved = gitlab_credentials(project or None)
     if not saved:
         raise SystemExit(unbound_reason(project or "这个项目"))
-    checkout_default(work, saved)
+    if git_branch:
+        checkout_branch(work, saved, git_branch)
+    else:
+        checkout_default(work, saved)
     target = work / issue["path"]
     if not target.is_file():
-        raise SystemExit(f"默认分支上没有 {issue['path']}")
+        kind = "依赖清单" if is_sca_rule(issue.get("rule") or "") else "源文件"
+        where = f"分支 {git_branch}" if git_branch else "默认分支"
+        raise SystemExit(f"{where} 上没有 {issue['path']}（{kind}）")
 
 
 def _initial_state(issue: dict, work: Path) -> dict:
@@ -168,6 +257,8 @@ def _initial_state(issue: dict, work: Path) -> dict:
         "rule": issue["rule"],
         "path": issue["path"],
         "message": issue["message"],
+        "start_line": int(issue.get("start_line") or 0) or None,
+        "end_line": int(issue.get("end_line") or 0) or None,
         "tier": "",
         "level": "",
         "reason": "",
@@ -179,6 +270,9 @@ def _initial_state(issue: dict, work: Path) -> dict:
         "rescan_added": [],
         "uncovered_lines": [],
         "project": issue["project"],
+        "sca_package": issue.get("sca_package") or "",
+        "sca_to_version": issue.get("sca_to_version") or "",
+        "fix_attempt": 0,
         "history": [],
     }
 

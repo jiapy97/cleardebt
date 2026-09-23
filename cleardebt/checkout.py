@@ -1,4 +1,4 @@
-"""Clone the connected GitLab project's default branch. Never touches fixtures."""
+"""Clone a bound project's branch. Supports GitLab, GitHub, and Azure DevOps."""
 
 from __future__ import annotations
 
@@ -7,9 +7,6 @@ import shutil
 import stat
 import subprocess
 import tempfile
-import urllib.parse
-import urllib.request
-import json
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -20,18 +17,31 @@ def checkout_default(dest: Path, saved: dict | None = None) -> str:
     if saved is None:
         saved = _credentials()
     if not saved or not saved.get("remote"):
-        raise SystemExit("还没填写 GitLab 地址，服务碰不到任何仓库。")
-    branch = _default_branch(saved)
+        raise SystemExit("还没填写代码仓库地址，服务碰不到任何仓库。")
+    from cleardebt.hosting import default_branch
+
+    branch = default_branch(saved)
+    return checkout_branch(dest, saved, branch)
+
+
+def checkout_branch(dest: Path, saved: dict, branch: str) -> str:
+    """Clone a specific branch. Never pushes onto that branch."""
+    name = (branch or "").strip()
+    if not name:
+        raise SystemExit("没有写分支，拉不下来。")
+    if not saved or not saved.get("remote"):
+        raise SystemExit("还没填写代码仓库地址，服务碰不到任何仓库。")
     _refuse_fixtures(dest)
     if dest.exists():
         shutil.rmtree(dest)
     dest.parent.mkdir(parents=True, exist_ok=True)
     _git(
         dest.parent,
-        ["clone", "--depth", "1", "--branch", branch, saved["remote"], dest.name],
+        ["clone", "--depth", "1", "--branch", name, saved["remote"], dest.name],
         saved["token"],
+        provider=saved.get("provider") or "gitlab",
     )
-    return branch
+    return name
 
 
 def _credentials() -> dict:
@@ -39,22 +49,8 @@ def _credentials() -> dict:
 
     saved = gitlab_credentials()
     if not saved:
-        raise SystemExit("还没填写 GitLab 地址，服务碰不到任何仓库。")
+        raise SystemExit("还没填写代码仓库地址，服务碰不到任何仓库。")
     return saved
-
-
-def _default_branch(saved: dict) -> str:
-    parsed = urllib.parse.urlparse(saved["url"])
-    request = urllib.request.Request(
-        f"{parsed.scheme}://{parsed.netloc}/api/v4/projects/{saved['project_id']}",
-        headers={"PRIVATE-TOKEN": saved["token"]},
-    )
-    with urllib.request.urlopen(request, timeout=30) as response:
-        payload = json.loads(response.read().decode("utf-8"))
-    branch = payload.get("default_branch")
-    if not branch:
-        raise SystemExit("这个仓库没有默认分支。")
-    return branch
 
 
 def _refuse_fixtures(dest: Path) -> None:
@@ -64,15 +60,22 @@ def _refuse_fixtures(dest: Path) -> None:
         raise SystemExit("不会改玩具文件。")
 
 
-def _git(repo: Path, args: list[str], token: str) -> None:
+def _git(repo: Path, args: list[str], token: str, *, provider: str = "gitlab") -> None:
+    from cleardebt.hosting import askpass_username
+
+    user = askpass_username(provider)
     askpass = Path(tempfile.mkdtemp(prefix="cleardebt-askpass-")) / "askpass"
     askpass.write_text(
-        '#!/bin/sh\ncase "$1" in\n  *[Uu]sername*) echo oauth2 ;;\n  *) echo "$GITLAB_TOKEN" ;;\nesac\n',
+        "#!/bin/sh\n"
+        'case "$1" in\n'
+        f"  *[Uu]sername*) echo {user} ;;\n"
+        '  *) echo "$CLEARDEBT_GIT_TOKEN" ;;\n'
+        "esac\n",
         encoding="utf-8",
     )
     askpass.chmod(askpass.stat().st_mode | stat.S_IEXEC)
     env = os.environ.copy()
-    env["GITLAB_TOKEN"] = token
+    env["CLEARDEBT_GIT_TOKEN"] = token
     env["GIT_ASKPASS"] = str(askpass)
     env["GIT_TERMINAL_PROMPT"] = "0"
     completed = subprocess.run(
@@ -84,4 +87,4 @@ def _git(repo: Path, args: list[str], token: str) -> None:
     )
     if completed.returncode != 0:
         detail = (completed.stderr or completed.stdout or "").replace(token, "***")
-        raise SystemExit(f"拉不下来默认分支：{detail[-500:]}")
+        raise SystemExit(f"拉不下来分支：{detail[-500:]}")

@@ -43,18 +43,28 @@ def line_span(source: str, start_line: int, end_line: int) -> str:
     return "\n".join(lines[start_line - 1 : end_line])
 
 
-def fetch_issues(host: str, token: str, project_key: str) -> list[dict]:
+def fetch_issues(
+    host: str,
+    token: str,
+    project_key: str,
+    *,
+    pull_request: str | None = None,
+    branch: str | None = None,
+) -> list[dict]:
     issues: list[dict] = []
     page = 1
     while True:
-        query = urllib.parse.urlencode(
-            {
-                "componentKeys": project_key,
-                "resolved": "false",
-                "ps": "500",
-                "p": str(page),
-            }
-        )
+        params = {
+            "componentKeys": project_key,
+            "resolved": "false",
+            "ps": "500",
+            "p": str(page),
+        }
+        if pull_request:
+            params["pullRequest"] = str(pull_request)
+        elif branch:
+            params["branch"] = branch
+        query = urllib.parse.urlencode(params)
         request = urllib.request.Request(
             f"{host.rstrip('/')}/api/issues/search?{query}",
             headers={"Authorization": f"Bearer {token}"},

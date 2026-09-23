@@ -9,5 +9,6 @@ __pycache__/
 deploy/sonarqube/.token
 deploy/gitlab/.token
 deploy/deepseek/.token
+deploy/llm/.token
 .scannerwork/
 **/.scannerwork/

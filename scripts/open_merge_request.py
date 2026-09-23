@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Open one GitLab merge request for the saved L1 issue. A second run does nothing."""
+"""Open one fix request (GitLab / GitHub / Azure DevOps) for a saved L1 issue. A second run does nothing."""
 
 from __future__ import annotations
 
@@ -26,31 +26,61 @@ from cleardebt.issue_graph import build_graph
 from run_issue import DB_URI, _find_issue
 
 
-def execute(rule: str | None = None, project: str | None = None) -> dict:
-    from cleardebt.checkout import checkout_default
+def execute(
+    rule: str | None = None,
+    project: str | None = None,
+    *,
+    path: str | None = None,
+    target_branch: str | None = None,
+    fingerprint: str | None = None,
+) -> dict:
+    from cleardebt.checkout import checkout_branch, checkout_default
     from cleardebt.controls import gitlab_credentials, unbound_reason
 
     project = (project or "").strip()
     if not project:
         raise NotEligible("没有写项目，不会跑。")
-    issue = _find_issue(load_sonar_token(), rule or "javascript:S1128", project)
+    if fingerprint:
+        with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
+            checkpointer.setup()
+            graph = build_graph(checkpointer)
+            state = graph.get_state({"configurable": {"thread_id": fingerprint}}).values or {}
+        if not state:
+            raise NotEligible("没有这条告警的过闸记录。")
+        issue = {
+            "fingerprint": fingerprint,
+            "rule": state.get("rule") or rule or "javascript:S1128",
+            "path": state.get("path") or path or "",
+            "project": project,
+        }
+    else:
+        issue = _find_issue(load_sonar_token(), rule or "javascript:S1128", project, path=path)
+        fingerprint = issue["fingerprint"]
+        with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
+            checkpointer.setup()
+            graph = build_graph(checkpointer)
+            state = graph.get_state({"configurable": {"thread_id": fingerprint}}).values
     saved = gitlab_credentials(issue["project"])
     if not saved:
         raise NotEligible(unbound_reason(issue["project"]))
-    token = saved["token"]
-    ensure_access(project_access_level(token, saved["project_id"], saved["url"]))
-    fingerprint = issue["fingerprint"]
-    with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
-        checkpointer.setup()
-        graph = build_graph(checkpointer)
-        state = graph.get_state({"configurable": {"thread_id": fingerprint}}).values
+    from cleardebt.hosting import HostingError, create_request, ensure_push_access
+
+    try:
+        ensure_push_access(saved)
+    except HostingError as error:
+        raise NotEligible(str(error)) from error
     ensure_eligible(state.get("level", ""))
     existing = find_merge_request(fingerprint)
     if existing:
         return {"action": "skip", **existing}
 
     repo = ROOT / "var" / "merge" / fingerprint[:12]
-    default = checkout_default(repo, saved)
+    base = (target_branch or "").strip()
+    if base:
+        checkout_branch(repo, saved, base)
+        default = base
+    else:
+        default = checkout_default(repo, saved)
     branch = "cleardebt/" + state["rule"].split(":")[-1].lower() + "-" + fingerprint[:8]
     git(repo, ["config", "user.name", "ClearDebt"])
     git(repo, ["config", "user.email", "cleardebt@localhost"])
@@ -59,17 +89,18 @@ def execute(rule: str | None = None, project: str | None = None) -> dict:
     target.parent.mkdir(parents=True, exist_ok=True)
     target.write_text(state.get("after") or "", encoding="utf-8")
     git(repo, ["add", state["path"]])
-    git(repo, ["commit", "-m", f"去掉未使用的 import（{state['rule']}）"])
-    push(repo, token, branch)
-    opened = create_merge_request(
-        token,
-        source_branch=branch,
-        target_branch=default,
-        title=f"去掉未使用的 import（{state['rule']}）",
-        description=render_description(state),
-        project_id=saved["project_id"],
-        gitlab_url=saved["url"],
-    )
+    git(repo, ["commit", "-m", f"ClearDebt 修复（{state['rule']}）"])
+    push(repo, saved["token"], branch, provider=saved.get("provider") or "gitlab")
+    try:
+        opened = create_request(
+            saved,
+            source_branch=branch,
+            target_branch=default,
+            title=f"ClearDebt 修复（{state['rule']}）",
+            description=render_description(state),
+        )
+    except HostingError as error:
+        raise NotEligible(str(error)) from error
     record = {
         "action": "opened",
         "fingerprint": fingerprint,
@@ -77,6 +108,7 @@ def execute(rule: str | None = None, project: str | None = None) -> dict:
         "web_url": opened["web_url"],
         "source_branch": branch,
         "target_branch": default,
+        "provider": opened.get("provider") or saved.get("provider") or "gitlab",
     }
     save_merge_request(record)
     return record
@@ -103,19 +135,26 @@ def project_access_level(token: str, project_id: int | None = None, gitlab_url: 
     return int(access.get("access_level") or 0)
 
 
-def push(repo: Path, token: str, ref: str) -> None:
-    run_git(repo, ["push", "origin", f"{ref}:{ref}"], token)
+def push(repo: Path, token: str, ref: str, *, provider: str = "gitlab") -> None:
+    run_git(repo, ["push", "origin", f"{ref}:{ref}"], token, provider=provider)
 
 
-def run_git(repo: Path, args: list[str], token: str) -> None:
+def run_git(repo: Path, args: list[str], token: str, *, provider: str = "gitlab") -> None:
+    from cleardebt.hosting import askpass_username
+
+    user = askpass_username(provider)
     askpass = Path(tempfile.mkdtemp(prefix="cleardebt-askpass-")) / "askpass"
     askpass.write_text(
-        '#!/bin/sh\ncase "$1" in\n  *[Uu]sername*) echo oauth2 ;;\n  *) echo "$GITLAB_TOKEN" ;;\nesac\n',
+        "#!/bin/sh\n"
+        'case "$1" in\n'
+        f'  *[Uu]sername*) echo {user} ;;\n'
+        '  *) echo "$CLEARDEBT_GIT_TOKEN" ;;\n'
+        "esac\n",
         encoding="utf-8",
     )
     askpass.chmod(askpass.stat().st_mode | stat.S_IEXEC)
     env = os.environ.copy()
-    env["GITLAB_TOKEN"] = token
+    env["CLEARDEBT_GIT_TOKEN"] = token
     env["GIT_ASKPASS"] = str(askpass)
     env["GIT_TERMINAL_PROMPT"] = "0"
     subprocess.run(["git", *args], cwd=repo, env=env, check=True)
@@ -149,7 +188,7 @@ def create_merge_request(
 
 def _require_project(project_id: int | None) -> int:
     if project_id is None:
-        raise NotEligible("还没填写 GitLab 地址，服务碰不到任何仓库。")
+        raise NotEligible("还没填写代码仓库地址，服务碰不到任何仓库。")
     return project_id
 
 

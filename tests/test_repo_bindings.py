@@ -76,7 +76,7 @@ class BindingTest(unittest.TestCase):
                 "alpha": {"remote": str(alpha), "branch": "alpha-branch", "token": "local-token"},
                 "beta": {"remote": str(beta), "branch": "beta-branch", "token": "local-token"},
             }
-            with patch("cleardebt.checkout._default_branch", side_effect=lambda item: item["branch"]):
+            with patch("cleardebt.hosting.default_branch", side_effect=lambda item: item["branch"]):
                 branch_a = checkout_default(root / "work-a", saved["alpha"])
                 branch_b = checkout_default(root / "work-b", saved["beta"])
             self.assertEqual(branch_a, "alpha-branch")
@@ -102,12 +102,14 @@ class BindingTest(unittest.TestCase):
                 "url": "https://git.alpha.example/g/alpha",
                 "token": "t",
                 "project_id": 11,
+                "provider": "gitlab",
                 "remote": "/repos/alpha",
             },
             "beta": {
                 "url": "https://git.beta.example/g/beta",
                 "token": "t",
                 "project_id": 22,
+                "provider": "gitlab",
                 "remote": "/repos/beta",
             },
         }
@@ -122,9 +124,13 @@ class BindingTest(unittest.TestCase):
             (dest / "src").mkdir(parents=True, exist_ok=True)
             return "develop" if saved["project_id"] == 11 else "trunk"
 
-        def create(token: str, **kwargs):
-            opened.append(kwargs)
-            return {"iid": kwargs["project_id"], "web_url": kwargs["gitlab_url"] + "/mr"}
+        def create(saved, **kwargs):
+            opened.append({"saved": saved, **kwargs})
+            return {
+                "iid": saved["project_id"],
+                "web_url": saved["url"] + "/mr",
+                "provider": "gitlab",
+            }
 
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
@@ -150,7 +156,7 @@ class BindingTest(unittest.TestCase):
                 patch("run_batch.checkout_default", side_effect=checkout),
                 patch("run_batch.git"),
                 patch("run_batch.push"),
-                patch("run_batch.create_merge_request", side_effect=create),
+                patch("cleardebt.hosting.create_request", side_effect=create),
                 patch("run_batch.save_merge_request"),
                 patch("run_batch.find_merge_request", return_value=None),
             ):
@@ -160,9 +166,9 @@ class BindingTest(unittest.TestCase):
                     _open_one("t", {**issues[0], "project": "orphan", "fingerprint": "orphanfp0000"}, "orphan")
 
         self.assertEqual(clones, [("/repos/alpha", 11), ("/repos/beta", 22)])
-        self.assertEqual([item["project_id"] for item in opened], [11, 22])
-        self.assertEqual(opened[0]["gitlab_url"], "https://git.alpha.example/g/alpha")
-        self.assertEqual(opened[1]["gitlab_url"], "https://git.beta.example/g/beta")
+        self.assertEqual([item["saved"]["project_id"] for item in opened], [11, 22])
+        self.assertEqual(opened[0]["saved"]["url"], "https://git.alpha.example/g/alpha")
+        self.assertEqual(opened[1]["saved"]["url"], "https://git.beta.example/g/beta")
         self.assertEqual(first["target_branch"], "develop")
         self.assertEqual(second["target_branch"], "trunk")
         self.assertIn("不去改别的仓库", str(caught.exception))

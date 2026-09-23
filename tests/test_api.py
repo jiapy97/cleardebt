@@ -118,14 +118,43 @@ class ApiTest(unittest.TestCase):
                 follow_redirects=False,
             )
         self.assertEqual(response.status_code, 303)
-        save.assert_called_once_with(enabled=True, dry_run=True, retrieve=False)
+        save.assert_called_once_with(enabled=True, dry_run=True, retrieve=False, request_fix=False)
 
     def test_unchecked_switches_turn_both_off(self):
         client = TestClient(app)
         with patch("cleardebt.api.save_controls", return_value={}) as save:
             response = client.post("/switches", data={}, follow_redirects=False)
         self.assertEqual(response.status_code, 303)
-        save.assert_called_once_with(enabled=False, dry_run=False, retrieve=False)
+        save.assert_called_once_with(enabled=False, dry_run=False, retrieve=False, request_fix=False)
+
+    def test_schedule_form_saves_automation(self):
+        client = TestClient(app)
+        with patch("cleardebt.api.save_controls", return_value={}) as save:
+            response = client.post(
+                "/schedule",
+                data={
+                    "schedule_enabled": "true",
+                    "frequency": "weekly",
+                    "weekday": "2",
+                    "hour": "9",
+                    "minute": "30",
+                    "timezone": "UTC",
+                    "pause_when_open_mrs": "5",
+                },
+                follow_redirects=False,
+            )
+        self.assertEqual(response.status_code, 303)
+        save.assert_called_once_with(
+            backlog_automation={
+                "enabled": True,
+                "frequency": "weekly",
+                "weekday": "2",
+                "hour": "9",
+                "minute": "30",
+                "timezone": "UTC",
+                "pause_when_open_mrs": "5",
+            }
+        )
 
 
 if __name__ == "__main__":

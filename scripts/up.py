@@ -2,7 +2,7 @@
 """Start Postgres, Redis, the review page, and the morning worker.
 
 Safe to run again: pieces that are already up are left alone.
-Sonar and GitLab are not started here. Fill those in on the review page.
+Sonar and code hosting are not started here. Fill those in on the review page.
 """
 
 from __future__ import annotations
@@ -43,7 +43,7 @@ def main() -> int:
         print("网页没有起来。看 var/uvicorn.log")
         return 1
     print(f"审核页：{PAGE}")
-    print("下一步：打开这个页面，填你自己的 Sonar 和 GitLab，勾上空跑，再执行 python scripts/run_batch.py")
+    print("下一步：打开这个页面，填你自己的 Sonar 与代码托管，勾上空跑，再执行 python scripts/run_batch.py")
     return 0
 
 
