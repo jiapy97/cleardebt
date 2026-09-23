@@ -6,7 +6,7 @@ import sys
 from pathlib import Path
 
 from fastapi import Body, FastAPI, Form, HTTPException
-from fastapi.responses import HTMLResponse, RedirectResponse
+from fastapi.responses import FileResponse, HTMLResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from langgraph.checkpoint.postgres import PostgresSaver
 
@@ -29,6 +29,17 @@ app.mount("/static", StaticFiles(directory=ROOT / "cleardebt" / "static"), name=
 
 
 @app.get("/", response_class=HTMLResponse)
+def console_index() -> HTMLResponse:
+    index = ROOT / "cleardebt" / "static" / "console" / "index.html"
+    if not index.is_file():
+        return HTMLResponse(
+            "<p>前端还没构建。在项目目录执行：<code>cd frontend && npm install && npm run build</code>，然后刷新。</p>",
+            status_code=503,
+        )
+    return FileResponse(index)
+
+
+@app.get("/legacy", response_class=HTMLResponse)
 def review_page() -> str:
     from cleardebt.assign import list_sessions
 
@@ -248,23 +259,11 @@ def mr_remediate(body: dict = Body(...)) -> dict:
 
 @app.post("/issues/list", response_class=HTMLResponse)
 def list_issues_form(repo: str = Form("")) -> HTMLResponse:
-    from cleardebt.assign import list_backlog_issues, list_sessions
-    from cleardebt.baseline_scan import scan_baseline
+    from cleardebt.assign import list_sessions
 
     name = repo.strip()
     try:
-        scan = scan_baseline(name)
-        stamp = scan.get("analysis_date") or ""
-        if scan.get("skipped"):
-            scan_note = f"上次分析是 {stamp}，10 分钟内扫过就不再重扫，下面是最新的告警。"
-        elif stamp:
-            scan_note = f"刚重扫过主分支（分析时间 {stamp}），下面是最新的告警。"
-        else:
-            scan_note = "刚重扫过主分支，下面是最新的告警。"
-    except ValueError as error:
-        scan_note = f"重扫没跑成（{error}），下面是上次分析的告警。"
-    try:
-        issues = list_backlog_issues(name)
+        issues, scan_note = _list_issues_with_scan(name)
     except ValueError as error:
         page = render_page(
             latest_sheet(),
@@ -284,6 +283,112 @@ def list_issues_form(repo: str = Form("")) -> HTMLResponse:
             assign_notice=scan_note,
         )
     )
+
+
+def _list_issues_with_scan(name: str) -> tuple[list, str]:
+    from cleardebt.assign import list_backlog_issues
+    from cleardebt.baseline_scan import scan_baseline
+
+    try:
+        scan = scan_baseline(name)
+        stamp = scan.get("analysis_date") or ""
+        if scan.get("skipped"):
+            scan_note = f"上次分析是 {stamp}，10 分钟内扫过就不再重扫，下面是最新的告警。"
+        elif stamp:
+            scan_note = f"刚重扫过主分支（分析时间 {stamp}），下面是最新的告警。"
+        else:
+            scan_note = "刚重扫过主分支，下面是最新的告警。"
+    except ValueError as error:
+        scan_note = f"重扫没跑成（{error}），下面是上次分析的告警。"
+    return list_backlog_issues(name), scan_note
+
+
+@app.post("/api/issues/list")
+def api_list_issues(body: dict = Body(...)) -> dict:
+    name = (body.get("repo") or "").strip()
+    try:
+        issues, scan_note = _list_issues_with_scan(name)
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+    return {"repo": name, "issues": issues, "scan_note": scan_note}
+
+
+@app.get("/api/overview")
+def api_overview() -> dict:
+    from cleardebt.controls import form_values
+
+    real = form_values()
+    tokens = {key: real.get(key) or "" for key in ("sonar_token", "gitlab_token", "github_token", "azure_token", "llm_token")}
+    try:
+        settings = _form_settings()
+    except Exception as error:
+        controls = load_controls()
+        whitelist = controls.get("whitelist") or []
+        settings = {
+            "configured": False,
+            "sonar_url": controls.get("sonar_url") or "http://localhost:9000",
+            "binding_lines": "",
+            "repo_choices": [{"key": name, "selected": True} for name in whitelist],
+            "whitelist": whitelist,
+            "bindings": controls.get("bindings") or [],
+            "enabled": controls.get("enabled", True),
+            "dry_run": controls.get("dry_run", True),
+            "retrieve": controls.get("retrieve", False),
+            "request_fix": controls.get("request_fix", True),
+            "backlog_automation": controls.get("backlog_automation") or {},
+            "overview_warning": f"Sonar 连不上，只显示已保存的名单：{error}",
+        }
+    settings.update(tokens)
+    return settings
+
+
+@app.post("/api/setup")
+def api_setup(body: dict = Body(...)) -> dict:
+    typed = [part.strip() for part in (body.get("project_keys") or "").replace("，", ",").split(",")]
+    whitelist = [str(item) for item in body.get("whitelist") or []]
+    names = []
+    for item in [*whitelist, *typed]:
+        if item and item not in names:
+            names.append(item)
+    paired = merge_bindings(names, body.get("bindings") or "")
+    try:
+        connect_integration(
+            sonar_url=(body.get("sonar_url") or "").strip(),
+            sonar_token=(body.get("sonar_token") or "").strip(),
+            gitlab_token=(body.get("gitlab_token") or "").strip(),
+            github_token=(body.get("github_token") or "").strip(),
+            azure_token=(body.get("azure_token") or "").strip(),
+            llm_token=(body.get("llm_token") or "").strip(),
+            whitelist=[item["sonar_key"] for item in paired],
+            bindings=paired,
+        )
+    except (ValueError, RuntimeError) as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+    return {"ok": True}
+
+
+@app.get("/api/reports/latest")
+def api_latest_sheet() -> dict:
+    return {"sheet": latest_sheet()}
+
+
+@app.post("/api/tokens/reveal")
+def api_reveal_tokens() -> dict:
+    """Return the real saved tokens for the local admin to view/edit.
+
+    The console only listens on 127.0.0.1; values are filled into the form
+    on explicit user action (never echoed into the initial page render).
+    """
+    from cleardebt.controls import form_values
+
+    values = form_values()
+    return {
+        "sonar_token": values.get("sonar_token") or "",
+        "gitlab_token": values.get("gitlab_token") or "",
+        "github_token": values.get("github_token") or "",
+        "azure_token": values.get("azure_token") or "",
+        "llm_token": values.get("llm_token") or "",
+    }
 
 
 @app.post("/issues/assign-form", response_class=HTMLResponse)

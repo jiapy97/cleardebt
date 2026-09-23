@@ -159,3 +159,13 @@ class ApiTest(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+
+class RevealTokensTest(unittest.TestCase):
+    def test_reveal_returns_token_keys(self):
+        client = TestClient(app)
+        response = client.post("/api/tokens/reveal")
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        for key in ("sonar_token", "gitlab_token", "github_token", "azure_token", "llm_token"):
+            self.assertIn(key, body)

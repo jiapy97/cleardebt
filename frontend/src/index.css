@@ -1,0 +1,47 @@
+body {
+  margin: 0;
+  background: #f4f4f5;
+}
+
+/* 单行状态 pill：不断行、不竖排 */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  border-radius: 999px;
+  padding: 2px 10px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 20px;
+  border: 1px solid transparent;
+}
+.pill-ok {
+  background: #ecfdf5;
+  color: #047857;
+  border-color: #a7f3d0;
+}
+.pill-warn {
+  background: #fffbeb;
+  color: #b45309;
+  border-color: #fde68a;
+}
+.pill-err {
+  background: #fef2f2;
+  color: #b91c1c;
+  border-color: #fecaca;
+}
+.pill-mute {
+  background: #f4f4f5;
+  color: #52525b;
+  border-color: #e4e4e7;
+}
+.pill-row {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+}
+.pill-link {
+  white-space: nowrap;
+  font-size: 13px;
+}
