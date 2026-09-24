@@ -27,6 +27,42 @@ _guard = threading.Lock()
 _locks: dict[str, threading.Lock] = {}
 
 
+def _sonar_up(host: str, timeout: int = 5) -> bool:
+    try:
+        request = urllib.request.Request(host.rstrip("/") + "/api/system/status")
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            import json
+
+            return json.loads(response.read().decode("utf-8")).get("status") == "UP"
+    except Exception:
+        return False
+
+
+def ensure_sonar(host: str, *, wait: int = 90) -> None:
+    """Self-heal the local Sonar container (it exits on its own sometimes).
+
+    Probes /api/system/status; on failure tries `docker start` once and
+    waits. Raises ValueError with a human message when it stays down.
+    Never raises for non-local hosts.
+    """
+    if _sonar_up(host):
+        return
+    parsed = urllib.parse.urlparse(host)
+    if (parsed.hostname or "") not in {"localhost", "127.0.0.1", "::1"}:
+        raise ValueError(f"连不上 Sonar（{host}），先确认 Sonar 在跑。")
+    report_progress("", "Sonar 没在跑，正在把它拉起来…")
+    try:
+        subprocess.run(["docker", "start", "cleardebt-sonarqube"], capture_output=True, timeout=30)
+    except Exception as error:
+        raise ValueError(f"Sonar 没在跑，自动拉起失败：{error}。手动跑 docker start cleardebt-sonarqube。") from error
+    deadline = time.time() + wait
+    while time.time() < deadline:
+        if _sonar_up(host):
+            return
+        time.sleep(5)
+    raise ValueError("Sonar 拉起来了但一直没就绪，等一分钟再点重扫。")
+
+
 def scan_baseline(repo: str, *, timeout: int = 600) -> dict:
     """Clone the default branch and scan it as the real Sonar project key.
 
@@ -52,6 +88,8 @@ def scan_baseline(repo: str, *, timeout: int = 600) -> dict:
             raise ValueError("这个项目还没绑定代码仓库地址，重扫不起来。")
         host = sonar_base_url()
         token = load_token(None)
+        report_progress(name, "正在确认 Sonar 在跑…")
+        ensure_sonar(host)
         dest = _SCAN_ROOT / re.sub(r"[^A-Za-z0-9_.-]+", "_", name)
         report_progress(name, "正在拉取主分支代码…")
         checkout_default(dest, saved)

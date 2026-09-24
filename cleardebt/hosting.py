@@ -49,8 +49,50 @@ def resolve_repository(url: str, token: str, provider: str | None = None) -> dic
     return _resolve_gitlab(url, token)
 
 
+_DEFAULT_BRANCH_CACHE: dict[str, tuple[str, float]] = {}
+_DEFAULT_BRANCH_TTL = 3600.0
+
+
+def _ls_remote_default(remote: str) -> str:
+    """Read the default branch via git protocol; zero API quota.
+
+    `git ls-remote --symref <remote> HEAD` answers `ref: refs/heads/<name>`
+    for public repos without any token. Returns "" on any trouble so the
+    caller falls back to the hosting API.
+    """
+    import subprocess
+
+    if not (remote or "").strip():
+        return ""
+    try:
+        completed = subprocess.run(
+            ["git", "ls-remote", "--symref", remote.strip(), "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=30,
+        )
+    except Exception:
+        return ""
+    for line in (completed.stdout or "").splitlines():
+        if line.startswith("ref:"):
+            ref = line.split()[1] if len(line.split()) > 1 else ""
+            if ref.startswith("refs/heads/"):
+                return ref[len("refs/heads/"):]
+    return ""
+
+
 def default_branch(saved: dict) -> str:
+    import time
+
     kind = saved.get("provider") or detect_provider(saved.get("url") or "")
+    cache_key = f"{kind}:{(saved.get('project_path') or saved.get('url') or '').strip()}"
+    hit = _DEFAULT_BRANCH_CACHE.get(cache_key)
+    if hit and time.time() - hit[1] < _DEFAULT_BRANCH_TTL:
+        return hit[0]
+    branch = _ls_remote_default(saved.get("remote") or "")
+    if branch:
+        _DEFAULT_BRANCH_CACHE[cache_key] = (branch, time.time())
+        return branch
     if kind == "github":
         payload = _github_json("GET", f"/repos/{saved['project_path']}", saved["token"])
         branch = payload.get("default_branch")
@@ -68,6 +110,9 @@ def default_branch(saved: dict) -> str:
         branch = payload.get("default_branch")
     if not branch:
         raise HostingError("这个仓库没有默认分支。")
+    import time as _time
+
+    _DEFAULT_BRANCH_CACHE[cache_key] = (branch, _time.time())
     return branch
 
 
@@ -403,11 +448,18 @@ def _gitlab_json(
 
 def _github_json(method: str, path: str, token: str, body: dict | None = None) -> dict:
     headers = {
-        "Authorization": f"Bearer {token}",
         "Accept": "application/vnd.github+json",
         "X-GitHub-Api-Version": "2022-11-28",
     }
-    return _request_json(f"https://api.github.com{path}", method=method, headers=headers, body=body)
+    if (token or "").strip():
+        headers["Authorization"] = f"Bearer {token.strip()}"
+    try:
+        return _request_json(f"https://api.github.com{path}", method=method, headers=headers, body=body)
+    except HostingError as error:
+        if " 401" not in str(error) or "Authorization" not in headers:
+            raise
+        fallback = {key: value for key, value in headers.items() if key != "Authorization"}
+        return _request_json(f"https://api.github.com{path}", method=method, headers=fallback, body=body)
 
 
 def _azure_json(

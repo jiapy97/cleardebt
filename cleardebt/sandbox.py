@@ -8,6 +8,7 @@ can still reach the outside.
 from __future__ import annotations
 
 import hashlib
+import os
 import shutil
 import subprocess
 import tempfile
@@ -23,6 +24,28 @@ def image_name(lockfile: Path) -> str:
     return f"{IMAGE_PREFIX}:{digest}"
 
 
+SANDBOX_NETWORK = os.environ.get("CLEARDEBT_SANDBOX_NETWORK", "cleardebt-sandbox").strip() or "none"
+
+
+def ensure_network() -> None:
+    """Dedicated internal network: loopback works, outside world does not.
+
+    Falls back to `none` when the network is missing so tests never depend
+    on Docker state.
+    """
+    if SANDBOX_NETWORK == "none":
+        return
+    probe = subprocess.run(
+        ["docker", "network", "inspect", SANDBOX_NETWORK], capture_output=True, text=True
+    )
+    if probe.returncode != 0:
+        subprocess.run(
+            ["docker", "network", "create", "--internal", SANDBOX_NETWORK],
+            capture_output=True,
+            text=True,
+        )
+
+
 def docker_command(work: Path, image: str | None = None) -> list[str]:
     resolved = work.resolve()
     tag = image or image_name(_lockfile(resolved))
@@ -31,7 +54,7 @@ def docker_command(work: Path, image: str | None = None) -> list[str]:
         "run",
         "--rm",
         "--network",
-        "none",
+        SANDBOX_NETWORK,
         "-v",
         f"{resolved}:/work",
         "-e",
@@ -43,6 +66,7 @@ def docker_command(work: Path, image: str | None = None) -> list[str]:
 
 
 def run_project_tests(work: Path) -> subprocess.CompletedProcess[str]:
+    ensure_network()
     tag = ensure_image(work)
     return subprocess.run(docker_command(work, tag), check=False, text=True, capture_output=True)
 

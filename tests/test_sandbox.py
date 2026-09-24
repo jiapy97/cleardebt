@@ -15,7 +15,7 @@ class SandboxCommandTest(unittest.TestCase):
             lockfile.write_text('{"name":"other-js"}\n', encoding="utf-8")
             command = docker_command(work)
             tag = image_name(lockfile)
-        self.assertEqual(command[command.index("--network") + 1], "none")
+        self.assertEqual(command[command.index("--network") + 1], "cleardebt-sandbox")
         self.assertNotIn("npm", command)
         self.assertNotIn("ci", command)
         self.assertEqual(command[-1], tag)

@@ -13,6 +13,7 @@ class AlwaysScanTest(unittest.TestCase):
             patch("cleardebt.issue_graph.sonar_base_url", return_value="http://sonar"),
             patch("list_issues.load_token", return_value="token"),
             patch("cleardebt.baseline_scan._analysis_date", side_effect=[stamp, stamp]),
+            patch("cleardebt.baseline_scan.ensure_sonar"),
             patch("cleardebt.checkout.checkout_default"),
             patch("cleardebt.languages.sonar_sources_value", return_value="src"),
             patch("cleardebt.baseline_scan._run_scanner") as run,

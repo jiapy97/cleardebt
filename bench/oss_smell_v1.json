@@ -1,0 +1,306 @@
+{
+ "generated": "oss_smell_v2",
+ "count": 30,
+ "issues": [
+  {
+   "project": "bench-dayjs",
+   "rule": "javascript:S1854",
+   "path": "src/plugin/negativeYear/index.js",
+   "message": "Remove this useless assignment to variable \"newDate\".",
+   "level": "L1",
+   "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+   "fix_method": null,
+   "seconds": 92
+  },
+  {
+   "project": "bench-dayjs",
+   "rule": "javascript:S1940",
+   "path": "src/index.js",
+   "message": "Use the opposite operator (!==) instead.",
+   "level": "L1",
+   "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+   "fix_method": null,
+   "seconds": 92
+  },
+  {
+   "project": "bench-dayjs",
+   "rule": "javascript:S2486",
+   "path": "src/plugin/customParseFormat/index.js",
+   "message": "Handle this exception, don't catch it at all, or explain in a comment why it is ignored.",
+   "level": "L3",
+   "reason": "加了抑制注释（NOSONAR 或 eslint-disable），告警被藏起来了，不是修好。",
+   "fix_method": null,
+   "seconds": 6
+  },
+  {
+   "project": "bench-dayjs",
+   "rule": "javascript:S3358",
+   "path": "src/locale/bn-bd.js",
+   "message": "Extract this nested ternary operation into an independent statement.",
+   "level": "L1",
+   "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+   "fix_method": null,
+   "seconds": 0
+  },
+  {
+   "project": "bench-dayjs",
+   "rule": "javascript:S4138",
+   "path": "src/plugin/timezone/index.js",
+   "message": "Expected a `for-of` loop instead of a `for` loop with this simple iteration.",
+   "level": "L1",
+   "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+   "fix_method": null,
+   "seconds": 0
+  },
+  {
+   "project": "bench-dayjs",
+   "rule": "javascript:S1301",
+   "path": "src/locale/zh-cn.js",
+   "message": "Replace this \"switch\" statement by \"if\" statements to increase readability.",
+   "level": "L1",
+   "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+   "fix_method": null,
+   "seconds": 0
+  },
+  {
+   "project": "bench-dayjs",
+   "rule": "javascript:S1788",
+   "path": "src/plugin/timezone/index.js",
+   "message": "Default parameters should be last.",
+   "level": "L1",
+   "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+   "fix_method": null,
+   "seconds": 0
+  },
+  {
+   "project": "bench-dayjs",
+   "rule": "javascript:S5843",
+   "path": "src/constant.js",
+   "message": "Simplify this regular expression to reduce its complexity from 27 to the 20 allowed.",
+   "level": "L3",
+   "reason": "替换片段不能用",
+   "fix_method": null,
+   "seconds": 0
+  },
+  {
+   "project": "bench-dayjs",
+   "rule": "javascript:S6035",
+   "path": "src/plugin/customParseFormat/index.js",
+   "message": "Replace this alternation with a character class.",
+   "level": "L3",
+   "reason": "13:59:08.685 INFO  Scanner configuration file: /opt/sonar-scanner/conf/sonar-scanner.properties\n13:59:08.688 INFO  Project root configuration file: /usr/src/sonar-project.properties\n13:59:08.771 INFO ",
+   "fix_method": null,
+   "seconds": 44
+  },
+  {
+   "project": "bench-dayjs",
+   "rule": "javascript:S6557",
+   "path": "src/plugin/negativeYear/index.js",
+   "message": "Use 'String#startsWith' method instead.",
+   "level": "L1",
+   "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+   "fix_method": null,
+   "seconds": 0
+  },
+  {
+   "project": "bench-dayjs",
+   "rule": "javascript:S6582",
+   "path": "src/index.js",
+   "message": "Prefer using an optional chain expression instead, as it's more concise and easier to read.",
+   "level": "L1",
+   "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+   "fix_method": null,
+   "seconds": 52
+  },
+  {
+   "project": "bench-dayjs",
+   "rule": "javascript:S6594",
+   "path": "src/index.js",
+   "message": "Use the \"RegExp.exec()\" method instead.",
+   "level": "L1",
+   "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+   "fix_method": null,
+   "seconds": 46
+  },
+  {
+   "project": "bench-dayjs",
+   "rule": "javascript:S6635",
+   "path": "src/plugin/duration/index.js",
+   "message": "Unexpected return statement in constructor.",
+   "level": "L3",
+   "reason": "14:00:41.442 INFO  Scanner configuration file: /opt/sonar-scanner/conf/sonar-scanner.properties\n14:00:41.446 INFO  Project root configuration file: /usr/src/sonar-project.properties\n14:00:41.468 INFO ",
+   "fix_method": null,
+   "seconds": 51
+  },
+  {
+   "project": "bench-dayjs",
+   "rule": "javascript:S7721",
+   "path": "src/plugin/objectSupport/index.js",
+   "message": "Move function 'callObject' to the outer scope.",
+   "level": "L3",
+   "reason": "14:00:55.137 INFO  Scanner configuration file: /opt/sonar-scanner/conf/sonar-scanner.properties\n14:00:55.141 INFO  Project root configuration file: /usr/src/sonar-project.properties\n14:00:55.205 INFO ",
+   "fix_method": null,
+   "seconds": 51
+  },
+  {
+   "project": "bench-dayjs",
+   "rule": "javascript:S7722",
+   "path": "src/plugin/customParseFormat/index.js",
+   "message": "Pass a message to the `Error` constructor.",
+   "level": "L1",
+   "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+   "fix_method": null,
+   "seconds": 46
+  },
+  {
+   "project": "bench-axios",
+   "rule": "javascript:S1121",
+   "path": "lib/adapters/adapters.js",
+   "message": "Extract the assignment of \"id\" from this expression.",
+   "level": "L3",
+   "reason": "14:01:46.141 INFO  Scanner configuration file: /opt/sonar-scanner/conf/sonar-scanner.properties\n14:01:46.144 INFO  Project root configuration file: /usr/src/sonar-project.properties\n14:01:46.173 INFO ",
+   "fix_method": null,
+   "seconds": 47
+  },
+  {
+   "project": "bench-axios",
+   "rule": "javascript:S2486",
+   "path": "lib/adapters/http.js",
+   "message": "Handle this exception, don't catch it at all, or explain in a comment why it is ignored.",
+   "level": "L3",
+   "reason": "14:02:20.748 INFO  Scanner configuration file: /opt/sonar-scanner/conf/sonar-scanner.properties\n14:02:20.752 INFO  Project root configuration file: /usr/src/sonar-project.properties\n14:02:20.814 INFO ",
+   "fix_method": null,
+   "seconds": 53
+  },
+  {
+   "project": "bench-axios",
+   "rule": "javascript:S3358",
+   "path": "lib/adapters/adapters.js",
+   "message": "Extract this nested ternary operation into an independent statement.",
+   "level": "L1",
+   "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+   "fix_method": null,
+   "seconds": 45
+  },
+  {
+   "project": "bench-axios",
+   "rule": "javascript:S2589",
+   "path": "lib/adapters/fetch.js",
+   "message": "This always evaluates to truthy. Consider refactoring this code.",
+   "level": "L3",
+   "reason": "测试没通过。",
+   "fix_method": null,
+   "seconds": 127
+  },
+  {
+   "project": "bench-axios",
+   "rule": "javascript:S3403",
+   "path": "lib/adapters/adapters.js",
+   "message": "Remove this \"===\" check; it will always be false. Did you mean to use \"==\"?",
+   "level": "L3",
+   "reason": "测试没通过。",
+   "fix_method": null,
+   "seconds": 125
+  },
+  {
+   "project": "bench-axios",
+   "rule": "javascript:S3800",
+   "path": "lib/adapters/fetch.js",
+   "message": "Refactor this function to always return the same type.",
+   "level": "L3",
+   "reason": "14:21:12.317 INFO  Scanner configuration file: /opt/sonar-scanner/conf/sonar-scanner.properties\n14:21:12.320 INFO  Project root configuration file: /usr/src/sonar-project.properties\n14:21:12.362 INFO ",
+   "fix_method": null,
+   "seconds": 24
+  },
+  {
+   "project": "bench-axios",
+   "rule": "javascript:S4138",
+   "path": "lib/helpers/cookies.js",
+   "message": "Expected a `for-of` loop instead of a `for` loop with this simple iteration.",
+   "level": "L1",
+   "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+   "fix_method": null,
+   "seconds": 46
+  },
+  {
+   "project": "bench-axios",
+   "rule": "javascript:S5869",
+   "path": "lib/adapters/http.js",
+   "message": "Remove duplicates in this character class.",
+   "level": "L3",
+   "reason": "重扫没通过：原来的告警还在，或者出现了新告警。",
+   "fix_method": null,
+   "seconds": 0
+  },
+  {
+   "project": "bench-axios",
+   "rule": "javascript:S6325",
+   "path": "lib/helpers/sanitizeHeaderValue.js",
+   "message": "Use a regular expression literal instead of the 'RegExp' constructor.",
+   "level": "L1",
+   "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+   "fix_method": null,
+   "seconds": 42
+  },
+  {
+   "project": "bench-axios",
+   "rule": "javascript:S6353",
+   "path": "lib/helpers/shouldBypassProxy.js",
+   "message": "Use concise character class syntax '\\d' instead of '[0-9]'.",
+   "level": "L3",
+   "reason": "重扫没通过：原来的告警还在，或者出现了新告警。",
+   "fix_method": null,
+   "seconds": 0
+  },
+  {
+   "project": "bench-axios",
+   "rule": "javascript:S6551",
+   "path": "lib/helpers/buildURL.js",
+   "message": "'params' will use Object's default stringification format ('[object Object]') when stringified.",
+   "level": "L3",
+   "reason": "重扫没通过：原来的告警还在，或者出现了新告警。",
+   "fix_method": null,
+   "seconds": 0
+  },
+  {
+   "project": "bench-axios",
+   "rule": "javascript:S6557",
+   "path": "lib/helpers/shouldBypassProxy.js",
+   "message": "Use the 'String#endsWith' method instead.",
+   "level": "L1",
+   "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+   "fix_method": null,
+   "seconds": 38
+  },
+  {
+   "project": "bench-axios",
+   "rule": "javascript:S6582",
+   "path": "lib/adapters/fetch.js",
+   "message": "Prefer using an optional chain expression instead, as it's more concise and easier to read.",
+   "level": "L1",
+   "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+   "fix_method": null,
+   "seconds": 40
+  },
+  {
+   "project": "bench-axios",
+   "rule": "javascript:S6594",
+   "path": "lib/helpers/shouldBypassProxy.js",
+   "message": "Use the \"RegExp.exec()\" method instead.",
+   "level": "L1",
+   "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+   "fix_method": null,
+   "seconds": 41
+  },
+  {
+   "project": "bench-axios",
+   "rule": "javascript:S6644",
+   "path": "lib/helpers/progressEventReducer.js",
+   "message": "Unnecessary use of conditional expression for default assignment.",
+   "level": "L1",
+   "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+   "fix_method": null,
+   "seconds": 39
+  }
+ ]
+}
