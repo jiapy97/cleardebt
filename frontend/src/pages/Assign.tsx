@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Alert, Button, Card, Checkbox, Select, Space, Spin, Table, message } from "antd";
+import { Alert, Button, Card, Checkbox, Select, Space, Spin, Table, Tag, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
 import { api, type Issue } from "../lib/api";
 import { useRepoChoices } from "../lib/useOverview";
@@ -30,12 +30,10 @@ export default function AssignPage() {
 
   const list = useMutation({
     mutationFn: (target?: string) => api.listIssues(target ?? cur),
-    onSuccess: (d, target) => {
-      setCache((c) => ({ ...c, [target ?? cur]: { issues: d.issues, note: d.scan_note } }));
+    onSuccess: () => {
       setPicked([]);
     },
     onError: (e: Error) => message.error(e.message),
-    onSettled: () => setScanning(false),
   });
 
   useEffect(() => {
@@ -45,7 +43,16 @@ export default function AssignPage() {
       api
         .scanProgress(cur)
         .then((p) => {
-          if (p.step && !p.stale) setPhase(p.step);
+          if (p.step === "DONE") {
+            setScanning(false);
+            load.mutate(cur);
+          } else if (p.step.startsWith("失败")) {
+            setScanning(false);
+            message.error(`重扫${p.step}`);
+            load.mutate(cur);
+          } else if (p.step && !p.stale) {
+            setPhase(p.step);
+          }
         })
         .catch(() => {});
     }, 2000);
@@ -149,6 +156,29 @@ export default function AssignPage() {
       render: (_, r) => <StatusBadge tone={r.eligible ? "ok" : "mute"} text={r.eligible ? "可修" : "跳过"} />,
     },
     {
+      title: "档位",
+      key: "tier",
+      width: 200,
+      render: (_, r) => {
+        const bits: string[] = [];
+        if (r.sonar_type) {
+          const t = r.sonar_type.replace("_", " ").toLowerCase();
+          bits.push(t);
+        }
+        const sev = (r.sonar_impacts?.[0]?.severity || r.sonar_severity || "").toLowerCase();
+        if (sev) bits.push(sev);
+        if (r.sonar_effort) bits.push(String(r.sonar_effort));
+        if (r.quick_fix) bits.push("quickfix");
+        const tone = r.tier === "A" ? "green" : r.tier === "B" ? "blue" : r.tier === "C" ? "orange" : "default";
+        return (
+          <span title={bits.length ? `Sonar 原生信号：${bits.join(" · ")}` : "Sonar 信号缺失，按规则元数据推断"}>
+            <Tag color={tone}>{r.tier || "?"}</Tag>
+            <span style={{ color: "#8c8c8c", fontSize: 12 }}>{bits.join(" · ")}</span>
+          </span>
+        );
+      },
+    },
+    {
       title: "最新状态",
       key: "status",
       width: 170,
@@ -183,7 +213,7 @@ export default function AssignPage() {
           />
           <Button
             type="primary"
-            loading={list.isPending}
+            loading={scanning}
             disabled={!cur}
             onClick={() => {
               setScanning(true);
@@ -191,9 +221,9 @@ export default function AssignPage() {
               list.mutate(cur);
             }}
           >
-            {list.isPending ? "正在重扫入库…" : shown ? "重新扫描" : "列出告警"}
+            {scanning ? "正在重扫入库…" : shown ? "重新扫描" : "列出告警"}
           </Button>
-          {list.isPending && (
+          {scanning && (
             <span style={{ display: "inline-flex", alignItems: "center", gap: 8, color: "#595959" }}>
               <Spin size="small" /> {phase || "正在准备重扫…"}
             </span>

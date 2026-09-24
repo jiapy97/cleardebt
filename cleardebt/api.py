@@ -366,7 +366,6 @@ def api_rules_pin(body: dict = Body(...)) -> dict:
     try:
         return save_pin(
             body.get("rule") or "",
-            tier=body.get("tier") or "",
             zh=body.get("zh") or "",
             zh_source="manual",
         )
@@ -505,14 +504,37 @@ def api_rules_list(prefix: str = "") -> dict:
     return {"total": len(catalog), "rules": rows}
 
 
+_scan_threads: dict[str, "threading.Thread"] = {}
+
+
 @app.post("/api/issues/list")
 def api_list_issues(body: dict = Body(...)) -> dict:
+    import threading
+
+    from cleardebt.scan_progress import read as read_progress
+
     name = (body.get("repo") or "").strip()
+    existing = _scan_threads.get(name)
+    if existing is not None and existing.is_alive():
+        return {"repo": name, "started": True, "already_running": True}
+    progress = read_progress(name)
+    if progress.get("step") and not progress.get("stale"):
+        return {"repo": name, "started": True, "already_running": True}
     try:
-        issues, scan_note = _list_issues_with_scan(name)
-    except ValueError as error:
+        from cleardebt.assign import refresh_backlog
+    except ImportError as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
-    return {"repo": name, "issues": issues, "scan_note": scan_note}
+
+    def _run() -> None:
+        try:
+            refresh_backlog(name)
+        except Exception:
+            pass
+
+    thread = threading.Thread(target=_run, name=f"scan-{name}", daemon=True)
+    _scan_threads[name] = thread
+    thread.start()
+    return {"repo": name, "started": True, "already_running": False}
 
 
 @app.get("/api/overview")

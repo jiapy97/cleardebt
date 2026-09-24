@@ -1,9 +1,8 @@
 """Rule tiers for one issue. The model does not choose the tier.
 
 Source of truth is the Sonar server (see cleardebt.rules): thousands of
-rules with severity/type, refreshed live. rules/overrides.json pins the
-curated tier + Chinese label for rules we have tuned; everything else is
-graded by the automatic policy below. Only javascript / typescript /
+rules with severity/type, refreshed live. the rule_pins table holds Chinese labels only; tiers are always derived
+from Sonar signals by the policy below. Only javascript / typescript /
 python / java / csharp / secrets prefixes.
 """
 
@@ -102,15 +101,15 @@ def _secrets_carveout() -> bool:
 
 
 def tier_for(rule: str) -> str:
-    """Rule-level tier: manual pins first, then Sonar's rule metadata."""
+    """Rule-level tier, computed from Sonar's rule metadata only.
+
+    No curated list anymore: the pins table keeps Chinese labels, but tiers
+    are 100% derived (see sonar_tier for the issue-level twin).
+    """
     if is_sca_rule(rule):
         return "A"
     if not language_supported(rule):
         return "unknown"
-    number = rule_number(rule)
-    pin = pins().get(number)
-    if pin and pin.get("tier") in {"A", "B", "C"}:
-        return pin["tier"]
     try:
         return policy_tier(lookup(rule))
     except Exception:

@@ -18,7 +18,7 @@ from cleardebt.controls import backlog_gate, gate, load_controls, save_report
 from cleardebt.gitlab_mr import NotEligible
 from cleardebt.issue_graph import sonar_base_url
 from cleardebt.sca import fetch_dependency_risks
-from cleardebt.triage import describe_message, llm_repairable, sonar_tier
+from cleardebt.triage import describe_message, llm_repairable, sonar_tier, tier_for
 from list_issues import fetch_issues, issue_path, load_token
 
 DB_URI = os.environ.get(
@@ -84,6 +84,9 @@ def _enrich(name: str, rows: list[dict]) -> list[dict]:
         if item.get("sonar_type") or item.get("sonar_impacts"):
             item["tier"] = sonar_tier(item)
             item["tier_source"] = "sonar"
+        else:
+            item["tier"] = tier_for(rule)
+            item["tier_source"] = "policy"
     suppressed = suppressed_map(name)
     seen = first_seen_map(name)
     for item in rows:
@@ -141,10 +144,16 @@ def refresh_backlog(repo: str) -> tuple[list[dict], str, str]:
             scan_note = "刚重扫过主分支，下面是最新的告警。"
     except ValueError as error:
         scan_note = f"重扫没跑成（{error}），下面是上次分析的告警。"
+        from cleardebt.scan_progress import report as report_progress
+
+        report_progress(name, f"失败：{error}")
         stamp = ""
     issues = list_backlog_issues(name)
     record_first_seen(name, issues)
     save_snapshot(name, stamp, issues)
+    from cleardebt.scan_progress import report as report_progress
+
+    report_progress(name, "DONE")
     return issues, scan_note, stamp
 
 

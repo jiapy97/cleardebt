@@ -3,9 +3,10 @@
 Source of truth is the Sonar server itself (`/api/rules/search`): thousands
 of rules with severity/type/tags. This module fetches them, caches for
 CLEARDEBT_RULES_TTL seconds (default 60), and answers metadata lookups.
-Curated pins (tier + Chinese label) live in rules/overrides.json and always
-win over the automatic policy. If Sonar is unreachable, pins still work and
-everything else reports unknown (fail closed).
+Chinese labels live in the rule_pins table (manual edits + machine
+translations). Tiers are always derived from Sonar signals; if Sonar is
+unreachable, the disk cache backs lookups and everything else reports
+unknown (fail closed).
 """
 
 from __future__ import annotations
@@ -22,7 +23,6 @@ from pathlib import Path
 import psycopg
 
 ROOT = Path(__file__).resolve().parents[1]
-OVERRIDES_PATH = ROOT / "rules" / "overrides.json"
 CACHE_PATH = Path(
     os.environ.get("CLEARDEBT_RULES_CACHE", "").strip() or (ROOT / "var" / "rules_cache.json")
 )
@@ -153,12 +153,12 @@ def _complete_json(prompt: str) -> dict:
 
 
 def pins() -> dict[str, dict]:
-    """User-owned pins: only manual edits and machine translations.
+    """Chinese labels for rules: manual edits and machine translations.
 
-    The original 'seed' rows (hand-picked tiers from early development) are
-    deprecated: tiering now follows Sonar's native signals (see
-    triage.sonar_tier). Seeds survive in the table for audit but are never
-    returned here, so nothing the user didn't choose can steer a tier.
+    This table is a translation memory ONLY. It used to carry curated tiers
+    ('seed' rows); those are deprecated and tiers are now 100% derived from
+    Sonar's native signals (see triage.sonar_tier / policy_tier). No row in
+    this table can change a tier anymore.
     """
     global _pins
     if _pins is not None:
@@ -177,22 +177,16 @@ def pins() -> dict[str, dict]:
                 """
             )
             conn.execute(
-                "UPDATE rule_pins SET zh_source = 'deprecated' WHERE zh_source = 'seed'"
+                "UPDATE rule_pins SET tier = '', zh = '', zh_source = 'deprecated' "
+                "WHERE zh_source IN ('seed', 'deprecated') OR tier <> ''"
             )
             rows = conn.execute(
-                "SELECT rule, tier, zh, zh_source FROM rule_pins WHERE zh_source <> 'deprecated'"
+                "SELECT rule, tier, zh, zh_source FROM rule_pins WHERE zh <> ''"
             ).fetchall()
-            _pins = {row[0]: {"tier": row[1], "zh": row[2], "zh_source": row[3]} for row in rows}
+            _pins = {row[0]: {"tier": "", "zh": row[2], "zh_source": row[3]} for row in rows}
     except Exception:
         _pins = {}
     return _pins
-
-
-def _seed_from_file() -> dict[str, dict]:
-    try:
-        return json.loads(OVERRIDES_PATH.read_text(encoding="utf-8"))
-    except (OSError, ValueError):
-        return {}
 
 
 def forget_pins() -> None:
@@ -201,13 +195,13 @@ def forget_pins() -> None:
     _pins = None
 
 
-def save_pin(number: str, *, tier: str = "", zh: str = "", zh_source: str = "manual") -> dict:
+def save_pin(number: str, *, zh: str = "", zh_source: str = "manual") -> dict:
+    """Save a Chinese label for a rule. Tiers are NOT stored here anymore:
+    tiering is 100% derived from Sonar's native signals, so this table is
+    a translation memory, not a curated tier list."""
     number = (number or "").strip()
     if not number:
         raise ValueError("规则号不能为空。")
-    tier = (tier or "").strip().upper()
-    if tier and tier not in {"A", "B", "C", ""}:
-        raise ValueError("档位只能是 A / B / C / 空（跟随自动策略）。")
     with psycopg.connect(_db_uri()) as conn:
         conn.execute(
             """
@@ -224,15 +218,14 @@ def save_pin(number: str, *, tier: str = "", zh: str = "", zh_source: str = "man
         row = conn.execute(
             """
             INSERT INTO rule_pins (rule, tier, zh, zh_source, updated_at)
-            VALUES (%s, %s, %s, %s, now())
+            VALUES (%s, '', %s, %s, now())
             ON CONFLICT (rule) DO UPDATE SET
-                tier = EXCLUDED.tier, zh = EXCLUDED.zh,
+                tier = '', zh = EXCLUDED.zh,
                 zh_source = EXCLUDED.zh_source, updated_at = now()
             RETURNING rule, tier, zh, zh_source
             """,
             (
                 number,
-                tier if tier else current.get("tier") or "",
                 zh if zh else current.get("zh") or "",
                 zh_source if zh else current.get("zh_source") or "",
             ),

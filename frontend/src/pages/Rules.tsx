@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Button, Card, Input, Select, Space, Table, Tag, message } from "antd";
+import { Button, Card, Input, Space, Table, Tag, message } from "antd";
 import { api } from "../lib/api";
 
 interface RuleRow {
@@ -16,7 +16,7 @@ const tierTag: Record<string, string> = { A: "green", B: "blue", C: "orange", un
 
 export default function RulesPage() {
   const [q, setQ] = useState("S107");
-  const [drafts, setDrafts] = useState<Record<string, { tier: string; zh: string }>>({});
+  const [drafts, setDrafts] = useState<Record<string, { zh: string }>>({});
   const qc = useQueryClient();
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["rules", q],
@@ -45,9 +45,9 @@ export default function RulesPage() {
     onError: (e: Error) => message.error(e.message),
   });
   const save = (r: RuleRow) => {
-    const d = drafts[r.number] ?? { tier: tierFor(r), zh: zhFor(r) };
+    const d = drafts[r.number] ?? { zh: zhFor(r) };
     api
-      .rulePin(r.number, d.tier, d.zh)
+      .rulePin(r.number, d.zh)
       .then(() => {
         message.success(`${r.number} 已保存`);
         setDrafts((prev) => {
@@ -60,8 +60,7 @@ export default function RulesPage() {
       .catch((e: Error) => message.error(e.message));
   };
 
-  const tierFor = (r: RuleRow) => (drafts[r.number]?.tier ?? (r.tier === "unknown" ? "" : r.tier));
-  const zhFor = (r: RuleRow) => (drafts[r.number]?.zh ?? (r.label.startsWith(r.number) ? "" : r.label));
+    const zhFor = (r: RuleRow) => (drafts[r.number]?.zh ?? (r.label.startsWith(r.number) ? "" : r.label));
 
   return (
     <Space direction="vertical" style={{ width: "100%" }} size="middle">
@@ -82,7 +81,7 @@ export default function RulesPage() {
           </Button>
         </Space>
         <div style={{ marginTop: 8, color: "#8c8c8c", fontSize: 12 }}>
-          共 {data?.total ?? 0} 条（Sonar 全量）。档位空 = 跟随自动策略；中文空 = 显示英文原名。机翻的标黄，人工保存后摘标。
+          共 {data?.total ?? 0} 条（Sonar 全量）。档位由 Sonar 原生信号推导（只读）；中文空 = 显示英文原名。机翻的标黄，人工保存后摘标。
         </div>
       </Card>
       <Card title="规则">
@@ -100,17 +99,7 @@ export default function RulesPage() {
               render: (_, r) => (
                 <Space>
                   <Tag color={tierTag[r.tier] ?? "default"}>{r.tier === "unknown" ? "自动" : r.tier}</Tag>
-                  <Select
-                    style={{ width: 110 }}
-                    placeholder="跟随自动"
-                    value={tierFor(r) || undefined}
-                    onChange={(v) => setDrafts((p) => ({ ...p, [r.number]: { tier: v, zh: zhFor(r) } }))}
-                    options={[
-                      { label: "A 可修", value: "A" },
-                      { label: "B 可修", value: "B" },
-                      { label: "C 跳过", value: "C" },
-                    ]}
-                  />
+
                 </Space>
               ),
             },
@@ -124,7 +113,7 @@ export default function RulesPage() {
                     placeholder={r.label}
                     value={drafts[r.number]?.zh ?? ""}
                     onChange={(e) =>
-                      setDrafts((p) => ({ ...p, [r.number]: { tier: tierFor(r), zh: e.target.value } }))
+                      setDrafts((p) => ({ ...p, [r.number]: { zh: e.target.value } }))
                     }
                   />
                   {r.zh_source === "mt" && !drafts[r.number] && <Tag color="gold">机翻</Tag>}

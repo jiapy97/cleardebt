@@ -37,6 +37,12 @@ export interface Issue {
   is_new?: boolean;
   first_seen?: string;
   status?: { level: string; reason: string; mr_url: string } | null;
+  tier?: string;
+  sonar_type?: string;
+  sonar_severity?: string;
+  sonar_impacts?: Array<{ softwareQuality?: string; severity?: string }>;
+  sonar_effort?: string;
+  quick_fix?: boolean;
 }
 
 export interface Session {
@@ -154,10 +160,10 @@ export const api = {
       }>;
     }>(`/api/rules?prefix=${encodeURIComponent(prefix)}`),
   rulesRefresh: () => req<{ ok: boolean; count: number }>("/api/rules/refresh", { method: "POST", body: "{}" }),
-  rulePin: (rule: string, tier: string, zh: string) =>
+  rulePin: (rule: string, zh: string) =>
     req<{ rule: string }>("/api/rules/pin", {
       method: "POST",
-      body: JSON.stringify({ rule, tier, zh }),
+      body: JSON.stringify({ rule, zh }),
     }),
   rulesTranslate: (limit: number) =>
     req<{ ok: boolean; translated: number }>("/api/rules/translate", {

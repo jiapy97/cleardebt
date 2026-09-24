@@ -44,13 +44,13 @@ class LiveRulesTest(unittest.TestCase):
         )
         self._tmpdir.cleanup()
 
-    def test_manual_pin_beats_policy(self):
+    def test_label_memory_does_not_steer_tiers(self):
         from cleardebt.rules import save_pin
 
-        save_pin("S107", tier="C", zh="参数太多，要人拆")
-        self.assertEqual(tier_for("javascript:S107"), "C")
-        self.assertEqual(describe("javascript:S107"), "参数太多，要人拆")
-        self.assertFalse(llm_repairable("javascript:S107"))
+        before = tier_for("javascript:S107")
+        save_pin("S107", zh="参数太多")
+        self.assertEqual(describe("javascript:S107"), "参数太多")
+        self.assertEqual(tier_for("javascript:S107"), before)
 
     def test_policy_grades_unknown_rules(self):
         with patch("cleardebt.rules.fetch_all", return_value=dict(FAKE)):
