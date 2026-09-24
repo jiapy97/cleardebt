@@ -30,15 +30,15 @@ flowchart LR
 
 ## 评测：OSS 真实异味集
 
-`bench/oss_smell_v1.json`——dayjs + axios 最新 main 各取真实 Sonar 告警，fresh run（开跑前清 checkpoint，无重放），环境误杀不计分母：
+`bench/oss_smell_v1.json`——dayjs + axios 冻结 SHA（`436bde0`/`5fc40e1`），fresh run（开跑前清 checkpoint，无重放），环境误杀不计分母：
 
 | 仓库 | 判分口径 | 条数 | L1 | L1 率 |
 |---|---|---|---|---|
-| dayjs | 重扫 + 测试双闸 | 15 | 10 | 67% |
-| axios | 重扫闸（套件需外网，测试闸跳过并审计） | 15 | 7 | 47% |
-| 合计 | — | 30 | 17 | 57% |
+| dayjs | 重扫 + 测试双闸 | 30 | 16 | 53% |
+| axios | 重扫闸（套件需外网，测试闸跳过并审计） | 29 | 18 | 62% |
+| 合计 | — | 59 | 34 | 58% |
 
-诚实声明：n=30，选样按规则轮采（非随机）；模型 DeepSeek；基线锁版本可当回归集（`bench/run_oss_bench.py`）。玩具仓历史：27 条 L1 67%。
+诚实声明：n=59（60 条里 1 条只拿到环境误杀结果，未计分），选样按规则轮采（非随机）；模型 DeepSeek；基线锁版本可当回归集（`bench/run_oss_bench.py`）。玩具仓历史：27 条 L1 67%。
 
 ## 启动
 
