@@ -18,7 +18,7 @@ from cleardebt.controls import backlog_gate, gate, load_controls, save_report
 from cleardebt.gitlab_mr import NotEligible
 from cleardebt.issue_graph import sonar_base_url
 from cleardebt.sca import fetch_dependency_risks
-from cleardebt.triage import describe_message, llm_repairable
+from cleardebt.triage import describe_message, llm_repairable, sonar_tier
 from list_issues import fetch_issues, issue_path, load_token
 
 DB_URI = os.environ.get(
@@ -55,6 +55,7 @@ def _sonar_row(name: str, issue: dict) -> dict:
     path = issue_path(issue.get("component", ""), name)
     text = issue.get("message") or ""
     text_range = issue.get("textRange") or {}
+    impacts = issue.get("impacts") or []
     return {
         "repo": name,
         "rule": rule,
@@ -62,6 +63,13 @@ def _sonar_row(name: str, issue: dict) -> dict:
         "line": int(text_range.get("startLine") or 0),
         "message": text,
         "sonar_key": issue.get("key") or "",
+        # Native Sonar signals: tiering reads only these, never a hand-written list.
+        "sonar_type": issue.get("type") or "",
+        "sonar_severity": issue.get("severity") or "",
+        "sonar_impacts": impacts,
+        "sonar_effort": issue.get("effort") or issue.get("debt") or "",
+        "quick_fix": bool(issue.get("quickFixAvailable")),
+        "clean_code_attribute": issue.get("cleanCodeAttribute") or "",
     }
 
 
@@ -73,6 +81,9 @@ def _enrich(name: str, rows: list[dict]) -> list[dict]:
         item["message_zh"] = describe_message(rule, text)
         item["eligible"] = llm_repairable(rule)
         item["line"] = item.get("line") or 0
+        if item.get("sonar_type") or item.get("sonar_impacts"):
+            item["tier"] = sonar_tier(item)
+            item["tier_source"] = "sonar"
     suppressed = suppressed_map(name)
     seen = first_seen_map(name)
     for item in rows:

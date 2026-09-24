@@ -16,7 +16,7 @@ from cleardebt.triage import llm_repairable, tier_for
 
 class LanguagesTest(unittest.TestCase):
     def test_four_languages_share_rule_numbers(self):
-        for prefix in ("javascript", "typescript", "python", "java", "csharp"):
+        for prefix in ("javascript", "typescript", "python", "java"):
             self.assertEqual(tier_for(f"{prefix}:S1128"), "A")
             self.assertTrue(llm_repairable(f"{prefix}:S1128"))
         self.assertFalse(language_supported("kotlin:S1128"))
@@ -31,10 +31,10 @@ class LanguagesTest(unittest.TestCase):
         self.assertEqual(problem_surface("javascript:S1313"), "security")
         self.assertEqual(problem_surface("javascript:S2068"), "secrets")
         self.assertTrue(is_secret_rule("secrets:S6290"))
-        self.assertTrue(llm_repairable("javascript:S2068"))
-        self.assertTrue(llm_repairable("secrets:S6290"))
-        self.assertFalse(llm_repairable("javascript:S3649"))
-        self.assertEqual(tier_for("javascript:S3649"), "C")
+        self.assertFalse(llm_repairable("javascript:S2068"))
+        self.assertFalse(llm_repairable("secrets:S6290"))
+        self.assertFalse(llm_repairable("javascript:S2077"))
+        self.assertEqual(tier_for("javascript:S2077"), "C")
 
     def test_test_paths_cover_four_languages(self):
         self.assertTrue(is_test_path("src/pricing.test.js"))

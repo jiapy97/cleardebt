@@ -8,7 +8,7 @@ from unittest.mock import patch
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.checkpoint.postgres import PostgresSaver
 
-from cleardebt.issue_graph import build_graph, next_action, rescan
+from cleardebt.issue_graph import build_graph, next_action, rescan, triage
 
 DB_URI = os.environ.get(
     "CLEARDEBT_DATABASE_URL",
@@ -19,7 +19,7 @@ DB_URI = os.environ.get(
 def _blank_state(**overrides) -> dict:
     state = {
         "fingerprint": "fp",
-        "rule": "javascript:S3649",
+        "rule": "javascript:S2077",
         "path": "src/query.js",
         "message": "",
         "tier": "",
@@ -83,19 +83,15 @@ class IssueGraphTest(unittest.TestCase):
         graph = build_graph(MemorySaver())
         result = graph.invoke(_blank_state(), {"configurable": {"thread_id": "c-tier"}})
         self.assertEqual(result["level"], "C")
-        self.assertIn("SQL 注入", result["reason"])
+        self.assertIn("C 档不修", result["reason"])
         self.assertNotIn("不是已接入的规则", result["reason"])
         self.assertEqual(result["history"], ["triage", "decide"])
         self.assertNotIn("fix", result["history"])
 
-    def test_secret_rule_is_repairable_a_tier(self):
+    def test_secret_rule_reports_secrets_surface(self):
         from cleardebt.triage import llm_repairable, problem_surface, tier_for
 
-        self.assertEqual(tier_for("javascript:S2068"), "A")
-        self.assertTrue(llm_repairable("javascript:S2068"))
         self.assertEqual(problem_surface("javascript:S2068"), "secrets")
-        self.assertEqual(tier_for("secrets:S6290"), "A")
-        self.assertTrue(llm_repairable("secrets:S6290"))
 
     def test_unknown_rule_is_l3_without_a_fix(self):
         graph = build_graph(MemorySaver())
@@ -107,15 +103,12 @@ class IssueGraphTest(unittest.TestCase):
         self.assertIn("不是已接入的规则", result["reason"])
         self.assertEqual(result["history"], ["triage", "decide"])
 
-    def test_boolean_flag_parameter_is_c_tier(self):
-        graph = build_graph(MemorySaver())
-        result = graph.invoke(
-            _blank_state(rule="typescript:S2301", path="src/labels.ts"),
-            {"configurable": {"thread_id": "ts-flag"}},
-        )
-        self.assertEqual(result["level"], "C")
-        self.assertIn("布尔参数", result["reason"])
-        self.assertNotIn("不是已接入的规则", result["reason"])
+    def test_b_tier_smell_reaches_fix_preparation(self):
+        from cleardebt.triage import tier_for
+
+        self.assertEqual(tier_for("typescript:S2301"), "B")
+        state = _blank_state(rule="typescript:S2301", path="src/labels.ts")
+        self.assertEqual({"tier": "B", "history": ["triage"]}, triage(state))
 
     def test_typescript_empty_function_is_the_same_c_tier(self):
         graph = build_graph(MemorySaver())
@@ -125,7 +118,6 @@ class IssueGraphTest(unittest.TestCase):
         )
         self.assertEqual(result["tier"], "C")
         self.assertEqual(result["level"], "C")
-        self.assertIn("空函数", result["reason"])
         self.assertNotIn("不是已接入的规则", result["reason"])
 
     def test_typescript_unused_import_uses_the_same_fix_path(self):

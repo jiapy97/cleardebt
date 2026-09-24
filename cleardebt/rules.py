@@ -12,6 +12,7 @@ from __future__ import annotations
 
 import json
 import os
+import re
 import threading
 import time
 import urllib.parse
@@ -22,6 +23,9 @@ import psycopg
 
 ROOT = Path(__file__).resolve().parents[1]
 OVERRIDES_PATH = ROOT / "rules" / "overrides.json"
+CACHE_PATH = Path(
+    os.environ.get("CLEARDEBT_RULES_CACHE", "").strip() or (ROOT / "var" / "rules_cache.json")
+)
 
 
 def _db_uri() -> str:
@@ -66,7 +70,7 @@ def fetch_all(*, languages: str = "") -> dict[str, dict]:
     out: dict[str, dict] = {}
     page = 1
     while True:
-        params = {"ps": 500, "p": page, "f": "name,severity,lang,langName,htmlDesc"}
+        params = {"ps": 500, "p": page, "f": "name,severity,cleanCodeAttribute,sysTags,lang,langName,htmlDesc"}
         if languages:
             params["languages"] = languages
         payload = _api_json(host, token, "/api/rules/search", params)
@@ -149,11 +153,12 @@ def _complete_json(prompt: str) -> dict:
 
 
 def pins() -> dict[str, dict]:
-    """Curated pins: tier + Chinese label, always beat the automatic policy.
+    """User-owned pins: only manual edits and machine translations.
 
-    Stored in Postgres (rule_pins) so they are data, not code. On first use
-    an empty table is seeded from rules/overrides.json, which is then only
-    a historical backup.
+    The original 'seed' rows (hand-picked tiers from early development) are
+    deprecated: tiering now follows Sonar's native signals (see
+    triage.sonar_tier). Seeds survive in the table for audit but are never
+    returned here, so nothing the user didn't choose can steer a tier.
     """
     global _pins
     if _pins is not None:
@@ -171,21 +176,15 @@ def pins() -> dict[str, dict]:
                 )
                 """
             )
-            rows = conn.execute("SELECT rule, tier, zh, zh_source FROM rule_pins").fetchall()
-            if not rows:
-                seed = _seed_from_file()
-                for number, pin in seed.items():
-                    if not isinstance(pin, dict):
-                        continue
-                    conn.execute(
-                        "INSERT INTO rule_pins (rule, tier, zh, zh_source) VALUES (%s, %s, %s, 'seed') "
-                        "ON CONFLICT (rule) DO NOTHING",
-                        (number, pin.get("tier") or "", pin.get("zh") or ""),
-                    )
-                rows = conn.execute("SELECT rule, tier, zh, zh_source FROM rule_pins").fetchall()
+            conn.execute(
+                "UPDATE rule_pins SET zh_source = 'deprecated' WHERE zh_source = 'seed'"
+            )
+            rows = conn.execute(
+                "SELECT rule, tier, zh, zh_source FROM rule_pins WHERE zh_source <> 'deprecated'"
+            ).fetchall()
             _pins = {row[0]: {"tier": row[1], "zh": row[2], "zh_source": row[3]} for row in rows}
     except Exception:
-        _pins = _seed_from_file()
+        _pins = {}
     return _pins
 
 
@@ -242,6 +241,22 @@ def save_pin(number: str, *, tier: str = "", zh: str = "", zh_source: str = "man
     return {"rule": row[0], "tier": row[1], "zh": row[2], "zh_source": row[3]}
 
 
+def _write_cache(rules: dict[str, dict]) -> None:
+    try:
+        CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
+        CACHE_PATH.write_text(json.dumps(rules), encoding="utf-8")
+    except OSError:
+        pass
+
+
+def _read_cache() -> dict[str, dict]:
+    try:
+        data = json.loads(CACHE_PATH.read_text(encoding="utf-8"))
+        return data if isinstance(data, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
 def refresh(*, languages: str = "") -> dict[str, dict]:
     """Force a live pull; falls back to the previous cache on failure."""
     global _fetched_at, _rules
@@ -249,6 +264,7 @@ def refresh(*, languages: str = "") -> dict[str, dict]:
     with _lock:
         _rules = fresh
         _fetched_at = time.time()
+    _write_cache(fresh)
     return fresh
 
 
@@ -256,6 +272,8 @@ def catalog() -> dict[str, dict]:
     """Cached metadata; refreshes from Sonar when the TTL expired."""
     global _fetched_at, _rules
     with _lock:
+        if not _rules:
+            _rules = _read_cache()
         fresh_enough = _rules and (time.time() - _fetched_at) < _ttl()
         cached = _rules
     if fresh_enough:
@@ -274,16 +292,47 @@ def lookup(rule: str) -> dict | None:
     return catalog().get(key)
 
 
+_EFFORT_RE = re.compile(r"(\d+)\s*(min|h|d)", re.IGNORECASE)
+
+
+def parse_effort(value) -> float | None:
+    """Sonar reports remediation cost as '5min' / '2h' / '1d' → minutes."""
+    text = str(value or "").strip()
+    if not text:
+        return None
+    match = _EFFORT_RE.search(text)
+    if not match:
+        return None
+    amount = float(match.group(1))
+    return amount * {"min": 1.0, "h": 60.0, "d": 480.0}[match.group(2).lower()]
+
+
 def policy_tier(meta: dict | None) -> str:
-    """Automatic tier from Sonar type/severity. Pins are applied by triage."""
+    """Tier from Sonar's rule metadata only (type / impacts / SQALE effort).
+
+    Security is never touched. High maintainability impact or expensive
+    remediation means a refactor, so it stays for humans. Low-impact smells
+    are the sweet spot for mechanical/LLM cleanup.
+    """
     if not meta:
         return "unknown"
-    rule_type = (meta.get("type") or "").upper()
+    kind = (meta.get("type") or "").upper()
+    quality = {str((i or {}).get("softwareQuality") or "").upper() for i in (meta.get("impacts") or [])}
+    impact_sev = {str((i or {}).get("severity") or "").upper() for i in (meta.get("impacts") or [])}
     severity = (meta.get("severity") or "").upper()
-    if rule_type == "VULNERABILITY" or rule_type == "SECURITY_HOTSPOT":
+    if kind in {"VULNERABILITY", "SECURITY_HOTSPOT"} or "SECURITY" in quality:
         return "C"
-    if rule_type == "BUG":
-        return "C" if severity in {"BLOCKER", "CRITICAL"} else "B"
-    if rule_type == "CODE_SMELL":
+    effort = parse_effort(meta.get("remFnBaseEffort") or meta.get("defaultRemFnBaseEffort"))
+    if effort is not None and effort > 30:
+        return "C"
+    if kind == "BUG":
+        if severity in {"BLOCKER", "CRITICAL"} or "HIGH" in impact_sev:
+            return "C"
         return "B"
+    if kind == "CODE_SMELL":
+        if "INFO" in impact_sev:
+            return "C"
+        if "HIGH" in impact_sev:
+            return "C"
+        return "A" if "LOW" in impact_sev else "B"
     return "unknown"

@@ -19,8 +19,12 @@ class AssignApiTest(unittest.TestCase):
     def test_list_issues_marks_eligibility(self):
         client = TestClient(app)
         rows = [
-            {"rule": "javascript:S1128", "component": "toy-js:src/a.js", "message": "unused", "key": "1"},
-            {"rule": "javascript:S3649", "component": "toy-js:src/b.js", "message": "sql", "key": "2"},
+            {"rule": "javascript:S1128", "component": "toy-js:src/a.js", "message": "unused", "key": "1",
+             "type": "CODE_SMELL", "severity": "MINOR",
+             "impacts": [{"softwareQuality": "MAINTAINABILITY", "severity": "LOW"}]},
+            {"rule": "javascript:S2077", "component": "toy-js:src/b.js", "message": "sql", "key": "2",
+             "type": "VULNERABILITY", "severity": "MAJOR",
+             "impacts": [{"softwareQuality": "SECURITY", "severity": "MEDIUM"}]},
         ]
         with (
             patch("cleardebt.assign.load_token", return_value="token"),
@@ -37,7 +41,7 @@ class AssignApiTest(unittest.TestCase):
         issues = response.json()["issues"]
         by_rule = {item["rule"]: item for item in issues}
         self.assertTrue(by_rule["javascript:S1128"]["eligible"])
-        self.assertFalse(by_rule["javascript:S3649"]["eligible"])
+        self.assertFalse(by_rule["javascript:S2077"]["eligible"])
         self.assertEqual(by_rule["javascript:S1128"]["path"], "src/a.js")
 
     def test_assign_runs_path_aware_and_skips_ineligible(self):
@@ -69,7 +73,7 @@ class AssignApiTest(unittest.TestCase):
                     "repo": "toy-js",
                     "issues": [
                         {"rule": "javascript:S1128", "path": "src/a.js"},
-                        {"rule": "javascript:S3649", "path": "src/query.js"},
+                        {"rule": "javascript:S2077", "path": "src/b.js"},
                     ],
                 },
             )
@@ -140,7 +144,7 @@ class AssignApiTest(unittest.TestCase):
                     "eligible": True,
                 },
                 {
-                    "rule": "javascript:S3649",
+                    "rule": "javascript:S2077",
                     "path": "src/b.js",
                     "message": "sql",
                     "eligible": False,
