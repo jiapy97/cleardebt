@@ -3,6 +3,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Alert, Button, Card, Checkbox, Form, Input, Space, message } from "antd";
 import { api } from "../lib/api";
 import { useOverview } from "../lib/useOverview";
+import BindingsTable from "./Bindings";
 
 export default function SetupPage() {
   const { data: overview } = useOverview();
@@ -44,7 +45,6 @@ export default function SetupPage() {
         sonar_token: v.sonar_token || "",
         gitlab_token: v.gitlab_token || "",
         llm_token: v.llm_token || "",
-        bindings: v.bindings || "",
         whitelist: selected,
         project_keys: v.project_keys || "",
       })
@@ -64,7 +64,9 @@ export default function SetupPage() {
   };
 
   return (
-    <Card title="接入配置">
+    <Space direction="vertical" style={{ width: "100%" }} size="middle">
+      <BindingsTable />
+      <Card title="接入配置">
       {center && (
         <div
           key={center.key}
@@ -124,13 +126,6 @@ export default function SetupPage() {
           <Form.Item label="大模型密钥（自备）" name="llm_token">
             <Input.Password autoComplete="off" />
           </Form.Item>
-          <Form.Item
-            label="每个仓库的托管地址（一行一个：项目key + 空格 + 仓库地址）"
-            name="bindings"
-            initialValue={overview?.binding_lines || ""}
-          >
-            <Input.TextArea rows={4} />
-          </Form.Item>
           <Form.Item label="允许修改的仓库（白名单）">
             {choices.length === 0 ? (
               <span style={{ color: "#8c8c8c" }}>填好 Sonar 后刷新，这里会列出项目</span>
@@ -161,6 +156,7 @@ export default function SetupPage() {
           )}
         </Space>
       </Form>
-    </Card>
+      </Card>
+    </Space>
   );
 }

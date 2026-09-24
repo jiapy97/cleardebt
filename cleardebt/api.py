@@ -389,6 +389,88 @@ def api_rules_translate(body: dict = Body(...)) -> dict:
     return {"ok": True, "translated": done}
 
 
+@app.get("/api/bindings")
+def api_bindings_list() -> dict:
+    from cleardebt.controls import list_bindings
+
+    return {"bindings": list_bindings()}
+
+
+@app.post("/api/bindings")
+def api_bindings_upsert(body: dict = Body(...)) -> dict:
+    from cleardebt.controls import upsert_binding
+
+    try:
+        return upsert_binding(body.get("sonar_key") or "", body.get("gitlab_url") or "")
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+
+
+@app.delete("/api/bindings")
+def api_bindings_delete(sonar_key: str = "") -> dict:
+    from cleardebt.controls import delete_binding
+
+    delete_binding(sonar_key)
+    return {"ok": True}
+
+
+@app.post("/api/bindings/test")
+def api_bindings_test(body: dict = Body(...)) -> dict:
+    from cleardebt.controls import test_binding
+
+    return test_binding(body.get("sonar_key") or "", body.get("gitlab_url") or "")
+
+
+@app.get("/api/bindings/health")
+def api_bindings_health() -> dict:
+    from cleardebt.controls import binding_health
+
+    return {"bindings": binding_health()}
+
+
+@app.get("/api/sonar/projects")
+def api_sonar_projects() -> dict:
+    from cleardebt.controls import form_values, sonar_projects
+
+    values = form_values()
+    url = values.get("sonar_url") or ""
+    token = values.get("sonar_token") or ""
+    if not url or not token:
+        raise HTTPException(status_code=400, detail="先填 Sonar 地址与令牌。")
+    return {"projects": sonar_projects(url, token)}
+
+
+@app.get("/api/hosting/projects")
+def api_hosting_projects(provider: str = "gitlab") -> dict:
+    from cleardebt.hosting import list_owned_projects
+
+    try:
+        return {"projects": list_owned_projects(provider)}
+    except Exception as error:
+        raise HTTPException(status_code=502, detail=str(error)) from error
+
+
+@app.post("/api/hosting/create")
+def api_hosting_create(body: dict = Body(...)) -> dict:
+    from cleardebt.controls import upsert_binding
+    from cleardebt.hosting import create_project
+
+    name = (body.get("name") or "").strip()
+    provider = (body.get("provider") or "gitlab").strip()
+    sonar_key = (body.get("sonar_key") or name).strip()
+    if not name:
+        raise HTTPException(status_code=400, detail="仓库名不能为空。")
+    try:
+        created = create_project(provider, name)
+    except Exception as error:
+        raise HTTPException(status_code=502, detail=str(error)) from error
+    try:
+        binding = upsert_binding(sonar_key, created["url"])
+    except ValueError as error:
+        raise HTTPException(status_code=400, detail=str(error)) from error
+    return {"project": created, "binding": binding}
+
+
 @app.get("/api/rules")
 def api_rules_list(prefix: str = "") -> dict:
     from cleardebt.rules import pins

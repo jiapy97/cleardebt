@@ -191,6 +191,8 @@ def create_request(
         )
         return {"iid": pr_id, "web_url": web_ui or web, "provider": "azure_devops"}
     # GitLab form API uses application/x-www-form-urlencoded.
+    if not saved.get("project_id"):
+        raise HostingError("GitLab 项目 id 缺失：去接入页重新保存这条绑定（会自动解析 id）。")
     parsed = urllib.parse.urlparse(saved["url"])
     data = urllib.parse.urlencode(
         {
@@ -500,3 +502,115 @@ def _request_json(
         raise HostingError(f"托管平台 {error.code}: {detail[:300]}") from error
     except urllib.error.URLError as error:
         raise HostingError("连不上代码托管平台") from error
+
+
+def _platform_tokens() -> dict:
+    from cleardebt.controls import form_values
+
+    values = form_values()
+    return {
+        "gitlab": values.get("gitlab_token") or "",
+        "github": values.get("github_token") or "",
+        "azure_devops": values.get("azure_token") or "",
+        "gitlab_url": values.get("gitlab_url") or "https://gitlab.com",
+    }
+
+
+def list_owned_projects(provider: str) -> list[dict]:
+    """List repos the stored token can see. Used by the import picker."""
+    kind = (provider or "").strip().lower() or "gitlab"
+    tokens = _platform_tokens()
+    out: list[dict] = []
+    if kind == "github":
+        token = tokens["github"]
+        if not token:
+            raise HostingError("还没填 GitHub 令牌，列不出仓库。")
+        page = 1
+        while True:
+            items = _github_paged(f"/user/repos?per_page=100&page={page}", token)
+            for item in items:
+                if not item.get("archived"):
+                    out.append(
+                        {"name": item.get("full_name") or "", "url": item.get("html_url") or "", "private": bool(item.get("private"))}
+                    )
+            if len(items) < 100 or len(out) >= 500:
+                break
+            page += 1
+    else:
+        token = tokens["gitlab"]
+        base = tokens["gitlab_url"]
+        if not token:
+            raise HostingError("还没填 GitLab 令牌，列不出仓库。")
+        page = 1
+        while True:
+            items = _gitlab_paged(f"/projects?membership=true&simple=true&per_page=100&page={page}", token, base)
+            for item in items:
+                out.append(
+                    {"name": item.get("path_with_namespace") or "", "url": item.get("web_url") or "", "private": item.get("visibility") != "public"}
+                )
+            if len(items) < 100 or len(out) >= 500:
+                break
+            page += 1
+    return out
+
+
+def _github_paged(path: str, token: str) -> list:
+    import urllib.request as _request
+
+    headers = {
+        "Authorization": f"Bearer {token}",
+        "Accept": "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    request = _request.Request("https://api.github.com" + path, headers=headers)
+    with _request.urlopen(request, timeout=30) as response:
+        return json.loads(response.read().decode("utf-8"))
+
+
+def _gitlab_paged(path: str, token: str, base: str) -> list:
+    import urllib.request as _request
+
+    parsed = urllib.parse.urlparse(base)
+    request = _request.Request(
+        f"{parsed.scheme}://{parsed.netloc}/api/v4{path}", headers={"PRIVATE-TOKEN": token}
+    )
+    with _request.urlopen(request, timeout=30) as response:
+        return json.loads(response.read().decode("utf-8"))
+
+
+def create_project(provider: str, name: str) -> dict:
+    """Create an empty repo on the platform. Returns {"url", "name"}."""
+    kind = (provider or "").strip().lower() or "gitlab"
+    clean = (name or "").strip().strip("/")
+    import re as _re
+
+    if not clean or not _re.fullmatch(r"[A-Za-z0-9_.\-]+", clean):
+        raise HostingError("仓库名只能是字母、数字、中划线、下划线、点。")
+    tokens = _platform_tokens()
+    if kind == "github":
+        token = tokens["github"]
+        if not token:
+            raise HostingError("还没填 GitHub 令牌，建不了仓库。")
+        try:
+            created = _github_json("POST", "/user/repos", token, {"name": clean, "private": True, "auto_init": True})
+        except HostingError as error:
+            raise HostingError(f"GitHub 建仓失败：{error}") from error
+        url = created.get("html_url") or ""
+        if not url:
+            raise HostingError("GitHub 建仓返回里没有地址。")
+        return {"url": url, "name": created.get("full_name") or clean}
+    token = tokens["gitlab"]
+    base = tokens["gitlab_url"]
+    if not token:
+        raise HostingError("还没填 GitLab 令牌，建不了仓库。")
+    try:
+        created = _gitlab_json(
+            "POST", "/projects", token, base,
+            {"name": clean, "visibility": "private", "initialize_with_readme": "true"},
+        )
+    except HostingError as error:
+        raise HostingError(f"GitLab 建仓失败：{error}") from error
+    url = created.get("web_url") or ""
+    if not url:
+        raise HostingError("GitLab 建仓返回里没有地址。")
+    return {"url": url, "name": created.get("path_with_namespace") or clean}

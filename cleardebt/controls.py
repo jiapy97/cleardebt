@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import os
 import threading
+import urllib.parse
 from pathlib import Path
 
 import psycopg
@@ -128,7 +129,7 @@ def credentials_for(bindings: list[dict], token: str, sonar_key: str | None, tok
     from cleardebt.hosting import credentials_bundle, detect_provider
 
     tokens = tokens or {}
-    usable = [item for item in bindings if item.get("project_id") and item.get("gitlab_url")]
+    usable = [item for item in bindings if item.get("gitlab_url")]
     if sonar_key:
         chosen = next((item for item in usable if item.get("sonar_key") == sonar_key), None)
     elif len(usable) == 1:
@@ -162,7 +163,7 @@ def credentials_for(bindings: list[dict], token: str, sonar_key: str | None, tok
     return credentials_bundle(
         url=url,
         token=chosen_token,
-        project_id=chosen["project_id"],
+        project_id=chosen.get("project_id"),
         project_path=path,
         provider=provider,
         sonar_key=chosen.get("sonar_key") or "",
@@ -178,6 +179,167 @@ def binding_lines(bindings: list[dict]) -> str:
         url = item.get("gitlab_url") or ""
         lines.append(f"{key} {url}".rstrip())
     return "\n".join(lines)
+
+
+def list_bindings() -> list[dict]:
+    """Enriched binding rows for the setup table."""
+    row = _row()
+    out = []
+    for item in _bindings_from_row(row):
+        out.append(
+            {
+                "sonar_key": item.get("sonar_key") or "",
+                "gitlab_url": item.get("gitlab_url") or "",
+                "provider": item.get("provider") or "",
+                "project_id": item.get("project_id"),
+                "project_path": item.get("project_path") or "",
+                "backlog_fix": item.get("backlog_fix", True),
+                "request_fix": item.get("request_fix", True),
+            }
+        )
+    return out
+
+
+def upsert_binding(sonar_key: str, gitlab_url: str) -> dict:
+    """Add or update one binding; resolves provider/path/id eagerly."""
+    from cleardebt.hosting import (
+        _github_project_path,
+        _gitlab_project_path,
+        detect_provider,
+    )
+
+    key = (sonar_key or "").strip()
+    url = (gitlab_url or "").strip().rstrip("/")
+    if not key:
+        raise ValueError("Sonar 项目 key 不能为空。")
+    if not url:
+        raise ValueError("仓库地址不能为空。")
+    provider = detect_provider(url)
+    try:
+        if provider == "github":
+            path = _github_project_path(url)
+        elif provider == "azure_devops":
+            from cleardebt.hosting import _azure_parts
+
+            org, project, repo = _azure_parts(url)
+            path = f"{org}/{project}/{repo}"
+        else:
+            path = _gitlab_project_path(url)
+    except Exception as error:
+        raise ValueError(str(error)) from error
+    project_id = _resolve_project_id(provider, url, path)
+    row = _row()
+    stored = [dict(item) for item in _bindings_from_row(row)]
+    current = next((item for item in stored if item.get("sonar_key") == key), {})
+    entry = {
+        "sonar_key": key,
+        "gitlab_url": url,
+        "provider": provider,
+        "project_id": project_id,
+        "project_path": path,
+        "backlog_fix": current.get("backlog_fix", True),
+        "request_fix": current.get("request_fix", True),
+        "automation": current.get("automation") or {},
+    }
+    stored = [item for item in stored if item.get("sonar_key") != key] + [entry]
+    whitelist = list(row[2] or [])
+    if key not in whitelist:
+        whitelist.append(key)
+    with psycopg.connect(DB_URI) as conn:
+        conn.execute(
+            "UPDATE controls SET repo_bindings = %s, whitelist = %s WHERE id = 1",
+            (_json(stored), whitelist),
+        )
+    return {k: entry.get(k) for k in ("sonar_key", "gitlab_url", "provider", "project_id", "project_path")}
+
+
+def delete_binding(sonar_key: str) -> None:
+    key = (sonar_key or "").strip()
+    if not key:
+        return
+    row = _row()
+    stored = [dict(item) for item in _bindings_from_row(row) if item.get("sonar_key") != key]
+    whitelist = [name for name in (row[2] or []) if name != key]
+    with psycopg.connect(DB_URI) as conn:
+        conn.execute(
+            "UPDATE controls SET repo_bindings = %s, whitelist = %s WHERE id = 1",
+            (_json(stored), whitelist),
+        )
+
+
+def _resolve_project_id(provider: str, url: str, path: str):
+    """Best-effort hosted id; GitHub/Azure don't need one (stored as None)."""
+    if provider != "gitlab":
+        return None
+    row = _row()
+    token = row[7] or ""
+    host = urllib.parse.urlparse(url)
+    base = f"{host.scheme}://{host.netloc}"
+    if not token or not base:
+        return None
+    import json
+    import urllib.request
+
+    encoded = urllib.parse.quote(path, safe="")
+    request = urllib.request.Request(
+        f"{base}/api/v4/projects/{encoded}", headers={"PRIVATE-TOKEN": token}
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=15) as response:
+            return json.loads(response.read().decode("utf-8")).get("id")
+    except Exception:
+        return None
+
+
+def test_binding(sonar_key: str, gitlab_url: str) -> dict:
+    """Probe Sonar project + git reachability without saving anything."""
+    from cleardebt.hosting import _ls_remote_default, detect_provider
+
+    key = (sonar_key or "").strip()
+    url = (gitlab_url or "").strip()
+    detail: dict = {"sonar_key": key, "gitlab_url": url, "sonar_ok": False, "git_ok": False}
+    row = _row()
+    sonar_url = row[4] or ""
+    token = row[6] or ""
+    if key and sonar_url and token:
+        try:
+            detail["sonar_ok"] = key in sonar_projects(sonar_url, token)
+        except Exception:
+            detail["sonar_ok"] = False
+    else:
+        detail["sonar_hint"] = "先填 Sonar 地址与令牌才能验证项目。"
+    if url:
+        try:
+            branch = _ls_remote_default(url if url.endswith(".git") else url + ".git")
+            detail["git_ok"] = bool(branch)
+            detail["default_branch"] = branch
+            detail["provider"] = detect_provider(url)
+        except Exception as error:
+            detail["git_hint"] = str(error)[:120]
+    detail["ok"] = bool(detail["sonar_ok"] and detail["git_ok"])
+    return detail
+
+
+def binding_health() -> list[dict]:
+    """One status row per binding for the health lights."""
+    rows = []
+    for item in list_bindings():
+        try:
+            probe = test_binding(item["sonar_key"], item["gitlab_url"])
+        except Exception as error:
+            probe = {"sonar_ok": False, "git_ok": False, "git_hint": str(error)[:120]}
+        rows.append(
+            {
+                "sonar_key": item["sonar_key"],
+                "gitlab_url": item["gitlab_url"],
+                "provider": item["provider"],
+                "sonar_ok": probe.get("sonar_ok", False),
+                "git_ok": probe.get("git_ok", False),
+                "ok": bool(probe.get("sonar_ok") and probe.get("git_ok")),
+                "hint": probe.get("git_hint") or probe.get("sonar_hint") or "",
+            }
+        )
+    return rows
 
 
 def gate(settings: dict, repo: str) -> str | None:
