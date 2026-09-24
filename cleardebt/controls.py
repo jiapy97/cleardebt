@@ -144,9 +144,8 @@ def credentials_for(bindings: list[dict], token: str, sonar_key: str | None, tok
         or (token if provider == "gitlab" else "")
         or tokens.get("gitlab")
         or token
+        or ""
     )
-    if not chosen_token:
-        return None
     path = chosen.get("project_path") or ""
     if not path:
         try:
@@ -348,7 +347,7 @@ def gitlab_credentials(sonar_key: str | None = None) -> dict | None:
         "azure_devops": (row[14] if len(row) > 14 else None) or "",
     }
     if not any(tokens.values()):
-        return None
+        tokens = {key: "" for key in tokens}
     return credentials_for(_bindings_from_row(row), tokens.get("gitlab") or "", sonar_key, tokens=tokens)
 
 
