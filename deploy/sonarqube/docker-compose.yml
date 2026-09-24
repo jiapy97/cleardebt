@@ -17,7 +17,7 @@ services:
       resources:
         limits:
           cpus: "1.50"
-          memory: 2G
+          memory: 4G
 
 volumes:
   sonarqube_data:

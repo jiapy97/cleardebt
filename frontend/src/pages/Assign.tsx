@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
-import { Alert, Button, Card, Checkbox, Select, Space, Spin, Table, Tag, message } from "antd";
+import { Alert, Button, Card, Checkbox, Select, Space, Spin, Table, Tag, Tooltip, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { api, type Issue } from "../lib/api";
+import { api, type AssignDecision, type Issue } from "../lib/api";
 import { useRepoChoices } from "../lib/useOverview";
 import { StatusBadge } from "./widgets";
 
@@ -15,8 +15,16 @@ export default function AssignPage() {
   const shown = (cur && cache[cur]) || null;
   const [phase, setPhase] = useState("");
   const [scanning, setScanning] = useState(false);
+  const [scanError, setScanError] = useState("");
   const [assigning, setAssigning] = useState(false);
-  const [assignPhase, setAssignPhase] = useState("");
+  const [assignSession, setAssignSession] = useState<number | null>(null);
+  const [assignResult, setAssignResult] = useState<{
+    opened: number;
+    total: number;
+    failed: AssignDecision[];
+    warning?: string;
+  } | null>(null);
+  const [assignError, setAssignError] = useState("");
   const [showHidden, setShowHidden] = useState(false);
 
   const visible = (shown?.issues ?? []).filter((r) => showHidden || !r.suppressed);
@@ -46,9 +54,9 @@ export default function AssignPage() {
           if (p.step === "DONE") {
             setScanning(false);
             load.mutate(cur);
-          } else if (p.step.startsWith("失败")) {
+          } else if (p.step.startsWith("失败：")) {
             setScanning(false);
-            message.error(`重扫${p.step}`);
+            setScanError(`重扫${p.step}`);
             load.mutate(cur);
           } else if (p.step && !p.stale) {
             setPhase(p.step);
@@ -88,28 +96,51 @@ export default function AssignPage() {
       return api.assign(cur, deduped);
     },
     onSuccess: (d) => {
-      const actions = (d.decisions || []).map((x) => x.action);
-      const opened = actions.filter((a) => a === "opened" || a === "already").length;
-      message.success(`已指派 ${actions.length} 条，开请求 ${opened}，列表已刷新`);
-      list.mutate();
+      if (d.already_running) {
+        message.info("这个项目已经在跑了，等它跑完。");
+        setAssigning(false);
+        return;
+      }
+      setAssignSession(d.session_id ?? null);
     },
-    onError: (e: Error) => message.error(e.message),
-    onSettled: () => setAssigning(false),
+    onError: (e: Error) => {
+      setAssigning(false);
+      setAssignError(e.message);
+    },
   });
 
   useEffect(() => {
-    if (!assigning || !cur) return;
+    if (!assigning || assignSession == null || !cur) return;
     const timer = setInterval(() => {
       api
-        .scanProgress(cur)
-        .then((p) => {
-          if (p.step && !p.stale) setAssignPhase(p.step);
+        .sessionDetail(assignSession)
+        .then((s) => {
+          const details = (s.details ?? {}) as {
+            decisions?: AssignDecision[];
+            error?: string;
+            warning?: string;
+          };
+          if (s.status === "completed") {
+            setAssigning(false);
+            const decisions = details.decisions ?? [];
+            const opened = decisions.filter((x) => x.action === "opened" || x.action === "already").length;
+            const failed = decisions.filter((x) => x.level === "L3" || x.action === "no_mr");
+            setAssignResult({ opened, total: decisions.length, failed, warning: details.warning });
+            if (!failed.length) {
+              message.success(`已指派 ${decisions.length} 条，开请求 ${opened}，列表已刷新`);
+            }
+            setPicked([]);
+            load.mutate(cur);
+          } else if (s.status === "failed") {
+            setAssigning(false);
+            setAssignError(details.error ? `指派失败：${details.error}` : "指派失败，后台已记录。");
+          }
         })
         .catch(() => {});
-    }, 2000);
+    }, 3000);
     return () => clearInterval(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [assigning, cur]);
+  }, [assigning, assignSession, cur]);
 
   const columns: ColumnsType<Issue> = [
     {
@@ -156,25 +187,49 @@ export default function AssignPage() {
       render: (_, r) => <StatusBadge tone={r.eligible ? "ok" : "mute"} text={r.eligible ? "可修" : "跳过"} />,
     },
     {
-      title: "档位",
+      title: "结论",
       key: "tier",
-      width: 200,
+      width: 130,
       render: (_, r) => {
-        const bits: string[] = [];
-        if (r.sonar_type) {
-          const t = r.sonar_type.replace("_", " ").toLowerCase();
-          bits.push(t);
+        const quality = ((r.sonar_impacts?.[0]?.softwareQuality || "") as string).toUpperCase();
+        const impact = ((r.sonar_impacts?.[0]?.severity || r.sonar_severity || "") as string).toLowerCase();
+        const kind = ((r.sonar_type || "") as string).replace("_", " ").toLowerCase();
+        const bits = [kind, quality ? `${quality.toLowerCase()}·${impact || "?"}` : ""]
+          .filter(Boolean)
+          .join(" · ");
+        const effort = r.sonar_effort ? ` · ${r.sonar_effort}` : "";
+        const qf = r.quick_fix ? " · quickfix" : "";
+        const evidence = `${bits}${effort}${qf}`;
+        const tail = evidence ? `｜Sonar 信号：${evidence}` : "｜本次快照没有 Sonar 信号，点“重新扫描”刷新";
+        if (r.tier === "C") {
+          const why =
+            quality === "SECURITY" || kind.includes("vulnerab") || kind.includes("hotspot")
+              ? "漏洞或安全影响"
+              : "官方成本超 30 分钟或影响面大";
+          return (
+            <Tooltip title={`不碰：${why}${tail}`}>
+              <Tag color="orange">不碰</Tag>
+            </Tooltip>
+          );
         }
-        const sev = (r.sonar_impacts?.[0]?.severity || r.sonar_severity || "").toLowerCase();
-        if (sev) bits.push(sev);
-        if (r.sonar_effort) bits.push(String(r.sonar_effort));
-        if (r.quick_fix) bits.push("quickfix");
-        const tone = r.tier === "A" ? "green" : r.tier === "B" ? "blue" : r.tier === "C" ? "orange" : "default";
+        if (r.tier === "A") {
+          return (
+            <Tooltip title={`可直接修${tail}`}>
+              <Tag color="green">可修</Tag>
+            </Tooltip>
+          );
+        }
+        if (r.tier === "B") {
+          return (
+            <Tooltip title={`能修，但要过测试闸${tail}`}>
+              <Tag color="blue">要过测试</Tag>
+            </Tooltip>
+          );
+        }
         return (
-          <span title={bits.length ? `Sonar 原生信号：${bits.join(" · ")}` : "Sonar 信号缺失，按规则元数据推断"}>
-            <Tag color={tone}>{r.tier || "?"}</Tag>
-            <span style={{ color: "#8c8c8c", fontSize: 12 }}>{bits.join(" · ")}</span>
-          </span>
+          <Tooltip title="Sonar 信号缺失，按规则元数据推断">
+            <Tag>看情况</Tag>
+          </Tooltip>
         );
       },
     },
@@ -208,6 +263,13 @@ export default function AssignPage() {
             onChange={(v) => {
               setRepo(v);
               setPicked([]);
+              setScanning(false);
+              setPhase("");
+              setScanError("");
+              setAssigning(false);
+              setAssignSession(null);
+              setAssignResult(null);
+              setAssignError("");
             }}
             options={choices.map((c) => ({ label: c.key, value: c.key }))}
           />
@@ -217,6 +279,7 @@ export default function AssignPage() {
             disabled={!cur}
             onClick={() => {
               setScanning(true);
+              setScanError("");
               setPhase("正在准备重扫…");
               list.mutate(cur);
             }}
@@ -231,6 +294,16 @@ export default function AssignPage() {
         </Space>
         {load.isPending && !shown && (
           <Alert style={{ marginTop: 12 }} type="info" showIcon message="正在读库里快照…" />
+        )}
+        {scanError && (
+          <Alert
+            style={{ marginTop: 12 }}
+            type="error"
+            showIcon
+            message={scanError}
+            closable
+            onClose={() => setScanError("")}
+          />
         )}
         {shown?.note && <Alert style={{ marginTop: 12 }} type="success" showIcon message={shown.note} />}
       </Card>
@@ -256,20 +329,61 @@ export default function AssignPage() {
         />
         <Button
           type="primary"
-          loading={assign.isPending}
+          loading={assigning}
           disabled={picked.length === 0}
           onClick={() => {
             setAssigning(true);
-            setAssignPhase("正在准备指派…");
+            setAssignSession(null);
+            setAssignResult(null);
+            setAssignError("");
             assign.mutate();
           }}
         >
           指派给 Agent{picked.length > 0 ? `（${picked.length}）` : ""}
         </Button>
-        {assign.isPending && (
+        {assigning && (
           <span style={{ display: "inline-flex", alignItems: "center", gap: 8, marginLeft: 12, color: "#595959" }}>
-            <Spin size="small" /> {assignPhase || "正在准备指派…"}
+            <Spin size="small" /> 正在跑，第 {assignSession ?? ""} 会话…
           </span>
+        )}
+        {assignError && (
+          <Alert
+            style={{ marginTop: 12 }}
+            type="error"
+            showIcon
+            message={assignError}
+            closable
+            onClose={() => setAssignError("")}
+          />
+        )}
+        {assignResult && assignResult.failed.length > 0 && (
+          <Alert
+            style={{ marginTop: 12 }}
+            type="warning"
+            showIcon
+            message={`跑完 ${assignResult.total} 条，开请求 ${assignResult.opened}，${assignResult.failed.length} 条没开成`}
+            description={
+              <ul style={{ margin: "4px 0 0", paddingLeft: 18 }}>
+                {assignResult.failed.map((f, i) => (
+                  <li key={i}>
+                    {f.rule} {f.path}：{f.reason || "没开成"}
+                  </li>
+                ))}
+              </ul>
+            }
+            closable
+            onClose={() => setAssignResult(null)}
+          />
+        )}
+        {assignResult && assignResult.failed.length === 0 && assignResult.total > 0 && (
+          <Alert
+            style={{ marginTop: 12 }}
+            type="success"
+            showIcon
+            message={`跑完 ${assignResult.total} 条，开请求 ${assignResult.opened}`}
+            closable
+            onClose={() => setAssignResult(null)}
+          />
         )}
       </Card>
     </Space>

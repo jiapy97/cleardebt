@@ -208,12 +208,39 @@ def list_issues(repo: str = "") -> dict:
 
 @app.post("/issues/assign")
 def assign_issues(body: dict = Body(...)) -> dict:
-    from cleardebt.assign import assign_to_agent
+    import threading
 
-    try:
-        return assign_to_agent(body.get("repo") or "", body.get("issues") or [])
-    except ValueError as error:
-        raise HTTPException(status_code=400, detail=str(error)) from error
+    from cleardebt.assign import assign_to_agent, backlog_gate, create_session, load_controls
+
+    name = (body.get("repo") or "").strip()
+    selections = body.get("issues") or []
+    if not name:
+        raise HTTPException(status_code=400, detail="没有写项目，不能指派。")
+    if not selections:
+        raise HTTPException(status_code=400, detail="没有勾选告警。")
+    refused = backlog_gate(load_controls(), name)
+    if refused:
+        raise HTTPException(status_code=400, detail=refused)
+    if _assign_threads.get(name) is not None and _assign_threads[name].is_alive():
+        return {"started": True, "already_running": True, "repo": name}
+
+    session_id = create_session(source="manual", repo=name, issue_count=len(selections), status="running")
+
+    def _run() -> None:
+        from cleardebt.assign import finish_session
+
+        try:
+            assign_to_agent(name, selections, session_id=session_id)
+        except Exception as error:  # noqa: BLE001
+            try:
+                finish_session(session_id, status="failed", details={"error": str(error)})
+            except Exception:
+                pass
+
+    thread = threading.Thread(target=_run, name=f"assign-{name}", daemon=True)
+    _assign_threads[name] = thread
+    thread.start()
+    return {"started": True, "already_running": False, "repo": name, "session_id": session_id}
 
 
 @app.get("/sessions")
@@ -221,6 +248,16 @@ def sessions(limit: int = 20) -> dict:
     from cleardebt.assign import list_sessions
 
     return {"sessions": list_sessions(limit)}
+
+
+@app.get("/api/sessions/{session_id}")
+def api_session_detail(session_id: int) -> dict:
+    from cleardebt.assign import get_session
+
+    try:
+        return get_session(session_id)
+    except ValueError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
 
 
 @app.get("/mrs/issues")
@@ -373,21 +410,6 @@ def api_rules_pin(body: dict = Body(...)) -> dict:
         raise HTTPException(status_code=400, detail=str(error)) from error
 
 
-@app.post("/api/rules/translate")
-def api_rules_translate(body: dict = Body(...)) -> dict:
-    from cleardebt.rules import translate_missing
-
-    try:
-        count = int(body.get("limit") or 20)
-    except (TypeError, ValueError):
-        count = 20
-    try:
-        done = translate_missing(limit=max(1, min(count, 100)))
-    except Exception as error:
-        raise HTTPException(status_code=502, detail=f"机翻失败：{error}") from error
-    return {"ok": True, "translated": done}
-
-
 @app.get("/api/bindings")
 def api_bindings_list() -> dict:
     from cleardebt.controls import list_bindings
@@ -489,10 +511,16 @@ def api_rules_list(prefix: str = "") -> dict:
             continue
         number = key.split(":")[-1]
         pin = pins().get(number, {})
+        meta = catalog.get(key) or {}
         rows.append(
             {
                 "key": key,
                 "number": number,
+                "name": meta.get("name") or "",
+                "type": meta.get("type") or "",
+                "severity": meta.get("severity") or "",
+                "impacts": meta.get("impacts") or [],
+                "clean_code_attribute": meta.get("cleanCodeAttribute") or "",
                 "tier": tier_for(key),
                 "label": describe(key),
                 "pinned": bool(pin),
@@ -505,6 +533,7 @@ def api_rules_list(prefix: str = "") -> dict:
 
 
 _scan_threads: dict[str, "threading.Thread"] = {}
+_assign_threads: dict[str, "threading.Thread"] = {}
 
 
 @app.post("/api/issues/list")

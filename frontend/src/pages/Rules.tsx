@@ -1,18 +1,57 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Button, Card, Input, Space, Table, Tag, message } from "antd";
+import { Button, Card, Input, Space, Table, Tag, Tooltip, message } from "antd";
 import { api } from "../lib/api";
 
 interface RuleRow {
   key: string;
   number: string;
+  name: string;
+  type: string;
+  severity: string;
+  impacts: Array<{ softwareQuality?: string; severity?: string }>;
+  clean_code_attribute: string;
   tier: string;
   label: string;
   pinned: boolean;
   zh_source: string;
 }
 
-const tierTag: Record<string, string> = { A: "green", B: "blue", C: "orange", unknown: "default" };
+function Verdict({ tier, type, impacts }: { tier: string; type: string; impacts: RuleRow["impacts"] }) {
+  const quality = (impacts?.[0]?.softwareQuality || "").toUpperCase();
+  const impact = (impacts?.[0]?.severity || "").toLowerCase();
+  const kind = (type || "").replace("_", " ").toLowerCase();
+  const bits = [kind, quality ? `${quality.toLowerCase()}·${impact || "?"}` : ""].filter(Boolean).join(" · ");
+  if (tier === "C") {
+    const why = quality === "SECURITY" || kind.includes("vulnerab") || kind.includes("hotspot")
+      ? "漏洞或安全影响"
+      : "官方成本超 30 分钟或影响面大";
+    return (
+      <Tooltip title={`不碰：${why}${bits ? `｜Sonar 信号：${bits}` : ""}`}>
+        <Tag color="orange">不碰</Tag>
+      </Tooltip>
+    );
+  }
+  if (tier === "A") {
+    return (
+      <Tooltip title={`可直接修${bits ? `｜Sonar 信号：${bits}` : ""}`}>
+        <Tag color="green">可修</Tag>
+      </Tooltip>
+    );
+  }
+  if (tier === "B") {
+    return (
+      <Tooltip title={`能修，但要过测试闸${bits ? `｜Sonar 信号：${bits}` : ""}`}>
+        <Tag color="blue">要过测试</Tag>
+      </Tooltip>
+    );
+  }
+  return (
+    <Tooltip title="Sonar 信号缺失，按规则元数据推断">
+      <Tag>看情况</Tag>
+    </Tooltip>
+  );
+}
 
 export default function RulesPage() {
   const [q, setQ] = useState("S107");
@@ -33,14 +72,6 @@ export default function RulesPage() {
     onSuccess: (d) => {
       message.success(`已从 Sonar 拉取 ${d.count} 条规则`);
       refetch();
-    },
-    onError: (e: Error) => message.error(e.message),
-  });
-  const translate = useMutation({
-    mutationFn: () => api.rulesTranslate(20),
-    onSuccess: (d) => {
-      message.success(`机翻了 ${d.translated} 条（标了机翻，人工改过为准）`);
-      invalidate();
     },
     onError: (e: Error) => message.error(e.message),
   });
@@ -76,12 +107,16 @@ export default function RulesPage() {
           <Button loading={refresh.isPending} onClick={() => refresh.mutate()}>
             从 Sonar 刷新
           </Button>
-          <Button loading={translate.isPending} onClick={() => translate.mutate()}>
-            机翻缺失的中文（20 条）
+          <Button
+            onClick={() =>
+              message.info("机翻已下线：中文名请亲手写，不写就显示 Sonar 英文原名。")
+            }
+          >
+            中文名说明
           </Button>
         </Space>
         <div style={{ marginTop: 8, color: "#8c8c8c", fontSize: 12 }}>
-          共 {data?.total ?? 0} 条（Sonar 全量）。档位由 Sonar 原生信号推导（只读）；中文空 = 显示英文原名。机翻的标黄，人工保存后摘标。
+          共 {data?.total ?? 0} 条（Sonar 全量）。类型/严重度/影响面/英文名全部是 Sonar 原文；结论只读，规则是：漏洞或安全影响 → 不碰，官方成本超 30 分钟 → 不碰，其余按影响面修或过测试闸。中文名你可以亲手写，不写就显示英文。
         </div>
       </Card>
       <Card title="规则">
@@ -91,17 +126,18 @@ export default function RulesPage() {
           dataSource={rows}
           pagination={{ pageSize: 20, showSizeChanger: false }}
           columns={[
-            { title: "规则", dataIndex: "key", key: "key", width: 200 },
+            { title: "规则", dataIndex: "key", key: "key", width: 170 },
             {
-              title: "档位",
+              title: "英文名（Sonar 原文）",
+              dataIndex: "name",
+              key: "name",
+              ellipsis: true,
+            },
+            {
+              title: "结论",
               key: "tier",
-              width: 200,
-              render: (_, r) => (
-                <Space>
-                  <Tag color={tierTag[r.tier] ?? "default"}>{r.tier === "unknown" ? "自动" : r.tier}</Tag>
-
-                </Space>
-              ),
+              width: 300,
+              render: (_, r) => <Verdict tier={r.tier} type={r.type} impacts={r.impacts} />,
             },
             {
               title: "中文名",
@@ -116,7 +152,7 @@ export default function RulesPage() {
                       setDrafts((p) => ({ ...p, [r.number]: { zh: e.target.value } }))
                     }
                   />
-                  {r.zh_source === "mt" && !drafts[r.number] && <Tag color="gold">机翻</Tag>}
+                  {r.zh_source === "mt" && !drafts[r.number] && <Tag color="gold">旧机翻</Tag>}
                   {r.pinned && r.zh_source !== "mt" && <Tag color="green">人工</Tag>}
                 </Space>
               ),

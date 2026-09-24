@@ -193,12 +193,12 @@ def _find_issue(
             "source": sources[component],
             "project": project,
         }
-    where = f" on {project}" + (f" path {want}" if want else "")
+    where = f"{project}" + (f" 文件 {want}" if want else "")
     if pull_request:
-        where += f" pullRequest {pull_request}"
+        where += f" 合并请求 {pull_request}"
     elif branch:
-        where += f" branch {branch}"
-    raise SystemExit(f"no open {rule} issue{where}")
+        where += f" 分支 {branch}"
+    raise SystemExit(f"{where} 上没有没修好的 {rule} 告警。刚重扫过的话，点“重新扫描”刷新列表再勾。")
 
 
 def _sca_issue(

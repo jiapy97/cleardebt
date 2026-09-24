@@ -45,6 +45,16 @@ export interface Issue {
   quick_fix?: boolean;
 }
 
+export interface AssignDecision {
+  rule: string;
+  path: string;
+  level: string;
+  reason: string;
+  fingerprint?: string | null;
+  action: string;
+  web_url?: string;
+}
+
 export interface Session {
   id: number;
   created_at: string;
@@ -153,6 +163,11 @@ export const api = {
       rules: Array<{
         key: string;
         number: string;
+        name: string;
+        type: string;
+        severity: string;
+        impacts: Array<{ softwareQuality?: string; severity?: string }>;
+        clean_code_attribute: string;
         tier: string;
         label: string;
         pinned: boolean;
@@ -165,16 +180,21 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ rule, zh }),
     }),
-  rulesTranslate: (limit: number) =>
-    req<{ ok: boolean; translated: number }>("/api/rules/translate", {
-      method: "POST",
-      body: JSON.stringify({ limit }),
-    }),
   assign: (repo: string, issues: Array<{ rule: string; path: string }>) =>
-    req<{ session_id: number; decisions: Array<{ action: string }> }>("/issues/assign", {
-      method: "POST",
-      body: JSON.stringify({ repo, issues }),
-    }),
+    req<{ started: boolean; already_running?: boolean; repo: string; session_id?: number }>(
+      "/issues/assign",
+      {
+        method: "POST",
+        body: JSON.stringify({ repo, issues }),
+      },
+    ),
+  sessionDetail: (session_id: number) =>
+    req<{
+      id: number;
+      status: string;
+      repo: string;
+      details: Record<string, unknown>;
+    }>(`/api/sessions/${session_id}`),
   sessions: () => req<{ sessions: Session[] }>("/sessions"),
   mrIssues: (repo: string, mr_iid: number) =>
     req<{ issues: Issue[]; merge_request: { source_branch: string } }>(

@@ -124,6 +124,25 @@ def _assign_workers(total: int) -> int:
     return max(1, min(configured, total or 1))
 
 
+def clean_error(error: BaseException) -> str:
+    """One human line for a scan failure: drop Java/Python stack traces.
+
+    Scanner errors arrive as multi-line dumps; the console shows only the
+    first meaningful line so users see a cause, not a traceback.
+    """
+    text = str(error).strip().replace("\r", "\n")
+    for line in text.split("\n"):
+        line = line.strip()
+        if not line:
+            continue
+        if line.startswith(("at ", "Caused by", "Traceback", "File \"")):
+            continue
+        if "ERROR" in line and len(line) > 120:
+            continue
+        return line[:200]
+    return text[:200] or "未知错误"
+
+
 def refresh_backlog(repo: str) -> tuple[list[dict], str, str]:
     """Rescan the main branch, list live issues, and persist the snapshot.
 
@@ -146,7 +165,7 @@ def refresh_backlog(repo: str) -> tuple[list[dict], str, str]:
         scan_note = f"重扫没跑成（{error}），下面是上次分析的告警。"
         from cleardebt.scan_progress import report as report_progress
 
-        report_progress(name, f"失败：{error}")
+        report_progress(name, f"失败：{clean_error(error)}")
         stamp = ""
     issues = list_backlog_issues(name)
     record_first_seen(name, issues)
@@ -302,7 +321,9 @@ def save_snapshot(repo: str, analysis_date: str, issues: list[dict]) -> None:
 
     _ensure()
     raw = [
-        {k: item.get(k) for k in ("rule", "path", "line", "message", "message_zh", "sonar_key")}
+        {k: item.get(k) for k in ("rule", "path", "line", "message", "message_zh", "sonar_key",
+                                 "sonar_type", "sonar_severity", "sonar_impacts",
+                                 "sonar_effort", "quick_fix", "clean_code_attribute")}
         for item in issues or []
     ]
     with psycopg.connect(DB_URI) as conn:
@@ -439,7 +460,9 @@ def issue_status_map(pairs: list[tuple[str, str]]) -> dict[tuple[str, str], dict
     return out
 
 
-def assign_to_agent(repo: str, selections: list[dict], *, source: str = "manual") -> dict:
+def assign_to_agent(
+    repo: str, selections: list[dict], *, source: str = "manual", session_id: int | None = None
+) -> dict:
     """Run selected backlog issues through the graph. Only L1 opens merge requests."""
     name = (repo or "").strip()
     if not name:
@@ -475,7 +498,9 @@ def assign_to_agent(repo: str, selections: list[dict], *, source: str = "manual"
     eligible = [item for item in picks if item["eligible"]]
     from cleardebt.scan_progress import clear as clear_step, report as report_step
 
-    session_id = create_session(source=source, repo=name, issue_count=len(picks), status="running")
+    session_id = session_id or create_session(
+        source=source, repo=name, issue_count=len(picks), status="running"
+    )
     results = []
     decisions = []
     try:
@@ -623,6 +648,41 @@ def finish_session(
                 """,
                 (status, Json(details), issue_count, session_id),
             )
+
+
+def get_session(session_id: int) -> dict:
+    """One session with its details (used by the console to poll assign runs)."""
+    from psycopg.types.json import Json  # noqa: F401
+
+    _ensure()
+    with psycopg.connect(DB_URI) as conn:
+        row = conn.execute(
+            """
+            SELECT id, created_at, source, status, repo, issue_count, details, finished_at
+            FROM agent_sessions WHERE id = %s
+            """,
+            (int(session_id),),
+        ).fetchone()
+    if not row:
+        raise ValueError(f"没有这个会话：{session_id}")
+    details = row[6] or {}
+    if isinstance(details, str):
+        import json as _json
+
+        try:
+            details = _json.loads(details)
+        except ValueError:
+            details = {}
+    return {
+        "id": row[0],
+        "created_at": row[1].isoformat() if row[1] else "",
+        "source": row[2],
+        "status": row[3],
+        "repo": row[4],
+        "issue_count": row[5],
+        "details": details,
+        "finished_at": row[7].isoformat() if row[7] else "",
+    }
 
 
 def list_sessions(limit: int = 20) -> list[dict]:

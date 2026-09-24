@@ -84,74 +84,6 @@ def fetch_all(*, languages: str = "") -> dict[str, dict]:
     return out
 
 
-def translate_missing(limit: int = 20) -> int:
-    """Machine-translate English labels for unpinned rules; cached in rule_pins.
-
-    Only fills rules with no Chinese label yet and marks them zh_source='mt'
-    so a human can spot and correct them in the console. Returns translated
-    count. Raises on LLM trouble (caller turns it into a 502).
-    """
-    from cleardebt.rules import catalog as live_catalog
-
-    live = live_catalog()
-    todo: list[tuple[str, str]] = []
-    known = pins()
-    for key in sorted(live):
-        number = key.split(":")[-1]
-        if number in known and known[number].get("zh"):
-            continue
-        name = (live[key].get("name") or "").strip()
-        if not name:
-            continue
-        todo.append((number, name))
-        if len(todo) >= limit:
-            break
-    if not todo:
-        return 0
-    lines = "\n".join(f"{number} ||| {name}" for number, name in todo)
-    prompt = (
-        "把下面每一行 Sonar 规则英文名翻译成简短中文（10 个字以内，术语保留原文如 import/NaN/MR）。"
-        "只输出 JSON 对象，键是规则号，值是中文。不要解释。\n" + lines
-    )
-    data = _complete_json(prompt)
-    done = 0
-    for number, _name in todo:
-        zh = (data.get(number) or "").strip()
-        if zh:
-            save_pin(number, zh=zh, zh_source="mt")
-            done += 1
-    return done
-
-
-def _complete_json(prompt: str) -> dict:
-    import urllib.request as _request
-
-    from cleardebt.b_fix import _completions_url, llm_credentials
-
-    creds = llm_credentials()
-    request = _request.Request(
-        _completions_url(creds["base_url"]),
-        data=json.dumps(
-            {
-                "model": creds["model"],
-                "temperature": 0,
-                "response_format": {"type": "json_object"},
-                "messages": [
-                    {"role": "system", "content": "只输出一个 JSON 对象，不要解释。"},
-                    {"role": "user", "content": prompt},
-                ],
-            }
-        ).encode("utf-8"),
-        headers={"Authorization": f"Bearer {creds['token']}", "Content-Type": "application/json"},
-        method="POST",
-    )
-    with _request.urlopen(request, timeout=120) as response:
-        payload = json.loads(response.read().decode("utf-8"))
-    content = payload["choices"][0]["message"]["content"]
-    data = json.loads(content)
-    return data if isinstance(data, dict) else {}
-
-
 def pins() -> dict[str, dict]:
     """Chinese labels for rules: manual edits and machine translations.
 
@@ -235,6 +167,10 @@ def save_pin(number: str, *, zh: str = "", zh_source: str = "manual") -> dict:
 
 
 def _write_cache(rules: dict[str, dict]) -> None:
+    # Never persist a near-empty pull (e.g. Sonar mid-restart answers 200
+    # with zero rules): a poisoned file would blind every tier decision.
+    if len(rules) < 100:
+        return
     try:
         CACHE_PATH.parent.mkdir(parents=True, exist_ok=True)
         CACHE_PATH.write_text(json.dumps(rules), encoding="utf-8")

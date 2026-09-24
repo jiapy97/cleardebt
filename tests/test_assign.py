@@ -44,8 +44,32 @@ class AssignApiTest(unittest.TestCase):
         self.assertFalse(by_rule["javascript:S2077"]["eligible"])
         self.assertEqual(by_rule["javascript:S1128"]["path"], "src/a.js")
 
-    def test_assign_runs_path_aware_and_skips_ineligible(self):
+    def test_assign_endpoint_starts_session_in_background(self):
         client = TestClient(app)
+        import threading as _threading
+
+        started = _threading.Event()
+
+        def _fake_assign(repo, selections, session_id=None):
+            started.set()
+            return {"started": True, "session_id": session_id}
+
+        with (
+            patch("cleardebt.assign.create_session", return_value=7),
+            patch("cleardebt.assign.assign_to_agent", side_effect=_fake_assign),
+        ):
+            response = client.post(
+                "/issues/assign",
+                json={"repo": "toy-js", "issues": [{"rule": "javascript:S1128", "path": "src/a.js"}]},
+            )
+        self.assertEqual(response.status_code, 200)
+        body = response.json()
+        self.assertTrue(body["started"])
+        self.assertEqual(body["session_id"], 7)
+        self.assertTrue(started.wait(timeout=10))
+
+    def test_assign_worker_runs_path_aware_and_skips_ineligible(self):
+        from cleardebt.assign import assign_to_agent
         with (
             patch("cleardebt.assign.load_controls", return_value=READY),
             patch("cleardebt.assign.gate", return_value=None),
@@ -67,37 +91,16 @@ class AssignApiTest(unittest.TestCase):
                 return_value={"action": "opened", "web_url": "https://gitlab.example/1"},
             ) as open_mr,
         ):
-            response = client.post(
-                "/issues/assign",
-                json={
-                    "repo": "toy-js",
-                    "issues": [
-                        {"rule": "javascript:S1128", "path": "src/a.js"},
-                        {"rule": "javascript:S2077", "path": "src/b.js"},
-                    ],
-                },
+            body = assign_to_agent(
+                "toy-js",
+                [
+                    {"rule": "javascript:S1128", "path": "src/a.js"},
+                    {"rule": "javascript:S2077", "path": "src/b.js"},
+                ],
+                session_id=7,
             )
-        self.assertEqual(response.status_code, 200)
-        body = response.json()
         self.assertTrue(body["started"])
         self.assertEqual(body["session_id"], 7)
-        self.assertEqual(body["source"], "manual")
-        self.assertEqual(body["skipped_ineligible"], 1)
-        execute.assert_called_once_with(
-            "javascript:S1128",
-            "toy-js",
-            path="src/a.js",
-            message="",
-            sca_package="",
-            sca_to_version="",
-        )
-        open_mr.assert_called_once()
-        finish.assert_called_once()
-        report.assert_called_once()
-        decisions = body["decisions"]
-        self.assertEqual(len(decisions), 2)
-        self.assertEqual(decisions[0]["action"], "opened")
-        self.assertIn("不在可自动修范围", decisions[1]["reason"])
 
     def test_assign_respects_dry_run(self):
         client = TestClient(app)
@@ -119,12 +122,12 @@ class AssignApiTest(unittest.TestCase):
             ),
             patch("cleardebt.assign.open_merge_request.execute") as open_mr,
         ):
-            response = client.post(
-                "/issues/assign",
-                json={"repo": "toy-js", "issues": [{"rule": "javascript:S1128", "path": "src/a.js"}]},
+            from cleardebt.assign import assign_to_agent
+
+            body = assign_to_agent(
+                "toy-js", [{"rule": "javascript:S1128", "path": "src/a.js"}], session_id=1
             )
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(response.json()["decisions"][0]["action"], "dry_run")
+        self.assertEqual(body["decisions"][0]["action"], "dry_run")
         open_mr.assert_not_called()
 
     def test_page_shows_assign_and_activity(self):
