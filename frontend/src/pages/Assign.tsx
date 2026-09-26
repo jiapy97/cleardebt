@@ -157,21 +157,27 @@ export default function AssignPage() {
       title: "说明",
       dataIndex: "message",
       key: "message",
-      ellipsis: true,
+      width: 280,
+      ellipsis: { showTitle: false },
       render: (v: string, r) => (
-        <span title={v}>
-          {r.is_new && !r.suppressed && (
-            <span className="pill pill-warn" style={{ marginRight: 6 }}>
-              新
-            </span>
-          )}
-          {r.suppressed && (
-            <span className="pill pill-mute" style={{ marginRight: 6 }}>
-              已忽略
-            </span>
-          )}
-          {r.message_zh || v}
-        </span>
+        <Tooltip
+          placement="topLeft"
+          title={r.message_zh && r.message_zh !== v ? <>{r.message_zh}<br />{v}</> : v}
+        >
+          <span>
+            {r.is_new && !r.suppressed && (
+              <span className="pill pill-warn" style={{ marginRight: 6 }}>
+                新
+              </span>
+            )}
+            {r.suppressed && (
+              <span className="pill pill-mute" style={{ marginRight: 6 }}>
+                已忽略
+              </span>
+            )}
+            {r.message_zh || v}
+          </span>
+        </Tooltip>
       ),
     },
     {
