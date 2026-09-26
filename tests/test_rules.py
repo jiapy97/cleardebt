@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 
-from cleardebt.rules import lookup, pins, policy_tier, refresh
+from cleardebt.rules import lookup, pins, refresh
 from cleardebt.triage import describe, llm_repairable, tier_for
 
 FAKE = {
@@ -52,18 +52,18 @@ class LiveRulesTest(unittest.TestCase):
         self.assertEqual(describe("javascript:S107"), "参数太多")
         self.assertEqual(tier_for("javascript:S107"), before)
 
-    def test_policy_grades_unknown_rules(self):
+    def test_sonar_metadata_does_not_grant_repair_eligibility(self):
         with patch("cleardebt.rules.fetch_all", return_value=dict(FAKE)):
             refresh()
             self.assertEqual(tier_for("javascript:S3649"), "C")
-            self.assertEqual(tier_for("javascript:S9999"), "B")
-            self.assertTrue(llm_repairable("javascript:S9999"))
+            self.assertEqual(tier_for("javascript:S9999"), "C")
+            self.assertFalse(llm_repairable("javascript:S9999"))
 
     def test_lookup_miss_is_unknown(self):
         with patch("cleardebt.rules.fetch_all", return_value={}):
             refresh()
             self.assertIsNone(lookup("javascript:S0000"))
-            self.assertEqual(policy_tier(None), "unknown")
+            self.assertEqual(tier_for("javascript:S0000"), "C")
 
     def test_sonar_unreachable_keeps_pins_working(self):
         with patch("cleardebt.rules.fetch_all", side_effect=ConnectionError("down")):
@@ -71,8 +71,8 @@ class LiveRulesTest(unittest.TestCase):
                 refresh()
             except ConnectionError:
                 pass
-            self.assertIn(tier_for("javascript:S1128"), {"A", "B", "unknown"})
-            self.assertEqual(llm_repairable("javascript:S1128"), tier_for("javascript:S1128") in {"A", "B"})
+            self.assertEqual(tier_for("javascript:S1128"), "C")
+            self.assertFalse(llm_repairable("javascript:S1128"))
 
 
 if __name__ == "__main__":

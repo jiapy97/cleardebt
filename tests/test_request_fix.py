@@ -31,7 +31,7 @@ class RequestFixTest(unittest.TestCase):
             patch("cleardebt.request_fix.sonar_base_url", return_value="http://sonar"),
             patch("cleardebt.request_fix.fetch_issues", return_value=[sonar_issue]),
             patch("cleardebt.request_fix.describe_message", return_value="告警"),
-            patch("cleardebt.triage.tier_for", return_value="A"),
+            patch("cleardebt.triage.listed", return_value=False),
         ):
             row = list_mr_issues("toy-js", 42)["issues"][0]
         self.assertEqual(row["tier"], "C")

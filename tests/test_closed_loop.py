@@ -50,7 +50,7 @@ class ClosedLoopVerificationTest(unittest.TestCase):
             before = 'import { readFileSync } from "node:fs";\n\nexport function f() {\n  return 1;\n}\n'
             (work / "src" / "a.js").write_text(before, encoding="utf-8")
             graph = build_graph(MemorySaver(), rescan_node=failing_rescan, test_node=lambda s: {})
-            with patch.dict("os.environ", {"CLEARDEBT_MECHANICAL_FIX": "1"}):
+            with patch.dict("os.environ", {"CLEARDEBT_MECHANICAL_FIX": "1"}), patch("cleardebt.triage.listed", return_value=True):
                 result = graph.invoke(
                     _blank(work_dir=str(work), path="src/a.js"),
                     {"configurable": {"thread_id": "closed-loop-fail"}},

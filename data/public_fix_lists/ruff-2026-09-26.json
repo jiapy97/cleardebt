@@ -1,0 +1,2406 @@
+{
+  "retrieved_on": "2026-09-26",
+  "note": "Vendor eligibility is not Sonar rule eligibility or a repair guarantee.",
+  "source": "ruff",
+  "fix_kind": "deterministic_autofix",
+  "key_kind": "ruff_rule_code",
+  "license": "MIT",
+  "source_url": "https://docs.astral.sh/ruff/rules/",
+  "rules": [
+    {
+      "key": "AIR201",
+      "name": "airflow-xcom-pull-in-template-string",
+      "url": "https://docs.astral.sh/ruff/rules/airflow-xcom-pull-in-template-string/"
+    },
+    {
+      "key": "AIR202",
+      "name": "airflow-task-implicit-multiple-outputs",
+      "url": "https://docs.astral.sh/ruff/rules/airflow-task-implicit-multiple-outputs/"
+    },
+    {
+      "key": "AIR301",
+      "name": "airflow3-removal",
+      "url": "https://docs.astral.sh/ruff/rules/airflow3-removal/"
+    },
+    {
+      "key": "AIR302",
+      "name": "airflow3-moved-to-provider",
+      "url": "https://docs.astral.sh/ruff/rules/airflow3-moved-to-provider/"
+    },
+    {
+      "key": "AIR311",
+      "name": "airflow3-suggested-update",
+      "url": "https://docs.astral.sh/ruff/rules/airflow3-suggested-update/"
+    },
+    {
+      "key": "AIR312",
+      "name": "airflow3-suggested-to-move-to-provider",
+      "url": "https://docs.astral.sh/ruff/rules/airflow3-suggested-to-move-to-provider/"
+    },
+    {
+      "key": "AIR321",
+      "name": "airflow31-moved",
+      "url": "https://docs.astral.sh/ruff/rules/airflow31-moved/"
+    },
+    {
+      "key": "FAST001",
+      "name": "fast-api-redundant-response-model",
+      "url": "https://docs.astral.sh/ruff/rules/fast-api-redundant-response-model/"
+    },
+    {
+      "key": "FAST002",
+      "name": "fast-api-non-annotated-dependency",
+      "url": "https://docs.astral.sh/ruff/rules/fast-api-non-annotated-dependency/"
+    },
+    {
+      "key": "FAST003",
+      "name": "fast-api-unused-path-parameter",
+      "url": "https://docs.astral.sh/ruff/rules/fast-api-unused-path-parameter/"
+    },
+    {
+      "key": "ANN201",
+      "name": "missing-return-type-undocumented-public-function",
+      "url": "https://docs.astral.sh/ruff/rules/missing-return-type-undocumented-public-function/"
+    },
+    {
+      "key": "ANN202",
+      "name": "missing-return-type-private-function",
+      "url": "https://docs.astral.sh/ruff/rules/missing-return-type-private-function/"
+    },
+    {
+      "key": "ANN204",
+      "name": "missing-return-type-special-method",
+      "url": "https://docs.astral.sh/ruff/rules/missing-return-type-special-method/"
+    },
+    {
+      "key": "ANN205",
+      "name": "missing-return-type-static-method",
+      "url": "https://docs.astral.sh/ruff/rules/missing-return-type-static-method/"
+    },
+    {
+      "key": "ANN206",
+      "name": "missing-return-type-class-method",
+      "url": "https://docs.astral.sh/ruff/rules/missing-return-type-class-method/"
+    },
+    {
+      "key": "ASYNC105",
+      "name": "trio-sync-call",
+      "url": "https://docs.astral.sh/ruff/rules/trio-sync-call/"
+    },
+    {
+      "key": "ASYNC115",
+      "name": "async-zero-sleep",
+      "url": "https://docs.astral.sh/ruff/rules/async-zero-sleep/"
+    },
+    {
+      "key": "ASYNC116",
+      "name": "long-sleep-not-forever",
+      "url": "https://docs.astral.sh/ruff/rules/long-sleep-not-forever/"
+    },
+    {
+      "key": "B004",
+      "name": "unreliable-callable-check",
+      "url": "https://docs.astral.sh/ruff/rules/unreliable-callable-check/"
+    },
+    {
+      "key": "B006",
+      "name": "mutable-argument-default",
+      "url": "https://docs.astral.sh/ruff/rules/mutable-argument-default/"
+    },
+    {
+      "key": "B007",
+      "name": "unused-loop-control-variable",
+      "url": "https://docs.astral.sh/ruff/rules/unused-loop-control-variable/"
+    },
+    {
+      "key": "B009",
+      "name": "get-attr-with-constant",
+      "url": "https://docs.astral.sh/ruff/rules/get-attr-with-constant/"
+    },
+    {
+      "key": "B010",
+      "name": "set-attr-with-constant",
+      "url": "https://docs.astral.sh/ruff/rules/set-attr-with-constant/"
+    },
+    {
+      "key": "B011",
+      "name": "assert-false",
+      "url": "https://docs.astral.sh/ruff/rules/assert-false/"
+    },
+    {
+      "key": "B013",
+      "name": "redundant-tuple-in-exception-handler",
+      "url": "https://docs.astral.sh/ruff/rules/redundant-tuple-in-exception-handler/"
+    },
+    {
+      "key": "B014",
+      "name": "duplicate-handler-exception",
+      "url": "https://docs.astral.sh/ruff/rules/duplicate-handler-exception/"
+    },
+    {
+      "key": "B028",
+      "name": "no-explicit-stacklevel",
+      "url": "https://docs.astral.sh/ruff/rules/no-explicit-stacklevel/"
+    },
+    {
+      "key": "B033",
+      "name": "duplicate-value",
+      "url": "https://docs.astral.sh/ruff/rules/duplicate-value/"
+    },
+    {
+      "key": "B043",
+      "name": "del-attr-with-constant",
+      "url": "https://docs.astral.sh/ruff/rules/del-attr-with-constant/"
+    },
+    {
+      "key": "B905",
+      "name": "zip-without-explicit-strict",
+      "url": "https://docs.astral.sh/ruff/rules/zip-without-explicit-strict/"
+    },
+    {
+      "key": "B912",
+      "name": "map-without-explicit-strict",
+      "url": "https://docs.astral.sh/ruff/rules/map-without-explicit-strict/"
+    },
+    {
+      "key": "COM812",
+      "name": "missing-trailing-comma",
+      "url": "https://docs.astral.sh/ruff/rules/missing-trailing-comma/"
+    },
+    {
+      "key": "COM819",
+      "name": "prohibited-trailing-comma",
+      "url": "https://docs.astral.sh/ruff/rules/prohibited-trailing-comma/"
+    },
+    {
+      "key": "C400",
+      "name": "unnecessary-generator-list",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-generator-list/"
+    },
+    {
+      "key": "C401",
+      "name": "unnecessary-generator-set",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-generator-set/"
+    },
+    {
+      "key": "C402",
+      "name": "unnecessary-generator-dict",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-generator-dict/"
+    },
+    {
+      "key": "C403",
+      "name": "unnecessary-list-comprehension-set",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-list-comprehension-set/"
+    },
+    {
+      "key": "C404",
+      "name": "unnecessary-list-comprehension-dict",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-list-comprehension-dict/"
+    },
+    {
+      "key": "C405",
+      "name": "unnecessary-literal-set",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-literal-set/"
+    },
+    {
+      "key": "C406",
+      "name": "unnecessary-literal-dict",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-literal-dict/"
+    },
+    {
+      "key": "C408",
+      "name": "unnecessary-collection-call",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-collection-call/"
+    },
+    {
+      "key": "C409",
+      "name": "unnecessary-literal-within-tuple-call",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-literal-within-tuple-call/"
+    },
+    {
+      "key": "C410",
+      "name": "unnecessary-literal-within-list-call",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-literal-within-list-call/"
+    },
+    {
+      "key": "C411",
+      "name": "unnecessary-list-call",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-list-call/"
+    },
+    {
+      "key": "C413",
+      "name": "unnecessary-call-around-sorted",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-call-around-sorted/"
+    },
+    {
+      "key": "C414",
+      "name": "unnecessary-double-cast-or-process",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-double-cast-or-process/"
+    },
+    {
+      "key": "C416",
+      "name": "unnecessary-comprehension",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-comprehension/"
+    },
+    {
+      "key": "C417",
+      "name": "unnecessary-map",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-map/"
+    },
+    {
+      "key": "C418",
+      "name": "unnecessary-literal-within-dict-call",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-literal-within-dict-call/"
+    },
+    {
+      "key": "C419",
+      "name": "unnecessary-comprehension-in-call",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-comprehension-in-call/"
+    },
+    {
+      "key": "C420",
+      "name": "unnecessary-dict-comprehension-for-iterable",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-dict-comprehension-for-iterable/"
+    },
+    {
+      "key": "EM101",
+      "name": "raw-string-in-exception",
+      "url": "https://docs.astral.sh/ruff/rules/raw-string-in-exception/"
+    },
+    {
+      "key": "EM102",
+      "name": "f-string-in-exception",
+      "url": "https://docs.astral.sh/ruff/rules/f-string-in-exception/"
+    },
+    {
+      "key": "EM103",
+      "name": "dot-format-in-exception",
+      "url": "https://docs.astral.sh/ruff/rules/dot-format-in-exception/"
+    },
+    {
+      "key": "EXE004",
+      "name": "shebang-leading-whitespace",
+      "url": "https://docs.astral.sh/ruff/rules/shebang-leading-whitespace/"
+    },
+    {
+      "key": "FA100",
+      "name": "future-rewritable-type-annotation",
+      "url": "https://docs.astral.sh/ruff/rules/future-rewritable-type-annotation/"
+    },
+    {
+      "key": "FA102",
+      "name": "future-required-type-annotation",
+      "url": "https://docs.astral.sh/ruff/rules/future-required-type-annotation/"
+    },
+    {
+      "key": "ISC001",
+      "name": "single-line-implicit-string-concatenation",
+      "url": "https://docs.astral.sh/ruff/rules/single-line-implicit-string-concatenation/"
+    },
+    {
+      "key": "ISC003",
+      "name": "explicit-string-concatenation",
+      "url": "https://docs.astral.sh/ruff/rules/explicit-string-concatenation/"
+    },
+    {
+      "key": "ISC004",
+      "name": "implicit-string-concatenation-in-collection-literal",
+      "url": "https://docs.astral.sh/ruff/rules/implicit-string-concatenation-in-collection-literal/"
+    },
+    {
+      "key": "ICN001",
+      "name": "unconventional-import-alias",
+      "url": "https://docs.astral.sh/ruff/rules/unconventional-import-alias/"
+    },
+    {
+      "key": "LOG001",
+      "name": "direct-logger-instantiation",
+      "url": "https://docs.astral.sh/ruff/rules/direct-logger-instantiation/"
+    },
+    {
+      "key": "LOG002",
+      "name": "invalid-get-logger-argument",
+      "url": "https://docs.astral.sh/ruff/rules/invalid-get-logger-argument/"
+    },
+    {
+      "key": "LOG004",
+      "name": "log-exception-outside-except-handler",
+      "url": "https://docs.astral.sh/ruff/rules/log-exception-outside-except-handler/"
+    },
+    {
+      "key": "LOG009",
+      "name": "undocumented-warn",
+      "url": "https://docs.astral.sh/ruff/rules/undocumented-warn/"
+    },
+    {
+      "key": "LOG014",
+      "name": "exc-info-outside-except-handler",
+      "url": "https://docs.astral.sh/ruff/rules/exc-info-outside-except-handler/"
+    },
+    {
+      "key": "G004",
+      "name": "logging-f-string",
+      "url": "https://docs.astral.sh/ruff/rules/logging-f-string/"
+    },
+    {
+      "key": "G010",
+      "name": "logging-warn",
+      "url": "https://docs.astral.sh/ruff/rules/logging-warn/"
+    },
+    {
+      "key": "PIE790",
+      "name": "unnecessary-placeholder",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-placeholder/"
+    },
+    {
+      "key": "PIE794",
+      "name": "duplicate-class-field-definition",
+      "url": "https://docs.astral.sh/ruff/rules/duplicate-class-field-definition/"
+    },
+    {
+      "key": "PIE800",
+      "name": "unnecessary-spread",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-spread/"
+    },
+    {
+      "key": "PIE804",
+      "name": "unnecessary-dict-kwargs",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-dict-kwargs/"
+    },
+    {
+      "key": "PIE807",
+      "name": "reimplemented-container-builtin",
+      "url": "https://docs.astral.sh/ruff/rules/reimplemented-container-builtin/"
+    },
+    {
+      "key": "PIE808",
+      "name": "unnecessary-range-start",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-range-start/"
+    },
+    {
+      "key": "PIE810",
+      "name": "multiple-starts-ends-with",
+      "url": "https://docs.astral.sh/ruff/rules/multiple-starts-ends-with/"
+    },
+    {
+      "key": "T201",
+      "name": "print",
+      "url": "https://docs.astral.sh/ruff/rules/print/"
+    },
+    {
+      "key": "T203",
+      "name": "p-print",
+      "url": "https://docs.astral.sh/ruff/rules/p-print/"
+    },
+    {
+      "key": "PYI009",
+      "name": "pass-statement-stub-body",
+      "url": "https://docs.astral.sh/ruff/rules/pass-statement-stub-body/"
+    },
+    {
+      "key": "PYI010",
+      "name": "non-empty-stub-body",
+      "url": "https://docs.astral.sh/ruff/rules/non-empty-stub-body/"
+    },
+    {
+      "key": "PYI011",
+      "name": "typed-argument-default-in-stub",
+      "url": "https://docs.astral.sh/ruff/rules/typed-argument-default-in-stub/"
+    },
+    {
+      "key": "PYI012",
+      "name": "pass-in-class-body",
+      "url": "https://docs.astral.sh/ruff/rules/pass-in-class-body/"
+    },
+    {
+      "key": "PYI013",
+      "name": "ellipsis-in-non-empty-class-body",
+      "url": "https://docs.astral.sh/ruff/rules/ellipsis-in-non-empty-class-body/"
+    },
+    {
+      "key": "PYI014",
+      "name": "argument-default-in-stub",
+      "url": "https://docs.astral.sh/ruff/rules/argument-default-in-stub/"
+    },
+    {
+      "key": "PYI015",
+      "name": "assignment-default-in-stub",
+      "url": "https://docs.astral.sh/ruff/rules/assignment-default-in-stub/"
+    },
+    {
+      "key": "PYI016",
+      "name": "duplicate-union-member",
+      "url": "https://docs.astral.sh/ruff/rules/duplicate-union-member/"
+    },
+    {
+      "key": "PYI018",
+      "name": "unused-private-type-var",
+      "url": "https://docs.astral.sh/ruff/rules/unused-private-type-var/"
+    },
+    {
+      "key": "PYI019",
+      "name": "custom-type-var-for-self",
+      "url": "https://docs.astral.sh/ruff/rules/custom-type-var-for-self/"
+    },
+    {
+      "key": "PYI020",
+      "name": "quoted-annotation-in-stub",
+      "url": "https://docs.astral.sh/ruff/rules/quoted-annotation-in-stub/"
+    },
+    {
+      "key": "PYI021",
+      "name": "docstring-in-stub",
+      "url": "https://docs.astral.sh/ruff/rules/docstring-in-stub/"
+    },
+    {
+      "key": "PYI025",
+      "name": "unaliased-collections-abc-set-import",
+      "url": "https://docs.astral.sh/ruff/rules/unaliased-collections-abc-set-import/"
+    },
+    {
+      "key": "PYI026",
+      "name": "type-alias-without-annotation",
+      "url": "https://docs.astral.sh/ruff/rules/type-alias-without-annotation/"
+    },
+    {
+      "key": "PYI029",
+      "name": "str-or-repr-defined-in-stub",
+      "url": "https://docs.astral.sh/ruff/rules/str-or-repr-defined-in-stub/"
+    },
+    {
+      "key": "PYI030",
+      "name": "unnecessary-literal-union",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-literal-union/"
+    },
+    {
+      "key": "PYI032",
+      "name": "any-eq-ne-annotation",
+      "url": "https://docs.astral.sh/ruff/rules/any-eq-ne-annotation/"
+    },
+    {
+      "key": "PYI034",
+      "name": "non-self-return-type",
+      "url": "https://docs.astral.sh/ruff/rules/non-self-return-type/"
+    },
+    {
+      "key": "PYI036",
+      "name": "bad-exit-annotation",
+      "url": "https://docs.astral.sh/ruff/rules/bad-exit-annotation/"
+    },
+    {
+      "key": "PYI041",
+      "name": "redundant-numeric-union",
+      "url": "https://docs.astral.sh/ruff/rules/redundant-numeric-union/"
+    },
+    {
+      "key": "PYI044",
+      "name": "future-annotations-in-stub",
+      "url": "https://docs.astral.sh/ruff/rules/future-annotations-in-stub/"
+    },
+    {
+      "key": "PYI053",
+      "name": "string-or-bytes-too-long",
+      "url": "https://docs.astral.sh/ruff/rules/string-or-bytes-too-long/"
+    },
+    {
+      "key": "PYI054",
+      "name": "numeric-literal-too-long",
+      "url": "https://docs.astral.sh/ruff/rules/numeric-literal-too-long/"
+    },
+    {
+      "key": "PYI055",
+      "name": "unnecessary-type-union",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-type-union/"
+    },
+    {
+      "key": "PYI058",
+      "name": "generator-return-from-iter-method",
+      "url": "https://docs.astral.sh/ruff/rules/generator-return-from-iter-method/"
+    },
+    {
+      "key": "PYI059",
+      "name": "generic-not-last-base-class",
+      "url": "https://docs.astral.sh/ruff/rules/generic-not-last-base-class/"
+    },
+    {
+      "key": "PYI061",
+      "name": "redundant-none-literal",
+      "url": "https://docs.astral.sh/ruff/rules/redundant-none-literal/"
+    },
+    {
+      "key": "PYI062",
+      "name": "duplicate-literal-member",
+      "url": "https://docs.astral.sh/ruff/rules/duplicate-literal-member/"
+    },
+    {
+      "key": "PYI064",
+      "name": "redundant-final-literal",
+      "url": "https://docs.astral.sh/ruff/rules/redundant-final-literal/"
+    },
+    {
+      "key": "PT001",
+      "name": "pytest-fixture-incorrect-parentheses-style",
+      "url": "https://docs.astral.sh/ruff/rules/pytest-fixture-incorrect-parentheses-style/"
+    },
+    {
+      "key": "PT003",
+      "name": "pytest-extraneous-scope-function",
+      "url": "https://docs.astral.sh/ruff/rules/pytest-extraneous-scope-function/"
+    },
+    {
+      "key": "PT006",
+      "name": "pytest-parametrize-names-wrong-type",
+      "url": "https://docs.astral.sh/ruff/rules/pytest-parametrize-names-wrong-type/"
+    },
+    {
+      "key": "PT007",
+      "name": "pytest-parametrize-values-wrong-type",
+      "url": "https://docs.astral.sh/ruff/rules/pytest-parametrize-values-wrong-type/"
+    },
+    {
+      "key": "PT009",
+      "name": "pytest-unittest-assertion",
+      "url": "https://docs.astral.sh/ruff/rules/pytest-unittest-assertion/"
+    },
+    {
+      "key": "PT014",
+      "name": "pytest-duplicate-parametrize-test-cases",
+      "url": "https://docs.astral.sh/ruff/rules/pytest-duplicate-parametrize-test-cases/"
+    },
+    {
+      "key": "PT018",
+      "name": "pytest-composite-assertion",
+      "url": "https://docs.astral.sh/ruff/rules/pytest-composite-assertion/"
+    },
+    {
+      "key": "PT020",
+      "name": "pytest-deprecated-yield-fixture",
+      "url": "https://docs.astral.sh/ruff/rules/pytest-deprecated-yield-fixture/"
+    },
+    {
+      "key": "PT022",
+      "name": "pytest-useless-yield-fixture",
+      "url": "https://docs.astral.sh/ruff/rules/pytest-useless-yield-fixture/"
+    },
+    {
+      "key": "PT023",
+      "name": "pytest-incorrect-mark-parentheses-style",
+      "url": "https://docs.astral.sh/ruff/rules/pytest-incorrect-mark-parentheses-style/"
+    },
+    {
+      "key": "PT024",
+      "name": "pytest-unnecessary-asyncio-mark-on-fixture",
+      "url": "https://docs.astral.sh/ruff/rules/pytest-unnecessary-asyncio-mark-on-fixture/"
+    },
+    {
+      "key": "PT025",
+      "name": "pytest-erroneous-use-fixtures-on-fixture",
+      "url": "https://docs.astral.sh/ruff/rules/pytest-erroneous-use-fixtures-on-fixture/"
+    },
+    {
+      "key": "PT026",
+      "name": "pytest-use-fixtures-without-parameters",
+      "url": "https://docs.astral.sh/ruff/rules/pytest-use-fixtures-without-parameters/"
+    },
+    {
+      "key": "PT027",
+      "name": "pytest-unittest-raises-assertion",
+      "url": "https://docs.astral.sh/ruff/rules/pytest-unittest-raises-assertion/"
+    },
+    {
+      "key": "Q000",
+      "name": "bad-quotes-inline-string",
+      "url": "https://docs.astral.sh/ruff/rules/bad-quotes-inline-string/"
+    },
+    {
+      "key": "Q001",
+      "name": "bad-quotes-multiline-string",
+      "url": "https://docs.astral.sh/ruff/rules/bad-quotes-multiline-string/"
+    },
+    {
+      "key": "Q002",
+      "name": "bad-quotes-docstring",
+      "url": "https://docs.astral.sh/ruff/rules/bad-quotes-docstring/"
+    },
+    {
+      "key": "Q003",
+      "name": "avoidable-escaped-quote",
+      "url": "https://docs.astral.sh/ruff/rules/avoidable-escaped-quote/"
+    },
+    {
+      "key": "Q004",
+      "name": "unnecessary-escaped-quote",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-escaped-quote/"
+    },
+    {
+      "key": "RSE102",
+      "name": "unnecessary-paren-on-raise-exception",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-paren-on-raise-exception/"
+    },
+    {
+      "key": "RET501",
+      "name": "unnecessary-return-none",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-return-none/"
+    },
+    {
+      "key": "RET502",
+      "name": "implicit-return-value",
+      "url": "https://docs.astral.sh/ruff/rules/implicit-return-value/"
+    },
+    {
+      "key": "RET503",
+      "name": "implicit-return",
+      "url": "https://docs.astral.sh/ruff/rules/implicit-return/"
+    },
+    {
+      "key": "RET504",
+      "name": "unnecessary-assign",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-assign/"
+    },
+    {
+      "key": "RET505",
+      "name": "superfluous-else-return",
+      "url": "https://docs.astral.sh/ruff/rules/superfluous-else-return/"
+    },
+    {
+      "key": "RET506",
+      "name": "superfluous-else-raise",
+      "url": "https://docs.astral.sh/ruff/rules/superfluous-else-raise/"
+    },
+    {
+      "key": "RET507",
+      "name": "superfluous-else-continue",
+      "url": "https://docs.astral.sh/ruff/rules/superfluous-else-continue/"
+    },
+    {
+      "key": "RET508",
+      "name": "superfluous-else-break",
+      "url": "https://docs.astral.sh/ruff/rules/superfluous-else-break/"
+    },
+    {
+      "key": "SIM101",
+      "name": "duplicate-isinstance-call",
+      "url": "https://docs.astral.sh/ruff/rules/duplicate-isinstance-call/"
+    },
+    {
+      "key": "SIM102",
+      "name": "collapsible-if",
+      "url": "https://docs.astral.sh/ruff/rules/collapsible-if/"
+    },
+    {
+      "key": "SIM103",
+      "name": "needless-bool",
+      "url": "https://docs.astral.sh/ruff/rules/needless-bool/"
+    },
+    {
+      "key": "SIM105",
+      "name": "suppressible-exception",
+      "url": "https://docs.astral.sh/ruff/rules/suppressible-exception/"
+    },
+    {
+      "key": "SIM108",
+      "name": "if-else-block-instead-of-if-exp",
+      "url": "https://docs.astral.sh/ruff/rules/if-else-block-instead-of-if-exp/"
+    },
+    {
+      "key": "SIM109",
+      "name": "compare-with-tuple",
+      "url": "https://docs.astral.sh/ruff/rules/compare-with-tuple/"
+    },
+    {
+      "key": "SIM110",
+      "name": "reimplemented-builtin",
+      "url": "https://docs.astral.sh/ruff/rules/reimplemented-builtin/"
+    },
+    {
+      "key": "SIM112",
+      "name": "uncapitalized-environment-variables",
+      "url": "https://docs.astral.sh/ruff/rules/uncapitalized-environment-variables/"
+    },
+    {
+      "key": "SIM114",
+      "name": "if-with-same-arms",
+      "url": "https://docs.astral.sh/ruff/rules/if-with-same-arms/"
+    },
+    {
+      "key": "SIM117",
+      "name": "multiple-with-statements",
+      "url": "https://docs.astral.sh/ruff/rules/multiple-with-statements/"
+    },
+    {
+      "key": "SIM118",
+      "name": "in-dict-keys",
+      "url": "https://docs.astral.sh/ruff/rules/in-dict-keys/"
+    },
+    {
+      "key": "SIM201",
+      "name": "negate-equal-op",
+      "url": "https://docs.astral.sh/ruff/rules/negate-equal-op/"
+    },
+    {
+      "key": "SIM202",
+      "name": "negate-not-equal-op",
+      "url": "https://docs.astral.sh/ruff/rules/negate-not-equal-op/"
+    },
+    {
+      "key": "SIM208",
+      "name": "double-negation",
+      "url": "https://docs.astral.sh/ruff/rules/double-negation/"
+    },
+    {
+      "key": "SIM210",
+      "name": "if-expr-with-true-false",
+      "url": "https://docs.astral.sh/ruff/rules/if-expr-with-true-false/"
+    },
+    {
+      "key": "SIM211",
+      "name": "if-expr-with-false-true",
+      "url": "https://docs.astral.sh/ruff/rules/if-expr-with-false-true/"
+    },
+    {
+      "key": "SIM212",
+      "name": "if-expr-with-twisted-arms",
+      "url": "https://docs.astral.sh/ruff/rules/if-expr-with-twisted-arms/"
+    },
+    {
+      "key": "SIM220",
+      "name": "expr-and-not-expr",
+      "url": "https://docs.astral.sh/ruff/rules/expr-and-not-expr/"
+    },
+    {
+      "key": "SIM221",
+      "name": "expr-or-not-expr",
+      "url": "https://docs.astral.sh/ruff/rules/expr-or-not-expr/"
+    },
+    {
+      "key": "SIM222",
+      "name": "expr-or-true",
+      "url": "https://docs.astral.sh/ruff/rules/expr-or-true/"
+    },
+    {
+      "key": "SIM223",
+      "name": "expr-and-false",
+      "url": "https://docs.astral.sh/ruff/rules/expr-and-false/"
+    },
+    {
+      "key": "SIM300",
+      "name": "yoda-conditions",
+      "url": "https://docs.astral.sh/ruff/rules/yoda-conditions/"
+    },
+    {
+      "key": "SIM401",
+      "name": "if-else-block-instead-of-dict-get",
+      "url": "https://docs.astral.sh/ruff/rules/if-else-block-instead-of-dict-get/"
+    },
+    {
+      "key": "SIM905",
+      "name": "split-static-string",
+      "url": "https://docs.astral.sh/ruff/rules/split-static-string/"
+    },
+    {
+      "key": "SIM910",
+      "name": "dict-get-with-none-default",
+      "url": "https://docs.astral.sh/ruff/rules/dict-get-with-none-default/"
+    },
+    {
+      "key": "SIM911",
+      "name": "zip-dict-keys-and-values",
+      "url": "https://docs.astral.sh/ruff/rules/zip-dict-keys-and-values/"
+    },
+    {
+      "key": "TID252",
+      "name": "relative-imports",
+      "url": "https://docs.astral.sh/ruff/rules/relative-imports/"
+    },
+    {
+      "key": "TID254",
+      "name": "lazy-import-mismatch",
+      "url": "https://docs.astral.sh/ruff/rules/lazy-import-mismatch/"
+    },
+    {
+      "key": "TID255",
+      "name": "lazy-import-immediately-resolved",
+      "url": "https://docs.astral.sh/ruff/rules/lazy-import-immediately-resolved/"
+    },
+    {
+      "key": "TD006",
+      "name": "invalid-todo-capitalization",
+      "url": "https://docs.astral.sh/ruff/rules/invalid-todo-capitalization/"
+    },
+    {
+      "key": "TC001",
+      "name": "typing-only-first-party-import",
+      "url": "https://docs.astral.sh/ruff/rules/typing-only-first-party-import/"
+    },
+    {
+      "key": "TC002",
+      "name": "typing-only-third-party-import",
+      "url": "https://docs.astral.sh/ruff/rules/typing-only-third-party-import/"
+    },
+    {
+      "key": "TC003",
+      "name": "typing-only-standard-library-import",
+      "url": "https://docs.astral.sh/ruff/rules/typing-only-standard-library-import/"
+    },
+    {
+      "key": "TC004",
+      "name": "runtime-import-in-type-checking-block",
+      "url": "https://docs.astral.sh/ruff/rules/runtime-import-in-type-checking-block/"
+    },
+    {
+      "key": "TC005",
+      "name": "empty-type-checking-block",
+      "url": "https://docs.astral.sh/ruff/rules/empty-type-checking-block/"
+    },
+    {
+      "key": "TC006",
+      "name": "runtime-cast-value",
+      "url": "https://docs.astral.sh/ruff/rules/runtime-cast-value/"
+    },
+    {
+      "key": "TC007",
+      "name": "unquoted-type-alias",
+      "url": "https://docs.astral.sh/ruff/rules/unquoted-type-alias/"
+    },
+    {
+      "key": "TC008",
+      "name": "quoted-type-alias",
+      "url": "https://docs.astral.sh/ruff/rules/quoted-type-alias/"
+    },
+    {
+      "key": "PTH100",
+      "name": "os-path-abspath",
+      "url": "https://docs.astral.sh/ruff/rules/os-path-abspath/"
+    },
+    {
+      "key": "PTH101",
+      "name": "os-chmod",
+      "url": "https://docs.astral.sh/ruff/rules/os-chmod/"
+    },
+    {
+      "key": "PTH102",
+      "name": "os-mkdir",
+      "url": "https://docs.astral.sh/ruff/rules/os-mkdir/"
+    },
+    {
+      "key": "PTH103",
+      "name": "os-makedirs",
+      "url": "https://docs.astral.sh/ruff/rules/os-makedirs/"
+    },
+    {
+      "key": "PTH104",
+      "name": "os-rename",
+      "url": "https://docs.astral.sh/ruff/rules/os-rename/"
+    },
+    {
+      "key": "PTH105",
+      "name": "os-replace",
+      "url": "https://docs.astral.sh/ruff/rules/os-replace/"
+    },
+    {
+      "key": "PTH106",
+      "name": "os-rmdir",
+      "url": "https://docs.astral.sh/ruff/rules/os-rmdir/"
+    },
+    {
+      "key": "PTH107",
+      "name": "os-remove",
+      "url": "https://docs.astral.sh/ruff/rules/os-remove/"
+    },
+    {
+      "key": "PTH108",
+      "name": "os-unlink",
+      "url": "https://docs.astral.sh/ruff/rules/os-unlink/"
+    },
+    {
+      "key": "PTH109",
+      "name": "os-getcwd",
+      "url": "https://docs.astral.sh/ruff/rules/os-getcwd/"
+    },
+    {
+      "key": "PTH110",
+      "name": "os-path-exists",
+      "url": "https://docs.astral.sh/ruff/rules/os-path-exists/"
+    },
+    {
+      "key": "PTH111",
+      "name": "os-path-expanduser",
+      "url": "https://docs.astral.sh/ruff/rules/os-path-expanduser/"
+    },
+    {
+      "key": "PTH112",
+      "name": "os-path-isdir",
+      "url": "https://docs.astral.sh/ruff/rules/os-path-isdir/"
+    },
+    {
+      "key": "PTH113",
+      "name": "os-path-isfile",
+      "url": "https://docs.astral.sh/ruff/rules/os-path-isfile/"
+    },
+    {
+      "key": "PTH114",
+      "name": "os-path-islink",
+      "url": "https://docs.astral.sh/ruff/rules/os-path-islink/"
+    },
+    {
+      "key": "PTH115",
+      "name": "os-readlink",
+      "url": "https://docs.astral.sh/ruff/rules/os-readlink/"
+    },
+    {
+      "key": "PTH116",
+      "name": "os-stat",
+      "url": "https://docs.astral.sh/ruff/rules/os-stat/"
+    },
+    {
+      "key": "PTH117",
+      "name": "os-path-isabs",
+      "url": "https://docs.astral.sh/ruff/rules/os-path-isabs/"
+    },
+    {
+      "key": "PTH119",
+      "name": "os-path-basename",
+      "url": "https://docs.astral.sh/ruff/rules/os-path-basename/"
+    },
+    {
+      "key": "PTH120",
+      "name": "os-path-dirname",
+      "url": "https://docs.astral.sh/ruff/rules/os-path-dirname/"
+    },
+    {
+      "key": "PTH121",
+      "name": "os-path-samefile",
+      "url": "https://docs.astral.sh/ruff/rules/os-path-samefile/"
+    },
+    {
+      "key": "PTH123",
+      "name": "builtin-open",
+      "url": "https://docs.astral.sh/ruff/rules/builtin-open/"
+    },
+    {
+      "key": "PTH201",
+      "name": "path-constructor-current-directory",
+      "url": "https://docs.astral.sh/ruff/rules/path-constructor-current-directory/"
+    },
+    {
+      "key": "PTH202",
+      "name": "os-path-getsize",
+      "url": "https://docs.astral.sh/ruff/rules/os-path-getsize/"
+    },
+    {
+      "key": "PTH203",
+      "name": "os-path-getatime",
+      "url": "https://docs.astral.sh/ruff/rules/os-path-getatime/"
+    },
+    {
+      "key": "PTH204",
+      "name": "os-path-getmtime",
+      "url": "https://docs.astral.sh/ruff/rules/os-path-getmtime/"
+    },
+    {
+      "key": "PTH205",
+      "name": "os-path-getctime",
+      "url": "https://docs.astral.sh/ruff/rules/os-path-getctime/"
+    },
+    {
+      "key": "PTH208",
+      "name": "os-listdir",
+      "url": "https://docs.astral.sh/ruff/rules/os-listdir/"
+    },
+    {
+      "key": "PTH210",
+      "name": "invalid-pathlib-with-suffix",
+      "url": "https://docs.astral.sh/ruff/rules/invalid-pathlib-with-suffix/"
+    },
+    {
+      "key": "PTH211",
+      "name": "os-symlink",
+      "url": "https://docs.astral.sh/ruff/rules/os-symlink/"
+    },
+    {
+      "key": "FLY002",
+      "name": "static-join-to-f-string",
+      "url": "https://docs.astral.sh/ruff/rules/static-join-to-f-string/"
+    },
+    {
+      "key": "I001",
+      "name": "unsorted-imports",
+      "url": "https://docs.astral.sh/ruff/rules/unsorted-imports/"
+    },
+    {
+      "key": "I002",
+      "name": "missing-required-import",
+      "url": "https://docs.astral.sh/ruff/rules/missing-required-import/"
+    },
+    {
+      "key": "NPY001",
+      "name": "numpy-deprecated-type-alias",
+      "url": "https://docs.astral.sh/ruff/rules/numpy-deprecated-type-alias/"
+    },
+    {
+      "key": "NPY003",
+      "name": "numpy-deprecated-function",
+      "url": "https://docs.astral.sh/ruff/rules/numpy-deprecated-function/"
+    },
+    {
+      "key": "NPY201",
+      "name": "numpy2-deprecation",
+      "url": "https://docs.astral.sh/ruff/rules/numpy2-deprecation/"
+    },
+    {
+      "key": "PD002",
+      "name": "pandas-use-of-inplace-argument",
+      "url": "https://docs.astral.sh/ruff/rules/pandas-use-of-inplace-argument/"
+    },
+    {
+      "key": "N804",
+      "name": "invalid-first-argument-name-for-class-method",
+      "url": "https://docs.astral.sh/ruff/rules/invalid-first-argument-name-for-class-method/"
+    },
+    {
+      "key": "N805",
+      "name": "invalid-first-argument-name-for-method",
+      "url": "https://docs.astral.sh/ruff/rules/invalid-first-argument-name-for-method/"
+    },
+    {
+      "key": "PERF101",
+      "name": "unnecessary-list-cast",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-list-cast/"
+    },
+    {
+      "key": "PERF102",
+      "name": "incorrect-dict-iterator",
+      "url": "https://docs.astral.sh/ruff/rules/incorrect-dict-iterator/"
+    },
+    {
+      "key": "PERF401",
+      "name": "manual-list-comprehension",
+      "url": "https://docs.astral.sh/ruff/rules/manual-list-comprehension/"
+    },
+    {
+      "key": "PERF403",
+      "name": "manual-dict-comprehension",
+      "url": "https://docs.astral.sh/ruff/rules/manual-dict-comprehension/"
+    },
+    {
+      "key": "E201",
+      "name": "whitespace-after-open-bracket",
+      "url": "https://docs.astral.sh/ruff/rules/whitespace-after-open-bracket/"
+    },
+    {
+      "key": "E202",
+      "name": "whitespace-before-close-bracket",
+      "url": "https://docs.astral.sh/ruff/rules/whitespace-before-close-bracket/"
+    },
+    {
+      "key": "E203",
+      "name": "whitespace-before-punctuation",
+      "url": "https://docs.astral.sh/ruff/rules/whitespace-before-punctuation/"
+    },
+    {
+      "key": "E204",
+      "name": "whitespace-after-decorator",
+      "url": "https://docs.astral.sh/ruff/rules/whitespace-after-decorator/"
+    },
+    {
+      "key": "E211",
+      "name": "whitespace-before-parameters",
+      "url": "https://docs.astral.sh/ruff/rules/whitespace-before-parameters/"
+    },
+    {
+      "key": "E221",
+      "name": "multiple-spaces-before-operator",
+      "url": "https://docs.astral.sh/ruff/rules/multiple-spaces-before-operator/"
+    },
+    {
+      "key": "E222",
+      "name": "multiple-spaces-after-operator",
+      "url": "https://docs.astral.sh/ruff/rules/multiple-spaces-after-operator/"
+    },
+    {
+      "key": "E223",
+      "name": "tab-before-operator",
+      "url": "https://docs.astral.sh/ruff/rules/tab-before-operator/"
+    },
+    {
+      "key": "E224",
+      "name": "tab-after-operator",
+      "url": "https://docs.astral.sh/ruff/rules/tab-after-operator/"
+    },
+    {
+      "key": "E225",
+      "name": "missing-whitespace-around-operator",
+      "url": "https://docs.astral.sh/ruff/rules/missing-whitespace-around-operator/"
+    },
+    {
+      "key": "E226",
+      "name": "missing-whitespace-around-arithmetic-operator",
+      "url": "https://docs.astral.sh/ruff/rules/missing-whitespace-around-arithmetic-operator/"
+    },
+    {
+      "key": "E227",
+      "name": "missing-whitespace-around-bitwise-or-shift-operator",
+      "url": "https://docs.astral.sh/ruff/rules/missing-whitespace-around-bitwise-or-shift-operator/"
+    },
+    {
+      "key": "E228",
+      "name": "missing-whitespace-around-modulo-operator",
+      "url": "https://docs.astral.sh/ruff/rules/missing-whitespace-around-modulo-operator/"
+    },
+    {
+      "key": "E231",
+      "name": "missing-whitespace",
+      "url": "https://docs.astral.sh/ruff/rules/missing-whitespace/"
+    },
+    {
+      "key": "E241",
+      "name": "multiple-spaces-after-comma",
+      "url": "https://docs.astral.sh/ruff/rules/multiple-spaces-after-comma/"
+    },
+    {
+      "key": "E242",
+      "name": "tab-after-comma",
+      "url": "https://docs.astral.sh/ruff/rules/tab-after-comma/"
+    },
+    {
+      "key": "E251",
+      "name": "unexpected-spaces-around-keyword-parameter-equals",
+      "url": "https://docs.astral.sh/ruff/rules/unexpected-spaces-around-keyword-parameter-equals/"
+    },
+    {
+      "key": "E252",
+      "name": "missing-whitespace-around-parameter-equals",
+      "url": "https://docs.astral.sh/ruff/rules/missing-whitespace-around-parameter-equals/"
+    },
+    {
+      "key": "E261",
+      "name": "too-few-spaces-before-inline-comment",
+      "url": "https://docs.astral.sh/ruff/rules/too-few-spaces-before-inline-comment/"
+    },
+    {
+      "key": "E262",
+      "name": "no-space-after-inline-comment",
+      "url": "https://docs.astral.sh/ruff/rules/no-space-after-inline-comment/"
+    },
+    {
+      "key": "E265",
+      "name": "no-space-after-block-comment",
+      "url": "https://docs.astral.sh/ruff/rules/no-space-after-block-comment/"
+    },
+    {
+      "key": "E266",
+      "name": "multiple-leading-hashes-for-block-comment",
+      "url": "https://docs.astral.sh/ruff/rules/multiple-leading-hashes-for-block-comment/"
+    },
+    {
+      "key": "E271",
+      "name": "multiple-spaces-after-keyword",
+      "url": "https://docs.astral.sh/ruff/rules/multiple-spaces-after-keyword/"
+    },
+    {
+      "key": "E272",
+      "name": "multiple-spaces-before-keyword",
+      "url": "https://docs.astral.sh/ruff/rules/multiple-spaces-before-keyword/"
+    },
+    {
+      "key": "E273",
+      "name": "tab-after-keyword",
+      "url": "https://docs.astral.sh/ruff/rules/tab-after-keyword/"
+    },
+    {
+      "key": "E274",
+      "name": "tab-before-keyword",
+      "url": "https://docs.astral.sh/ruff/rules/tab-before-keyword/"
+    },
+    {
+      "key": "E275",
+      "name": "missing-whitespace-after-keyword",
+      "url": "https://docs.astral.sh/ruff/rules/missing-whitespace-after-keyword/"
+    },
+    {
+      "key": "E301",
+      "name": "blank-line-between-methods",
+      "url": "https://docs.astral.sh/ruff/rules/blank-line-between-methods/"
+    },
+    {
+      "key": "E302",
+      "name": "blank-lines-top-level",
+      "url": "https://docs.astral.sh/ruff/rules/blank-lines-top-level/"
+    },
+    {
+      "key": "E303",
+      "name": "too-many-blank-lines",
+      "url": "https://docs.astral.sh/ruff/rules/too-many-blank-lines/"
+    },
+    {
+      "key": "E304",
+      "name": "blank-line-after-decorator",
+      "url": "https://docs.astral.sh/ruff/rules/blank-line-after-decorator/"
+    },
+    {
+      "key": "E305",
+      "name": "blank-lines-after-function-or-class",
+      "url": "https://docs.astral.sh/ruff/rules/blank-lines-after-function-or-class/"
+    },
+    {
+      "key": "E306",
+      "name": "blank-lines-before-nested-definition",
+      "url": "https://docs.astral.sh/ruff/rules/blank-lines-before-nested-definition/"
+    },
+    {
+      "key": "E401",
+      "name": "multiple-imports-on-one-line",
+      "url": "https://docs.astral.sh/ruff/rules/multiple-imports-on-one-line/"
+    },
+    {
+      "key": "E402",
+      "name": "module-import-not-at-top-of-file",
+      "url": "https://docs.astral.sh/ruff/rules/module-import-not-at-top-of-file/"
+    },
+    {
+      "key": "E502",
+      "name": "redundant-backslash",
+      "url": "https://docs.astral.sh/ruff/rules/redundant-backslash/"
+    },
+    {
+      "key": "E703",
+      "name": "useless-semicolon",
+      "url": "https://docs.astral.sh/ruff/rules/useless-semicolon/"
+    },
+    {
+      "key": "E711",
+      "name": "none-comparison",
+      "url": "https://docs.astral.sh/ruff/rules/none-comparison/"
+    },
+    {
+      "key": "E712",
+      "name": "true-false-comparison",
+      "url": "https://docs.astral.sh/ruff/rules/true-false-comparison/"
+    },
+    {
+      "key": "E713",
+      "name": "not-in-test",
+      "url": "https://docs.astral.sh/ruff/rules/not-in-test/"
+    },
+    {
+      "key": "E714",
+      "name": "not-is-test",
+      "url": "https://docs.astral.sh/ruff/rules/not-is-test/"
+    },
+    {
+      "key": "E731",
+      "name": "lambda-assignment",
+      "url": "https://docs.astral.sh/ruff/rules/lambda-assignment/"
+    },
+    {
+      "key": "W291",
+      "name": "trailing-whitespace",
+      "url": "https://docs.astral.sh/ruff/rules/trailing-whitespace/"
+    },
+    {
+      "key": "W292",
+      "name": "missing-newline-at-end-of-file",
+      "url": "https://docs.astral.sh/ruff/rules/missing-newline-at-end-of-file/"
+    },
+    {
+      "key": "W293",
+      "name": "blank-line-with-whitespace",
+      "url": "https://docs.astral.sh/ruff/rules/blank-line-with-whitespace/"
+    },
+    {
+      "key": "W391",
+      "name": "too-many-newlines-at-end-of-file",
+      "url": "https://docs.astral.sh/ruff/rules/too-many-newlines-at-end-of-file/"
+    },
+    {
+      "key": "W605",
+      "name": "invalid-escape-sequence",
+      "url": "https://docs.astral.sh/ruff/rules/invalid-escape-sequence/"
+    },
+    {
+      "key": "D200",
+      "name": "unnecessary-multiline-docstring",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-multiline-docstring/"
+    },
+    {
+      "key": "D201",
+      "name": "blank-line-before-function",
+      "url": "https://docs.astral.sh/ruff/rules/blank-line-before-function/"
+    },
+    {
+      "key": "D202",
+      "name": "blank-line-after-function",
+      "url": "https://docs.astral.sh/ruff/rules/blank-line-after-function/"
+    },
+    {
+      "key": "D203",
+      "name": "incorrect-blank-line-before-class",
+      "url": "https://docs.astral.sh/ruff/rules/incorrect-blank-line-before-class/"
+    },
+    {
+      "key": "D204",
+      "name": "incorrect-blank-line-after-class",
+      "url": "https://docs.astral.sh/ruff/rules/incorrect-blank-line-after-class/"
+    },
+    {
+      "key": "D205",
+      "name": "missing-blank-line-after-summary",
+      "url": "https://docs.astral.sh/ruff/rules/missing-blank-line-after-summary/"
+    },
+    {
+      "key": "D207",
+      "name": "under-indentation",
+      "url": "https://docs.astral.sh/ruff/rules/under-indentation/"
+    },
+    {
+      "key": "D208",
+      "name": "over-indentation",
+      "url": "https://docs.astral.sh/ruff/rules/over-indentation/"
+    },
+    {
+      "key": "D209",
+      "name": "new-line-after-last-paragraph",
+      "url": "https://docs.astral.sh/ruff/rules/new-line-after-last-paragraph/"
+    },
+    {
+      "key": "D210",
+      "name": "surrounding-whitespace",
+      "url": "https://docs.astral.sh/ruff/rules/surrounding-whitespace/"
+    },
+    {
+      "key": "D211",
+      "name": "blank-line-before-class",
+      "url": "https://docs.astral.sh/ruff/rules/blank-line-before-class/"
+    },
+    {
+      "key": "D212",
+      "name": "multi-line-summary-first-line",
+      "url": "https://docs.astral.sh/ruff/rules/multi-line-summary-first-line/"
+    },
+    {
+      "key": "D213",
+      "name": "multi-line-summary-second-line",
+      "url": "https://docs.astral.sh/ruff/rules/multi-line-summary-second-line/"
+    },
+    {
+      "key": "D214",
+      "name": "overindented-section",
+      "url": "https://docs.astral.sh/ruff/rules/overindented-section/"
+    },
+    {
+      "key": "D215",
+      "name": "overindented-section-underline",
+      "url": "https://docs.astral.sh/ruff/rules/overindented-section-underline/"
+    },
+    {
+      "key": "D300",
+      "name": "triple-single-quotes",
+      "url": "https://docs.astral.sh/ruff/rules/triple-single-quotes/"
+    },
+    {
+      "key": "D301",
+      "name": "escape-sequence-in-docstring",
+      "url": "https://docs.astral.sh/ruff/rules/escape-sequence-in-docstring/"
+    },
+    {
+      "key": "D400",
+      "name": "missing-trailing-period",
+      "url": "https://docs.astral.sh/ruff/rules/missing-trailing-period/"
+    },
+    {
+      "key": "D403",
+      "name": "first-word-uncapitalized",
+      "url": "https://docs.astral.sh/ruff/rules/first-word-uncapitalized/"
+    },
+    {
+      "key": "D405",
+      "name": "non-capitalized-section-name",
+      "url": "https://docs.astral.sh/ruff/rules/non-capitalized-section-name/"
+    },
+    {
+      "key": "D406",
+      "name": "missing-new-line-after-section-name",
+      "url": "https://docs.astral.sh/ruff/rules/missing-new-line-after-section-name/"
+    },
+    {
+      "key": "D407",
+      "name": "missing-dashed-underline-after-section",
+      "url": "https://docs.astral.sh/ruff/rules/missing-dashed-underline-after-section/"
+    },
+    {
+      "key": "D408",
+      "name": "missing-section-underline-after-name",
+      "url": "https://docs.astral.sh/ruff/rules/missing-section-underline-after-name/"
+    },
+    {
+      "key": "D409",
+      "name": "mismatched-section-underline-length",
+      "url": "https://docs.astral.sh/ruff/rules/mismatched-section-underline-length/"
+    },
+    {
+      "key": "D410",
+      "name": "no-blank-line-after-section",
+      "url": "https://docs.astral.sh/ruff/rules/no-blank-line-after-section/"
+    },
+    {
+      "key": "D411",
+      "name": "no-blank-line-before-section",
+      "url": "https://docs.astral.sh/ruff/rules/no-blank-line-before-section/"
+    },
+    {
+      "key": "D412",
+      "name": "blank-lines-between-header-and-content",
+      "url": "https://docs.astral.sh/ruff/rules/blank-lines-between-header-and-content/"
+    },
+    {
+      "key": "D413",
+      "name": "missing-blank-line-after-last-section",
+      "url": "https://docs.astral.sh/ruff/rules/missing-blank-line-after-last-section/"
+    },
+    {
+      "key": "D415",
+      "name": "missing-terminal-punctuation",
+      "url": "https://docs.astral.sh/ruff/rules/missing-terminal-punctuation/"
+    },
+    {
+      "key": "D416",
+      "name": "missing-section-name-colon",
+      "url": "https://docs.astral.sh/ruff/rules/missing-section-name-colon/"
+    },
+    {
+      "key": "F401",
+      "name": "unused-import",
+      "url": "https://docs.astral.sh/ruff/rules/unused-import/"
+    },
+    {
+      "key": "F504",
+      "name": "percent-format-extra-named-arguments",
+      "url": "https://docs.astral.sh/ruff/rules/percent-format-extra-named-arguments/"
+    },
+    {
+      "key": "F522",
+      "name": "string-dot-format-extra-named-arguments",
+      "url": "https://docs.astral.sh/ruff/rules/string-dot-format-extra-named-arguments/"
+    },
+    {
+      "key": "F523",
+      "name": "string-dot-format-extra-positional-arguments",
+      "url": "https://docs.astral.sh/ruff/rules/string-dot-format-extra-positional-arguments/"
+    },
+    {
+      "key": "F541",
+      "name": "f-string-missing-placeholders",
+      "url": "https://docs.astral.sh/ruff/rules/f-string-missing-placeholders/"
+    },
+    {
+      "key": "F601",
+      "name": "multi-value-repeated-key-literal",
+      "url": "https://docs.astral.sh/ruff/rules/multi-value-repeated-key-literal/"
+    },
+    {
+      "key": "F602",
+      "name": "multi-value-repeated-key-variable",
+      "url": "https://docs.astral.sh/ruff/rules/multi-value-repeated-key-variable/"
+    },
+    {
+      "key": "F632",
+      "name": "is-literal",
+      "url": "https://docs.astral.sh/ruff/rules/is-literal/"
+    },
+    {
+      "key": "F811",
+      "name": "redefined-while-unused",
+      "url": "https://docs.astral.sh/ruff/rules/redefined-while-unused/"
+    },
+    {
+      "key": "F841",
+      "name": "unused-variable",
+      "url": "https://docs.astral.sh/ruff/rules/unused-variable/"
+    },
+    {
+      "key": "F901",
+      "name": "raise-not-implemented",
+      "url": "https://docs.astral.sh/ruff/rules/raise-not-implemented/"
+    },
+    {
+      "key": "PGH002",
+      "name": "deprecated-log-warn",
+      "url": "https://docs.astral.sh/ruff/rules/deprecated-log-warn/"
+    },
+    {
+      "key": "PGH004",
+      "name": "blanket-noqa",
+      "url": "https://docs.astral.sh/ruff/rules/blanket-noqa/"
+    },
+    {
+      "key": "PLC0207",
+      "name": "missing-maxsplit-arg",
+      "url": "https://docs.astral.sh/ruff/rules/missing-maxsplit-arg/"
+    },
+    {
+      "key": "PLC0208",
+      "name": "iteration-over-set",
+      "url": "https://docs.astral.sh/ruff/rules/iteration-over-set/"
+    },
+    {
+      "key": "PLC0414",
+      "name": "useless-import-alias",
+      "url": "https://docs.astral.sh/ruff/rules/useless-import-alias/"
+    },
+    {
+      "key": "PLC1802",
+      "name": "len-test",
+      "url": "https://docs.astral.sh/ruff/rules/len-test/"
+    },
+    {
+      "key": "PLC2801",
+      "name": "unnecessary-dunder-call",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-dunder-call/"
+    },
+    {
+      "key": "PLE0241",
+      "name": "duplicate-bases",
+      "url": "https://docs.astral.sh/ruff/rules/duplicate-bases/"
+    },
+    {
+      "key": "PLE1141",
+      "name": "dict-iter-missing-items",
+      "url": "https://docs.astral.sh/ruff/rules/dict-iter-missing-items/"
+    },
+    {
+      "key": "PLE1519",
+      "name": "singledispatch-method",
+      "url": "https://docs.astral.sh/ruff/rules/singledispatch-method/"
+    },
+    {
+      "key": "PLE1520",
+      "name": "singledispatchmethod-function",
+      "url": "https://docs.astral.sh/ruff/rules/singledispatchmethod-function/"
+    },
+    {
+      "key": "PLE2510",
+      "name": "invalid-character-backspace",
+      "url": "https://docs.astral.sh/ruff/rules/invalid-character-backspace/"
+    },
+    {
+      "key": "PLE2512",
+      "name": "invalid-character-sub",
+      "url": "https://docs.astral.sh/ruff/rules/invalid-character-sub/"
+    },
+    {
+      "key": "PLE2513",
+      "name": "invalid-character-esc",
+      "url": "https://docs.astral.sh/ruff/rules/invalid-character-esc/"
+    },
+    {
+      "key": "PLE2514",
+      "name": "invalid-character-nul",
+      "url": "https://docs.astral.sh/ruff/rules/invalid-character-nul/"
+    },
+    {
+      "key": "PLE2515",
+      "name": "invalid-character-zero-width-space",
+      "url": "https://docs.astral.sh/ruff/rules/invalid-character-zero-width-space/"
+    },
+    {
+      "key": "PLE4703",
+      "name": "modified-iterating-set",
+      "url": "https://docs.astral.sh/ruff/rules/modified-iterating-set/"
+    },
+    {
+      "key": "PLR0202",
+      "name": "no-classmethod-decorator",
+      "url": "https://docs.astral.sh/ruff/rules/no-classmethod-decorator/"
+    },
+    {
+      "key": "PLR0203",
+      "name": "no-staticmethod-decorator",
+      "url": "https://docs.astral.sh/ruff/rules/no-staticmethod-decorator/"
+    },
+    {
+      "key": "PLR0402",
+      "name": "manual-from-import",
+      "url": "https://docs.astral.sh/ruff/rules/manual-from-import/"
+    },
+    {
+      "key": "PLR1701",
+      "name": "repeated-isinstance-calls",
+      "url": "https://docs.astral.sh/ruff/rules/repeated-isinstance-calls/"
+    },
+    {
+      "key": "PLR1711",
+      "name": "useless-return",
+      "url": "https://docs.astral.sh/ruff/rules/useless-return/"
+    },
+    {
+      "key": "PLR1712",
+      "name": "swap-with-temporary-variable",
+      "url": "https://docs.astral.sh/ruff/rules/swap-with-temporary-variable/"
+    },
+    {
+      "key": "PLR1714",
+      "name": "repeated-equality-comparison",
+      "url": "https://docs.astral.sh/ruff/rules/repeated-equality-comparison/"
+    },
+    {
+      "key": "PLR1716",
+      "name": "boolean-chained-comparison",
+      "url": "https://docs.astral.sh/ruff/rules/boolean-chained-comparison/"
+    },
+    {
+      "key": "PLR1722",
+      "name": "sys-exit-alias",
+      "url": "https://docs.astral.sh/ruff/rules/sys-exit-alias/"
+    },
+    {
+      "key": "PLR1730",
+      "name": "if-stmt-min-max",
+      "url": "https://docs.astral.sh/ruff/rules/if-stmt-min-max/"
+    },
+    {
+      "key": "PLR1733",
+      "name": "unnecessary-dict-index-lookup",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-dict-index-lookup/"
+    },
+    {
+      "key": "PLR1736",
+      "name": "unnecessary-list-index-lookup",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-list-index-lookup/"
+    },
+    {
+      "key": "PLR2044",
+      "name": "empty-comment",
+      "url": "https://docs.astral.sh/ruff/rules/empty-comment/"
+    },
+    {
+      "key": "PLR5501",
+      "name": "collapsible-else-if",
+      "url": "https://docs.astral.sh/ruff/rules/collapsible-else-if/"
+    },
+    {
+      "key": "PLR6104",
+      "name": "non-augmented-assignment",
+      "url": "https://docs.astral.sh/ruff/rules/non-augmented-assignment/"
+    },
+    {
+      "key": "PLR6201",
+      "name": "literal-membership",
+      "url": "https://docs.astral.sh/ruff/rules/literal-membership/"
+    },
+    {
+      "key": "PLW0108",
+      "name": "unnecessary-lambda",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-lambda/"
+    },
+    {
+      "key": "PLW0120",
+      "name": "useless-else-on-loop",
+      "url": "https://docs.astral.sh/ruff/rules/useless-else-on-loop/"
+    },
+    {
+      "key": "PLW0133",
+      "name": "useless-exception-statement",
+      "url": "https://docs.astral.sh/ruff/rules/useless-exception-statement/"
+    },
+    {
+      "key": "PLW0245",
+      "name": "super-without-brackets",
+      "url": "https://docs.astral.sh/ruff/rules/super-without-brackets/"
+    },
+    {
+      "key": "PLW1507",
+      "name": "shallow-copy-environ",
+      "url": "https://docs.astral.sh/ruff/rules/shallow-copy-environ/"
+    },
+    {
+      "key": "PLW1510",
+      "name": "subprocess-run-without-check",
+      "url": "https://docs.astral.sh/ruff/rules/subprocess-run-without-check/"
+    },
+    {
+      "key": "PLW1514",
+      "name": "unspecified-encoding",
+      "url": "https://docs.astral.sh/ruff/rules/unspecified-encoding/"
+    },
+    {
+      "key": "PLW3301",
+      "name": "nested-min-max",
+      "url": "https://docs.astral.sh/ruff/rules/nested-min-max/"
+    },
+    {
+      "key": "UP001",
+      "name": "useless-metaclass-type",
+      "url": "https://docs.astral.sh/ruff/rules/useless-metaclass-type/"
+    },
+    {
+      "key": "UP003",
+      "name": "type-of-primitive",
+      "url": "https://docs.astral.sh/ruff/rules/type-of-primitive/"
+    },
+    {
+      "key": "UP004",
+      "name": "useless-object-inheritance",
+      "url": "https://docs.astral.sh/ruff/rules/useless-object-inheritance/"
+    },
+    {
+      "key": "UP005",
+      "name": "deprecated-unittest-alias",
+      "url": "https://docs.astral.sh/ruff/rules/deprecated-unittest-alias/"
+    },
+    {
+      "key": "UP006",
+      "name": "non-pep585-annotation",
+      "url": "https://docs.astral.sh/ruff/rules/non-pep585-annotation/"
+    },
+    {
+      "key": "UP007",
+      "name": "non-pep604-annotation-union",
+      "url": "https://docs.astral.sh/ruff/rules/non-pep604-annotation-union/"
+    },
+    {
+      "key": "UP008",
+      "name": "super-call-with-parameters",
+      "url": "https://docs.astral.sh/ruff/rules/super-call-with-parameters/"
+    },
+    {
+      "key": "UP009",
+      "name": "utf8-encoding-declaration",
+      "url": "https://docs.astral.sh/ruff/rules/utf8-encoding-declaration/"
+    },
+    {
+      "key": "UP010",
+      "name": "unnecessary-future-import",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-future-import/"
+    },
+    {
+      "key": "UP011",
+      "name": "lru-cache-without-parameters",
+      "url": "https://docs.astral.sh/ruff/rules/lru-cache-without-parameters/"
+    },
+    {
+      "key": "UP012",
+      "name": "unnecessary-encode-utf8",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-encode-utf8/"
+    },
+    {
+      "key": "UP013",
+      "name": "convert-typed-dict-functional-to-class",
+      "url": "https://docs.astral.sh/ruff/rules/convert-typed-dict-functional-to-class/"
+    },
+    {
+      "key": "UP014",
+      "name": "convert-named-tuple-functional-to-class",
+      "url": "https://docs.astral.sh/ruff/rules/convert-named-tuple-functional-to-class/"
+    },
+    {
+      "key": "UP015",
+      "name": "redundant-open-modes",
+      "url": "https://docs.astral.sh/ruff/rules/redundant-open-modes/"
+    },
+    {
+      "key": "UP017",
+      "name": "datetime-timezone-utc",
+      "url": "https://docs.astral.sh/ruff/rules/datetime-timezone-utc/"
+    },
+    {
+      "key": "UP018",
+      "name": "native-literals",
+      "url": "https://docs.astral.sh/ruff/rules/native-literals/"
+    },
+    {
+      "key": "UP019",
+      "name": "typing-text-str-alias",
+      "url": "https://docs.astral.sh/ruff/rules/typing-text-str-alias/"
+    },
+    {
+      "key": "UP020",
+      "name": "open-alias",
+      "url": "https://docs.astral.sh/ruff/rules/open-alias/"
+    },
+    {
+      "key": "UP021",
+      "name": "replace-universal-newlines",
+      "url": "https://docs.astral.sh/ruff/rules/replace-universal-newlines/"
+    },
+    {
+      "key": "UP022",
+      "name": "replace-stdout-stderr",
+      "url": "https://docs.astral.sh/ruff/rules/replace-stdout-stderr/"
+    },
+    {
+      "key": "UP023",
+      "name": "deprecated-c-element-tree",
+      "url": "https://docs.astral.sh/ruff/rules/deprecated-c-element-tree/"
+    },
+    {
+      "key": "UP024",
+      "name": "os-error-alias",
+      "url": "https://docs.astral.sh/ruff/rules/os-error-alias/"
+    },
+    {
+      "key": "UP025",
+      "name": "unicode-kind-prefix",
+      "url": "https://docs.astral.sh/ruff/rules/unicode-kind-prefix/"
+    },
+    {
+      "key": "UP026",
+      "name": "deprecated-mock-import",
+      "url": "https://docs.astral.sh/ruff/rules/deprecated-mock-import/"
+    },
+    {
+      "key": "UP028",
+      "name": "yield-in-for-loop",
+      "url": "https://docs.astral.sh/ruff/rules/yield-in-for-loop/"
+    },
+    {
+      "key": "UP029",
+      "name": "unnecessary-builtin-import",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-builtin-import/"
+    },
+    {
+      "key": "UP030",
+      "name": "format-literals",
+      "url": "https://docs.astral.sh/ruff/rules/format-literals/"
+    },
+    {
+      "key": "UP031",
+      "name": "printf-string-formatting",
+      "url": "https://docs.astral.sh/ruff/rules/printf-string-formatting/"
+    },
+    {
+      "key": "UP032",
+      "name": "f-string",
+      "url": "https://docs.astral.sh/ruff/rules/f-string/"
+    },
+    {
+      "key": "UP033",
+      "name": "lru-cache-with-maxsize-none",
+      "url": "https://docs.astral.sh/ruff/rules/lru-cache-with-maxsize-none/"
+    },
+    {
+      "key": "UP034",
+      "name": "extraneous-parentheses",
+      "url": "https://docs.astral.sh/ruff/rules/extraneous-parentheses/"
+    },
+    {
+      "key": "UP035",
+      "name": "deprecated-import",
+      "url": "https://docs.astral.sh/ruff/rules/deprecated-import/"
+    },
+    {
+      "key": "UP036",
+      "name": "outdated-version-block",
+      "url": "https://docs.astral.sh/ruff/rules/outdated-version-block/"
+    },
+    {
+      "key": "UP037",
+      "name": "quoted-annotation",
+      "url": "https://docs.astral.sh/ruff/rules/quoted-annotation/"
+    },
+    {
+      "key": "UP038",
+      "name": "non-pep604-isinstance",
+      "url": "https://docs.astral.sh/ruff/rules/non-pep604-isinstance/"
+    },
+    {
+      "key": "UP039",
+      "name": "unnecessary-class-parentheses",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-class-parentheses/"
+    },
+    {
+      "key": "UP040",
+      "name": "non-pep695-type-alias",
+      "url": "https://docs.astral.sh/ruff/rules/non-pep695-type-alias/"
+    },
+    {
+      "key": "UP041",
+      "name": "timeout-error-alias",
+      "url": "https://docs.astral.sh/ruff/rules/timeout-error-alias/"
+    },
+    {
+      "key": "UP042",
+      "name": "replace-str-enum",
+      "url": "https://docs.astral.sh/ruff/rules/replace-str-enum/"
+    },
+    {
+      "key": "UP043",
+      "name": "unnecessary-default-type-args",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-default-type-args/"
+    },
+    {
+      "key": "UP044",
+      "name": "non-pep646-unpack",
+      "url": "https://docs.astral.sh/ruff/rules/non-pep646-unpack/"
+    },
+    {
+      "key": "UP045",
+      "name": "non-pep604-annotation-optional",
+      "url": "https://docs.astral.sh/ruff/rules/non-pep604-annotation-optional/"
+    },
+    {
+      "key": "UP046",
+      "name": "non-pep695-generic-class",
+      "url": "https://docs.astral.sh/ruff/rules/non-pep695-generic-class/"
+    },
+    {
+      "key": "UP047",
+      "name": "non-pep695-generic-function",
+      "url": "https://docs.astral.sh/ruff/rules/non-pep695-generic-function/"
+    },
+    {
+      "key": "UP048",
+      "name": "while-one",
+      "url": "https://docs.astral.sh/ruff/rules/while-one/"
+    },
+    {
+      "key": "UP049",
+      "name": "private-type-parameter",
+      "url": "https://docs.astral.sh/ruff/rules/private-type-parameter/"
+    },
+    {
+      "key": "UP050",
+      "name": "useless-class-metaclass-type",
+      "url": "https://docs.astral.sh/ruff/rules/useless-class-metaclass-type/"
+    },
+    {
+      "key": "UP051",
+      "name": "deprecated-abc-decorator",
+      "url": "https://docs.astral.sh/ruff/rules/deprecated-abc-decorator/"
+    },
+    {
+      "key": "FURB101",
+      "name": "read-whole-file",
+      "url": "https://docs.astral.sh/ruff/rules/read-whole-file/"
+    },
+    {
+      "key": "FURB103",
+      "name": "write-whole-file",
+      "url": "https://docs.astral.sh/ruff/rules/write-whole-file/"
+    },
+    {
+      "key": "FURB105",
+      "name": "print-empty-string",
+      "url": "https://docs.astral.sh/ruff/rules/print-empty-string/"
+    },
+    {
+      "key": "FURB110",
+      "name": "if-exp-instead-of-or-operator",
+      "url": "https://docs.astral.sh/ruff/rules/if-exp-instead-of-or-operator/"
+    },
+    {
+      "key": "FURB113",
+      "name": "repeated-append",
+      "url": "https://docs.astral.sh/ruff/rules/repeated-append/"
+    },
+    {
+      "key": "FURB116",
+      "name": "f-string-number-format",
+      "url": "https://docs.astral.sh/ruff/rules/f-string-number-format/"
+    },
+    {
+      "key": "FURB118",
+      "name": "reimplemented-operator",
+      "url": "https://docs.astral.sh/ruff/rules/reimplemented-operator/"
+    },
+    {
+      "key": "FURB122",
+      "name": "for-loop-writes",
+      "url": "https://docs.astral.sh/ruff/rules/for-loop-writes/"
+    },
+    {
+      "key": "FURB129",
+      "name": "readlines-in-for",
+      "url": "https://docs.astral.sh/ruff/rules/readlines-in-for/"
+    },
+    {
+      "key": "FURB131",
+      "name": "delete-full-slice",
+      "url": "https://docs.astral.sh/ruff/rules/delete-full-slice/"
+    },
+    {
+      "key": "FURB132",
+      "name": "check-and-remove-from-set",
+      "url": "https://docs.astral.sh/ruff/rules/check-and-remove-from-set/"
+    },
+    {
+      "key": "FURB136",
+      "name": "if-expr-min-max",
+      "url": "https://docs.astral.sh/ruff/rules/if-expr-min-max/"
+    },
+    {
+      "key": "FURB140",
+      "name": "reimplemented-starmap",
+      "url": "https://docs.astral.sh/ruff/rules/reimplemented-starmap/"
+    },
+    {
+      "key": "FURB142",
+      "name": "for-loop-set-mutations",
+      "url": "https://docs.astral.sh/ruff/rules/for-loop-set-mutations/"
+    },
+    {
+      "key": "FURB145",
+      "name": "slice-copy",
+      "url": "https://docs.astral.sh/ruff/rules/slice-copy/"
+    },
+    {
+      "key": "FURB148",
+      "name": "unnecessary-enumerate",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-enumerate/"
+    },
+    {
+      "key": "FURB152",
+      "name": "math-constant",
+      "url": "https://docs.astral.sh/ruff/rules/math-constant/"
+    },
+    {
+      "key": "FURB154",
+      "name": "repeated-global",
+      "url": "https://docs.astral.sh/ruff/rules/repeated-global/"
+    },
+    {
+      "key": "FURB156",
+      "name": "hardcoded-string-charset",
+      "url": "https://docs.astral.sh/ruff/rules/hardcoded-string-charset/"
+    },
+    {
+      "key": "FURB157",
+      "name": "verbose-decimal-constructor",
+      "url": "https://docs.astral.sh/ruff/rules/verbose-decimal-constructor/"
+    },
+    {
+      "key": "FURB161",
+      "name": "bit-count",
+      "url": "https://docs.astral.sh/ruff/rules/bit-count/"
+    },
+    {
+      "key": "FURB162",
+      "name": "fromisoformat-replace-z",
+      "url": "https://docs.astral.sh/ruff/rules/fromisoformat-replace-z/"
+    },
+    {
+      "key": "FURB163",
+      "name": "redundant-log-base",
+      "url": "https://docs.astral.sh/ruff/rules/redundant-log-base/"
+    },
+    {
+      "key": "FURB164",
+      "name": "unnecessary-from-float",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-from-float/"
+    },
+    {
+      "key": "FURB166",
+      "name": "int-on-sliced-str",
+      "url": "https://docs.astral.sh/ruff/rules/int-on-sliced-str/"
+    },
+    {
+      "key": "FURB167",
+      "name": "regex-flag-alias",
+      "url": "https://docs.astral.sh/ruff/rules/regex-flag-alias/"
+    },
+    {
+      "key": "FURB168",
+      "name": "isinstance-type-none",
+      "url": "https://docs.astral.sh/ruff/rules/isinstance-type-none/"
+    },
+    {
+      "key": "FURB169",
+      "name": "type-none-comparison",
+      "url": "https://docs.astral.sh/ruff/rules/type-none-comparison/"
+    },
+    {
+      "key": "FURB171",
+      "name": "single-item-membership-test",
+      "url": "https://docs.astral.sh/ruff/rules/single-item-membership-test/"
+    },
+    {
+      "key": "FURB177",
+      "name": "implicit-cwd",
+      "url": "https://docs.astral.sh/ruff/rules/implicit-cwd/"
+    },
+    {
+      "key": "FURB180",
+      "name": "meta-class-abc-meta",
+      "url": "https://docs.astral.sh/ruff/rules/meta-class-abc-meta/"
+    },
+    {
+      "key": "FURB181",
+      "name": "hashlib-digest-hex",
+      "url": "https://docs.astral.sh/ruff/rules/hashlib-digest-hex/"
+    },
+    {
+      "key": "FURB187",
+      "name": "list-reverse-copy",
+      "url": "https://docs.astral.sh/ruff/rules/list-reverse-copy/"
+    },
+    {
+      "key": "FURB188",
+      "name": "slice-to-remove-prefix-or-suffix",
+      "url": "https://docs.astral.sh/ruff/rules/slice-to-remove-prefix-or-suffix/"
+    },
+    {
+      "key": "FURB189",
+      "name": "subclass-builtin",
+      "url": "https://docs.astral.sh/ruff/rules/subclass-builtin/"
+    },
+    {
+      "key": "FURB192",
+      "name": "sorted-min-max",
+      "url": "https://docs.astral.sh/ruff/rules/sorted-min-max/"
+    },
+    {
+      "key": "RUF005",
+      "name": "collection-literal-concatenation",
+      "url": "https://docs.astral.sh/ruff/rules/collection-literal-concatenation/"
+    },
+    {
+      "key": "RUF007",
+      "name": "zip-instead-of-pairwise",
+      "url": "https://docs.astral.sh/ruff/rules/zip-instead-of-pairwise/"
+    },
+    {
+      "key": "RUF010",
+      "name": "explicit-f-string-type-conversion",
+      "url": "https://docs.astral.sh/ruff/rules/explicit-f-string-type-conversion/"
+    },
+    {
+      "key": "RUF013",
+      "name": "implicit-optional",
+      "url": "https://docs.astral.sh/ruff/rules/implicit-optional/"
+    },
+    {
+      "key": "RUF015",
+      "name": "unnecessary-iterable-allocation-for-first-element",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-iterable-allocation-for-first-element/"
+    },
+    {
+      "key": "RUF017",
+      "name": "quadratic-list-summation",
+      "url": "https://docs.astral.sh/ruff/rules/quadratic-list-summation/"
+    },
+    {
+      "key": "RUF019",
+      "name": "unnecessary-key-check",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-key-check/"
+    },
+    {
+      "key": "RUF020",
+      "name": "never-union",
+      "url": "https://docs.astral.sh/ruff/rules/never-union/"
+    },
+    {
+      "key": "RUF021",
+      "name": "parenthesize-chained-operators",
+      "url": "https://docs.astral.sh/ruff/rules/parenthesize-chained-operators/"
+    },
+    {
+      "key": "RUF022",
+      "name": "unsorted-dunder-all",
+      "url": "https://docs.astral.sh/ruff/rules/unsorted-dunder-all/"
+    },
+    {
+      "key": "RUF023",
+      "name": "unsorted-dunder-slots",
+      "url": "https://docs.astral.sh/ruff/rules/unsorted-dunder-slots/"
+    },
+    {
+      "key": "RUF024",
+      "name": "mutable-fromkeys-value",
+      "url": "https://docs.astral.sh/ruff/rules/mutable-fromkeys-value/"
+    },
+    {
+      "key": "RUF026",
+      "name": "default-factory-kwarg",
+      "url": "https://docs.astral.sh/ruff/rules/default-factory-kwarg/"
+    },
+    {
+      "key": "RUF027",
+      "name": "missing-f-string-syntax",
+      "url": "https://docs.astral.sh/ruff/rules/missing-f-string-syntax/"
+    },
+    {
+      "key": "RUF028",
+      "name": "invalid-formatter-suppression-comment",
+      "url": "https://docs.astral.sh/ruff/rules/invalid-formatter-suppression-comment/"
+    },
+    {
+      "key": "RUF030",
+      "name": "assert-with-print-message",
+      "url": "https://docs.astral.sh/ruff/rules/assert-with-print-message/"
+    },
+    {
+      "key": "RUF031",
+      "name": "incorrectly-parenthesized-tuple-in-subscript",
+      "url": "https://docs.astral.sh/ruff/rules/incorrectly-parenthesized-tuple-in-subscript/"
+    },
+    {
+      "key": "RUF032",
+      "name": "decimal-from-float-literal",
+      "url": "https://docs.astral.sh/ruff/rules/decimal-from-float-literal/"
+    },
+    {
+      "key": "RUF033",
+      "name": "post-init-default",
+      "url": "https://docs.astral.sh/ruff/rules/post-init-default/"
+    },
+    {
+      "key": "RUF036",
+      "name": "none-not-at-end-of-union",
+      "url": "https://docs.astral.sh/ruff/rules/none-not-at-end-of-union/"
+    },
+    {
+      "key": "RUF037",
+      "name": "unnecessary-empty-iterable-within-deque-call",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-empty-iterable-within-deque-call/"
+    },
+    {
+      "key": "RUF038",
+      "name": "redundant-bool-literal",
+      "url": "https://docs.astral.sh/ruff/rules/redundant-bool-literal/"
+    },
+    {
+      "key": "RUF039",
+      "name": "unraw-re-pattern",
+      "url": "https://docs.astral.sh/ruff/rules/unraw-re-pattern/"
+    },
+    {
+      "key": "RUF041",
+      "name": "unnecessary-nested-literal",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-nested-literal/"
+    },
+    {
+      "key": "RUF046",
+      "name": "unnecessary-cast-to-int",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-cast-to-int/"
+    },
+    {
+      "key": "RUF047",
+      "name": "needless-else",
+      "url": "https://docs.astral.sh/ruff/rules/needless-else/"
+    },
+    {
+      "key": "RUF050",
+      "name": "unnecessary-if",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-if/"
+    },
+    {
+      "key": "RUF051",
+      "name": "if-key-in-dict-del",
+      "url": "https://docs.astral.sh/ruff/rules/if-key-in-dict-del/"
+    },
+    {
+      "key": "RUF052",
+      "name": "used-dummy-variable",
+      "url": "https://docs.astral.sh/ruff/rules/used-dummy-variable/"
+    },
+    {
+      "key": "RUF053",
+      "name": "class-with-mixed-type-vars",
+      "url": "https://docs.astral.sh/ruff/rules/class-with-mixed-type-vars/"
+    },
+    {
+      "key": "RUF055",
+      "name": "unnecessary-regular-expression",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-regular-expression/"
+    },
+    {
+      "key": "RUF056",
+      "name": "falsy-dict-get-fallback",
+      "url": "https://docs.astral.sh/ruff/rules/falsy-dict-get-fallback/"
+    },
+    {
+      "key": "RUF057",
+      "name": "unnecessary-round",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-round/"
+    },
+    {
+      "key": "RUF058",
+      "name": "starmap-zip",
+      "url": "https://docs.astral.sh/ruff/rules/starmap-zip/"
+    },
+    {
+      "key": "RUF059",
+      "name": "unused-unpacked-variable",
+      "url": "https://docs.astral.sh/ruff/rules/unused-unpacked-variable/"
+    },
+    {
+      "key": "RUF061",
+      "name": "legacy-form-pytest-raises",
+      "url": "https://docs.astral.sh/ruff/rules/legacy-form-pytest-raises/"
+    },
+    {
+      "key": "RUF064",
+      "name": "non-octal-permissions",
+      "url": "https://docs.astral.sh/ruff/rules/non-octal-permissions/"
+    },
+    {
+      "key": "RUF068",
+      "name": "duplicate-entry-in-dunder-all",
+      "url": "https://docs.astral.sh/ruff/rules/duplicate-entry-in-dunder-all/"
+    },
+    {
+      "key": "RUF070",
+      "name": "unnecessary-assign-before-yield",
+      "url": "https://docs.astral.sh/ruff/rules/unnecessary-assign-before-yield/"
+    },
+    {
+      "key": "RUF071",
+      "name": "os-path-commonprefix",
+      "url": "https://docs.astral.sh/ruff/rules/os-path-commonprefix/"
+    },
+    {
+      "key": "RUF072",
+      "name": "useless-finally",
+      "url": "https://docs.astral.sh/ruff/rules/useless-finally/"
+    },
+    {
+      "key": "RUF077",
+      "name": "method-receiver-default",
+      "url": "https://docs.astral.sh/ruff/rules/method-receiver-default/"
+    },
+    {
+      "key": "RUF100",
+      "name": "unused-noqa",
+      "url": "https://docs.astral.sh/ruff/rules/unused-noqa/"
+    },
+    {
+      "key": "RUF101",
+      "name": "redirected-noqa",
+      "url": "https://docs.astral.sh/ruff/rules/redirected-noqa/"
+    },
+    {
+      "key": "RUF102",
+      "name": "invalid-rule-code",
+      "url": "https://docs.astral.sh/ruff/rules/invalid-rule-code/"
+    },
+    {
+      "key": "RUF103",
+      "name": "invalid-suppression-comment",
+      "url": "https://docs.astral.sh/ruff/rules/invalid-suppression-comment/"
+    },
+    {
+      "key": "RUF105",
+      "name": "noqa-comments",
+      "url": "https://docs.astral.sh/ruff/rules/noqa-comments/"
+    },
+    {
+      "key": "RUF106",
+      "name": "rule-codes-in-suppression-comments",
+      "url": "https://docs.astral.sh/ruff/rules/rule-codes-in-suppression-comments/"
+    },
+    {
+      "key": "RUF201",
+      "name": "rule-codes-in-selectors",
+      "url": "https://docs.astral.sh/ruff/rules/rule-codes-in-selectors/"
+    },
+    {
+      "key": "TRY201",
+      "name": "verbose-raise",
+      "url": "https://docs.astral.sh/ruff/rules/verbose-raise/"
+    },
+    {
+      "key": "TRY400",
+      "name": "error-instead-of-exception",
+      "url": "https://docs.astral.sh/ruff/rules/error-instead-of-exception/"
+    }
+  ]
+}

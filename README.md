@@ -26,7 +26,15 @@ flowchart LR
 - **防作弊**：NOSONAR 抑制注释、删代码消告警会被 anti-cheat 节点判 L3（评测里真抓到过现行）
 - **断点续跑**：Postgres checkpoint 按指纹存状态，中断后 resume 不重跑
 - **机械优先**：8 条确定性规则（删 import、死存储、自赋值…）走 tree-sitter 模板，零模型调用；模板无解自动降级 LLM
-- **规则实时化**：4446 条规则从 Sonar API 拉取自动分级，人工精选进库可在线改，控制台规则管理页即时生效
+- **规则元数据**：从 Sonar API 拉取规则名称、严重度和影响供展示；Sonar 告警的可修资格只按已配置的 AI CodeFix 清单中的完整规则键判断
+
+### 与 Sonar AI CodeFix 名单对齐
+
+设置 `CLEARDEBT_AI_CODEFIX_RULES_FILE` 为本地清单路径后，Sonar 告警的可修资格只由该清单决定。文件为 UTF-8 纯文本，每行一个完整规则键（如 `javascript:S6582`），允许空行和 `#` 注释。修改文件后无需重启；清单格式错误或文件不可读会报错。未设置此变量时，Sonar 告警仍可扫描和查看，但一律不能指派 Agent 修复。旧的类型、严重度、影响面及耗时分档已移除；清单内且语言已接入的规则统一走 B 档，清单外走 C 档。
+
+请使用有权复用的 Sonar AI CodeFix 名单。仓库不附带 SonarSource 的名单，也不自动抓取官方文档。名单只决定 **Sonar 规则是否在 AI CodeFix 范围内**；Agent 当前仍只尝试 JavaScript、TypeScript、Python、Java 和 C# 等已接入语言。SCA 依赖升级是独立工作流，不属于 AI CodeFix 名单。
+
+公开竞品的自动修复资格快照和各自编号体系见 [data/public_fix_lists/README.md](data/public_fix_lists/README.md)。这些快照用于对照研究，不会把 CodeQL、CWE 或其他工具的编号误当成 Sonar 规则键。
 
 ## 评测：OSS 真实异味集
 

@@ -185,46 +185,16 @@ export default function AssignPage() {
       key: "tier",
       width: 130,
       render: (_, r) => {
-        const quality = ((r.sonar_impacts?.[0]?.softwareQuality || "") as string).toUpperCase();
-        const impact = ((r.sonar_impacts?.[0]?.severity || r.sonar_severity || "") as string).toLowerCase();
-        const kind = ((r.sonar_type || "") as string).replace("_", " ").toLowerCase();
-        const bits = [kind, quality ? `${quality.toLowerCase()}·${impact || "?"}` : ""]
-          .filter(Boolean)
-          .join(" · ");
-        const effort = r.sonar_effort ? ` · ${r.sonar_effort}` : "";
-        const qf = r.quick_fix ? " · quickfix" : "";
-        const evidence = `${bits}${effort}${qf}`;
-        const tail = evidence ? `｜Sonar 信号：${evidence}` : "｜本次快照没有 Sonar 信号，点“重新扫描”刷新";
-        if (r.tier === "C") {
-          const why =
-            quality === "SECURITY" || kind.includes("vulnerab") || kind.includes("hotspot")
-              ? "漏洞或安全影响"
-              : "官方成本超 30 分钟或影响面大";
-          return (
-            <Tooltip title={`不碰：${why}${tail}`}>
-              <Tag color="orange">不碰</Tag>
-            </Tooltip>
-          );
+        if (r.tier_source === "sonar_ai_codefix_list_missing") {
+          return <Tooltip title="尚未配置 Sonar AI CodeFix 清单，Agent 不会修复 Sonar 告警"><Tag>清单未配置</Tag></Tooltip>;
         }
-        if (r.tier === "A") {
-          return (
-            <Tooltip title={`可直接修${tail}`}>
-              <Tag color="green">可修</Tag>
-            </Tooltip>
-          );
+        if (r.tier_source === "sonar_ai_codefix_list") {
+          const listed = r.tier === "A" || r.tier === "B";
+          return <Tooltip title={listed ? "在已配置的 Sonar AI CodeFix 清单内" : r.tier === "unknown" ? "清单内的语言尚未接入 Agent" : "不在已配置的 Sonar AI CodeFix 清单内"}>
+            <Tag color={listed ? "green" : "orange"}>{listed ? "清单内" : r.tier === "unknown" ? "Agent 未接入" : "清单外"}</Tag>
+          </Tooltip>;
         }
-        if (r.tier === "B") {
-          return (
-            <Tooltip title={`能修，但要过测试闸${tail}`}>
-              <Tag color="blue">要过测试</Tag>
-            </Tooltip>
-          );
-        }
-        return (
-          <Tooltip title="Sonar 信号缺失，按规则元数据推断">
-            <Tag>看情况</Tag>
-          </Tooltip>
-        );
+        return <Tooltip title="依赖升级由独立的 SCA 流程处理"><Tag color="green">依赖升级</Tag></Tooltip>;
       },
     },
     {

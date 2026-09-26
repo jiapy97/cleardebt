@@ -40,7 +40,7 @@ const pageMeta: Record<string, { title: string; sub: string; node: React.ReactNo
   mrs: { title: "请求修复", sub: "质量门失败的合并请求，开出打向原源分支的修复请求", node: <MrsPage /> },
   activity: { title: "Agent 活动", sub: "最近会话，每 10 秒自动刷新", node: <ActivityPage /> },
   sheet: { title: "清算单", sub: "最近一轮的决策与建议片段", node: <SheetPage /> },
-  rules: { title: "规则管理", sub: "档位与中文名都是数据，改完即时生效", node: <RulesPage /> },
+  rules: { title: "规则管理", sub: "查看 Sonar 规则与可修清单，维护中文名", node: <RulesPage /> },
   setup: { title: "接入配置", sub: "地址、令牌和允许修改的仓库", node: <SetupPage /> },
 };
 

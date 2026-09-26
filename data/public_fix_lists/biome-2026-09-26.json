@@ -1,0 +1,1021 @@
+{
+  "retrieved_on": "2026-09-26",
+  "note": "Vendor eligibility is not Sonar rule eligibility or a repair guarantee.",
+  "source": "biome",
+  "fix_kind": "deterministic_autofix",
+  "key_kind": "biome_language_rule",
+  "license": "MIT OR Apache-2.0",
+  "source_url": "https://biomejs.dev/linter/",
+  "rules": [
+    {
+      "key": "css/noImportantStyles",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-important-styles/css"
+    },
+    {
+      "key": "css/noUselessEscapeInString",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-useless-escape-in-string/css"
+    },
+    {
+      "key": "graphql/useGraphqlNamedOperations",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-graphql-named-operations/graphql"
+    },
+    {
+      "key": "js/noAccessKey",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-access-key/javascript"
+    },
+    {
+      "key": "js/noAdjacentSpacesInRegex",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-adjacent-spaces-in-regex/javascript"
+    },
+    {
+      "key": "js/noApproximativeNumericConstant",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-approximative-numeric-constant/javascript"
+    },
+    {
+      "key": "js/noAriaHiddenOnFocusable",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-aria-hidden-on-focusable/javascript"
+    },
+    {
+      "key": "js/noAriaUnsupportedElements",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-aria-unsupported-elements/javascript"
+    },
+    {
+      "key": "js/noAutofocus",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-autofocus/javascript"
+    },
+    {
+      "key": "js/noBannedTypes",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-banned-types/javascript"
+    },
+    {
+      "key": "js/noBlankTarget",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-blank-target/javascript"
+    },
+    {
+      "key": "js/noCommentText",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-comment-text/javascript"
+    },
+    {
+      "key": "js/noCompareNegZero",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-compare-neg-zero/javascript"
+    },
+    {
+      "key": "js/noConfusingVoidType",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-confusing-void-type/javascript"
+    },
+    {
+      "key": "js/noConsole",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-console/javascript"
+    },
+    {
+      "key": "js/noConstAssign",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-const-assign/javascript"
+    },
+    {
+      "key": "js/noConstEnum",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-const-enum/javascript"
+    },
+    {
+      "key": "js/noConstantMathMinMaxClamp",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-constant-math-min-max-clamp/javascript"
+    },
+    {
+      "key": "js/noDebugger",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-debugger/javascript"
+    },
+    {
+      "key": "js/noDelete",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-delete/javascript"
+    },
+    {
+      "key": "js/noDistractingElements",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-distracting-elements/javascript"
+    },
+    {
+      "key": "js/noDivRegex",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-div-regex/javascript"
+    },
+    {
+      "key": "js/noDoubleEquals",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-double-equals/javascript"
+    },
+    {
+      "key": "js/noDuplicateObjectKeys",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-duplicate-object-keys/javascript"
+    },
+    {
+      "key": "js/noEmptyInterface",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-empty-interface/javascript"
+    },
+    {
+      "key": "js/noEqualsToNull",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-equals-to-null/javascript"
+    },
+    {
+      "key": "js/noExtraBooleanCast",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-extra-boolean-cast/javascript"
+    },
+    {
+      "key": "js/noExtraNonNullAssertion",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-extra-non-null-assertion/javascript"
+    },
+    {
+      "key": "js/noFlatMapIdentity",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-flat-map-identity/javascript"
+    },
+    {
+      "key": "js/noFloatingPromises",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-floating-promises/javascript"
+    },
+    {
+      "key": "js/noFocusedTests",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-focused-tests/javascript"
+    },
+    {
+      "key": "js/noGlobalDirnameFilename",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-global-dirname-filename/javascript"
+    },
+    {
+      "key": "js/noGlobalIsFinite",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-global-is-finite/javascript"
+    },
+    {
+      "key": "js/noGlobalIsNan",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-global-is-nan/javascript"
+    },
+    {
+      "key": "js/noHeaderScope",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-header-scope/javascript"
+    },
+    {
+      "key": "js/noImplicitBoolean",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-implicit-boolean/javascript"
+    },
+    {
+      "key": "js/noImplicitCoercions",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-implicit-coercions/javascript"
+    },
+    {
+      "key": "js/noInferrableTypes",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-inferrable-types/javascript"
+    },
+    {
+      "key": "js/noInlineStyles",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-inline-styles/javascript"
+    },
+    {
+      "key": "js/noInteractiveElementToNoninteractiveRole",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-interactive-element-to-noninteractive-role/javascript"
+    },
+    {
+      "key": "js/noInvalidBuiltinInstantiation",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-invalid-builtin-instantiation/javascript"
+    },
+    {
+      "key": "js/noInvalidFileInputAccept",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-invalid-file-input-accept/javascript"
+    },
+    {
+      "key": "js/noJsxLeakedDollar",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-jsx-leaked-dollar/javascript"
+    },
+    {
+      "key": "js/noMeaninglessVoidOperator",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-meaningless-void-operator/javascript"
+    },
+    {
+      "key": "js/noMisleadingCharacterClass",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-misleading-character-class/javascript"
+    },
+    {
+      "key": "js/noMisrefactoredShorthandAssign",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-misrefactored-shorthand-assign/javascript"
+    },
+    {
+      "key": "js/noMisusedPromises",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-misused-promises/javascript"
+    },
+    {
+      "key": "js/noNegationElse",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-negation-else/javascript"
+    },
+    {
+      "key": "js/noNegationInEqualityCheck",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-negation-in-equality-check/javascript"
+    },
+    {
+      "key": "js/noNonNullAssertion",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-non-null-assertion/javascript"
+    },
+    {
+      "key": "js/noNoninteractiveElementToInteractiveRole",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-noninteractive-element-to-interactive-role/javascript"
+    },
+    {
+      "key": "js/noNoninteractiveTabindex",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-noninteractive-tabindex/javascript"
+    },
+    {
+      "key": "js/noNonoctalDecimalEscape",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-nonoctal-decimal-escape/javascript"
+    },
+    {
+      "key": "js/noOctalEscape",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-octal-escape/javascript"
+    },
+    {
+      "key": "js/noParametersOnlyUsedInRecursion",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-parameters-only-used-in-recursion/javascript"
+    },
+    {
+      "key": "js/noPlaywrightElementHandle",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-playwright-element-handle/javascript"
+    },
+    {
+      "key": "js/noPlaywrightMissingAwait",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-playwright-missing-await/javascript"
+    },
+    {
+      "key": "js/noPlaywrightUselessAwait",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-playwright-useless-await/javascript"
+    },
+    {
+      "key": "js/noPlaywrightWaitForSelector",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-playwright-wait-for-selector/javascript"
+    },
+    {
+      "key": "js/noPositiveTabindex",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-positive-tabindex/javascript"
+    },
+    {
+      "key": "js/noProcessGlobal",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-process-global/javascript"
+    },
+    {
+      "key": "js/noPrototypeBuiltins",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-prototype-builtins/javascript"
+    },
+    {
+      "key": "js/noReactForwardRef",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-react-forward-ref/javascript"
+    },
+    {
+      "key": "js/noReactSpecificProps",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-react-specific-props/javascript"
+    },
+    {
+      "key": "js/noRedundantRoles",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-redundant-roles/javascript"
+    },
+    {
+      "key": "js/noRedundantUseStrict",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-redundant-use-strict/javascript"
+    },
+    {
+      "key": "js/noRestrictedTypes",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-restricted-types/javascript"
+    },
+    {
+      "key": "js/noShoutyConstants",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-shouty-constants/javascript"
+    },
+    {
+      "key": "js/noSkippedTests",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-skipped-tests/javascript"
+    },
+    {
+      "key": "js/noSparseArray",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-sparse-array/javascript"
+    },
+    {
+      "key": "js/noStringCaseMismatch",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-string-case-mismatch/javascript"
+    },
+    {
+      "key": "js/noSubstr",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-substr/javascript"
+    },
+    {
+      "key": "js/noSvelteUnnecessaryStateWrap",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-svelte-unnecessary-state-wrap/javascript"
+    },
+    {
+      "key": "js/noSwitchDeclarations",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-switch-declarations/javascript"
+    },
+    {
+      "key": "js/noThisInStatic",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-this-in-static/javascript"
+    },
+    {
+      "key": "js/noTsIgnore",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-ts-ignore/javascript"
+    },
+    {
+      "key": "js/noUnnecessaryTemplateExpression",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-unnecessary-template-expression/javascript"
+    },
+    {
+      "key": "js/noUnsafeNegation",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-unsafe-negation/javascript"
+    },
+    {
+      "key": "js/noUnusedFunctionParameters",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-unused-function-parameters/javascript"
+    },
+    {
+      "key": "js/noUnusedImports",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-unused-imports/javascript"
+    },
+    {
+      "key": "js/noUnusedLabels",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-unused-labels/javascript"
+    },
+    {
+      "key": "js/noUnusedPrivateClassMembers",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-unused-private-class-members/javascript"
+    },
+    {
+      "key": "js/noUnusedTemplateLiteral",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-unused-template-literal/javascript"
+    },
+    {
+      "key": "js/noUnusedVariables",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-unused-variables/javascript"
+    },
+    {
+      "key": "js/noUselessCatch",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-useless-catch/javascript"
+    },
+    {
+      "key": "js/noUselessCatchBinding",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-useless-catch-binding/javascript"
+    },
+    {
+      "key": "js/noUselessConstructor",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-useless-constructor/javascript"
+    },
+    {
+      "key": "js/noUselessContinue",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-useless-continue/javascript"
+    },
+    {
+      "key": "js/noUselessElse",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-useless-else/javascript"
+    },
+    {
+      "key": "js/noUselessEmptyExport",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-useless-empty-export/javascript"
+    },
+    {
+      "key": "js/noUselessEscapeInRegex",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-useless-escape-in-regex/javascript"
+    },
+    {
+      "key": "js/noUselessEscapeInString",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-useless-escape-in-string/javascript"
+    },
+    {
+      "key": "js/noUselessFragments",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-useless-fragments/javascript"
+    },
+    {
+      "key": "js/noUselessLabel",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-useless-label/javascript"
+    },
+    {
+      "key": "js/noUselessLoneBlockStatements",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-useless-lone-block-statements/javascript"
+    },
+    {
+      "key": "js/noUselessRename",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-useless-rename/javascript"
+    },
+    {
+      "key": "js/noUselessReturn",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-useless-return/javascript"
+    },
+    {
+      "key": "js/noUselessStringConcat",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-useless-string-concat/javascript"
+    },
+    {
+      "key": "js/noUselessSwitchCase",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-useless-switch-case/javascript"
+    },
+    {
+      "key": "js/noUselessTernary",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-useless-ternary/javascript"
+    },
+    {
+      "key": "js/noUselessThisAlias",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-useless-this-alias/javascript"
+    },
+    {
+      "key": "js/noUselessTypeConstraint",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-useless-type-constraint/javascript"
+    },
+    {
+      "key": "js/noUselessUndefined",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-useless-undefined/javascript"
+    },
+    {
+      "key": "js/noUselessUndefinedInitialization",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-useless-undefined-initialization/javascript"
+    },
+    {
+      "key": "js/noVar",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-var/javascript"
+    },
+    {
+      "key": "js/noVoidElementsWithChildren",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-void-elements-with-children/javascript"
+    },
+    {
+      "key": "js/noVueArrowFuncInWatch",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-vue-arrow-func-in-watch/javascript"
+    },
+    {
+      "key": "js/noVueDataObjectDeclaration",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-vue-data-object-declaration/javascript"
+    },
+    {
+      "key": "js/noVueDeprecatedScopedSlots",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-vue-deprecated-scoped-slots/javascript"
+    },
+    {
+      "key": "js/noXorAsExponentiation",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/no-xor-as-exponentiation/javascript"
+    },
+    {
+      "key": "js/noYodaExpression",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-yoda-expression/javascript"
+    },
+    {
+      "key": "js/useAnchorContent",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-anchor-content/javascript"
+    },
+    {
+      "key": "js/useAriaActivedescendantWithTabindex",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-aria-activedescendant-with-tabindex/javascript"
+    },
+    {
+      "key": "js/useArrayLiterals",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-array-literals/javascript"
+    },
+    {
+      "key": "js/useArraySome",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-array-some/javascript"
+    },
+    {
+      "key": "js/useArrowFunction",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-arrow-function/javascript"
+    },
+    {
+      "key": "js/useAsConstAssertion",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-as-const-assertion/javascript"
+    },
+    {
+      "key": "js/useAtIndex",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-at-index/javascript"
+    },
+    {
+      "key": "js/useBetterDomTraversing",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-better-dom-traversing/javascript"
+    },
+    {
+      "key": "js/useBlockStatements",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-block-statements/javascript"
+    },
+    {
+      "key": "js/useCollapsedElseIf",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-collapsed-else-if/javascript"
+    },
+    {
+      "key": "js/useCollapsedIf",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-collapsed-if/javascript"
+    },
+    {
+      "key": "js/useConsistentArrayType",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-consistent-array-type/javascript"
+    },
+    {
+      "key": "js/useConsistentArrowReturn",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-consistent-arrow-return/javascript"
+    },
+    {
+      "key": "js/useConsistentBuiltinInstantiation",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-consistent-builtin-instantiation/javascript"
+    },
+    {
+      "key": "js/useConsistentCurlyBraces",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-consistent-curly-braces/javascript"
+    },
+    {
+      "key": "js/useConsistentMethodSignatures",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-consistent-method-signatures/javascript"
+    },
+    {
+      "key": "js/useConsistentObjectDefinitions",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-consistent-object-definitions/javascript"
+    },
+    {
+      "key": "js/useConsistentTestIt",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-consistent-test-it/javascript"
+    },
+    {
+      "key": "js/useConsistentTypeDefinitions",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-consistent-type-definitions/javascript"
+    },
+    {
+      "key": "js/useConst",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-const/javascript"
+    },
+    {
+      "key": "js/useDateNow",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-date-now/javascript"
+    },
+    {
+      "key": "js/useDefaultParameterLast",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-default-parameter-last/javascript"
+    },
+    {
+      "key": "js/useDisposables",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-disposables/javascript"
+    },
+    {
+      "key": "js/useDomNodeTextContent",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-dom-node-text-content/javascript"
+    },
+    {
+      "key": "js/useDomQuerySelector",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-dom-query-selector/javascript"
+    },
+    {
+      "key": "js/useEnumInitializers",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-enum-initializers/javascript"
+    },
+    {
+      "key": "js/useExhaustiveDependencies",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-exhaustive-dependencies/javascript"
+    },
+    {
+      "key": "js/useExhaustiveSwitchCases",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-exhaustive-switch-cases/javascript"
+    },
+    {
+      "key": "js/useExplicitLengthCheck",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-explicit-length-check/javascript"
+    },
+    {
+      "key": "js/useExponentiationOperator",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-exponentiation-operator/javascript"
+    },
+    {
+      "key": "js/useExportType",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-export-type/javascript"
+    },
+    {
+      "key": "js/useFlatMap",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-flat-map/javascript"
+    },
+    {
+      "key": "js/useFlatMathMinMax",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-flat-math-min-max/javascript"
+    },
+    {
+      "key": "js/useFragmentSyntax",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-fragment-syntax/javascript"
+    },
+    {
+      "key": "js/useGoogleFontPreconnect",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-google-font-preconnect/javascript"
+    },
+    {
+      "key": "js/useImportExtensions",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-import-extensions/javascript"
+    },
+    {
+      "key": "js/useImportType",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-import-type/javascript"
+    },
+    {
+      "key": "js/useIncludes",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-includes/javascript"
+    },
+    {
+      "key": "js/useIndexOf",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-index-of/javascript"
+    },
+    {
+      "key": "js/useIsArray",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-is-array/javascript"
+    },
+    {
+      "key": "js/useIsNan",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-is-nan/javascript"
+    },
+    {
+      "key": "js/useJsonImportAttributes",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-json-import-attributes/javascript"
+    },
+    {
+      "key": "js/useLiteralKeys",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-literal-keys/javascript"
+    },
+    {
+      "key": "js/useMathMinMax",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-math-min-max/javascript"
+    },
+    {
+      "key": "js/useModernMathApis",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-modern-math-apis/javascript"
+    },
+    {
+      "key": "js/useNamespaceKeyword",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-namespace-keyword/javascript"
+    },
+    {
+      "key": "js/useNamingConvention",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-naming-convention/javascript"
+    },
+    {
+      "key": "js/useNodeAssertStrict",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-node-assert-strict/javascript"
+    },
+    {
+      "key": "js/useNodejsImportProtocol",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-nodejs-import-protocol/javascript"
+    },
+    {
+      "key": "js/useNumberNamespace",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-number-namespace/javascript"
+    },
+    {
+      "key": "js/useNumberToFixedDigitsArgument",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-number-to-fixed-digits-argument/javascript"
+    },
+    {
+      "key": "js/useNumericLiterals",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-numeric-literals/javascript"
+    },
+    {
+      "key": "js/useNumericSeparators",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-numeric-separators/javascript"
+    },
+    {
+      "key": "js/useObjectSpread",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-object-spread/javascript"
+    },
+    {
+      "key": "js/useOptionalChain",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-optional-chain/javascript"
+    },
+    {
+      "key": "js/useParseIntRadix",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-parse-int-radix/javascript"
+    },
+    {
+      "key": "js/useReactAsyncServerFunction",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-react-async-server-function/javascript"
+    },
+    {
+      "key": "js/useReactFunctionComponentDefinition",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-react-function-component-definition/javascript"
+    },
+    {
+      "key": "js/useReadonlyClassProperties",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-readonly-class-properties/javascript"
+    },
+    {
+      "key": "js/useReduceTypeParameter",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-reduce-type-parameter/javascript"
+    },
+    {
+      "key": "js/useRegexLiterals",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-regex-literals/javascript"
+    },
+    {
+      "key": "js/useRegexpTest",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-regexp-test/javascript"
+    },
+    {
+      "key": "js/useSelfClosingElements",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-self-closing-elements/javascript"
+    },
+    {
+      "key": "js/useShorthandAssign",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-shorthand-assign/javascript"
+    },
+    {
+      "key": "js/useShorthandFunctionType",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-shorthand-function-type/javascript"
+    },
+    {
+      "key": "js/useSimpleNumberKeys",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-simple-number-keys/javascript"
+    },
+    {
+      "key": "js/useSimplifiedLogicExpression",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-simplified-logic-expression/javascript"
+    },
+    {
+      "key": "js/useSingleJsDocAsterisk",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-single-js-doc-asterisk/javascript"
+    },
+    {
+      "key": "js/useSingleVarDeclarator",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-single-var-declarator/javascript"
+    },
+    {
+      "key": "js/useSortedClasses",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-sorted-classes/javascript"
+    },
+    {
+      "key": "js/useSpreadOverApply",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-spread-over-apply/javascript"
+    },
+    {
+      "key": "js/useStaticResponseMethods",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-static-response-methods/javascript"
+    },
+    {
+      "key": "js/useStrictMode",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-strict-mode/javascript"
+    },
+    {
+      "key": "js/useStringStartsEndsWith",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-string-starts-ends-with/javascript"
+    },
+    {
+      "key": "js/useTailwindShorthandClasses",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-tailwind-shorthand-classes/javascript"
+    },
+    {
+      "key": "js/useTemplate",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-template/javascript"
+    },
+    {
+      "key": "js/useThrowNewError",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-throw-new-error/javascript"
+    },
+    {
+      "key": "js/useTrimStartEnd",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-trim-start-end/javascript"
+    },
+    {
+      "key": "js/useUnicodeRegex",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-unicode-regex/javascript"
+    },
+    {
+      "key": "js/useUnifiedTypeSignatures",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-unified-type-signatures/javascript"
+    },
+    {
+      "key": "js/useValidAriaProps",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-valid-aria-props/javascript"
+    },
+    {
+      "key": "js/useValidAriaRole",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-valid-aria-role/javascript"
+    },
+    {
+      "key": "js/useValidTestTitle",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-valid-test-title/javascript"
+    },
+    {
+      "key": "js/useValidTypeof",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-valid-typeof/javascript"
+    },
+    {
+      "key": "js/useVueBaseImport",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-vue-base-import/javascript"
+    },
+    {
+      "key": "js/useVueDefineMacrosOrder",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-vue-define-macros-order/javascript"
+    },
+    {
+      "key": "js/useWhile",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-while/javascript"
+    },
+    {
+      "key": "json/noBiomeFirstException",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-biome-first-exception/json"
+    },
+    {
+      "key": "json/noQuickfixBiome",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/no-quickfix-biome/json"
+    },
+    {
+      "key": "json/useBiomeIgnoreFolder",
+      "fix_safety": "safe",
+      "url": "https://biomejs.dev/linter/rules/use-biome-ignore-folder/json"
+    },
+    {
+      "key": "json/useConsistentObjectKeys",
+      "fix_safety": "unsafe",
+      "url": "https://biomejs.dev/linter/rules/use-consistent-object-keys/json"
+    }
+  ]
+}

@@ -49,7 +49,8 @@ class RunOneProjectTest(unittest.TestCase):
         graph = type("Graph", (), {"get_state": lambda self, config: finished if config["configurable"]["thread_id"] == "old" else empty})()
         issue = {"fingerprint": "old", "rule": "javascript:S1186", "sonar_type": "CODE_SMELL",
                  "sonar_impacts": [{"softwareQuality": "MAINTAINABILITY", "severity": "LOW"}]}
-        config, snapshot, action = _checkpoint_for_issue(graph, issue)
+        with patch("cleardebt.triage.listed", return_value=True):
+            config, snapshot, action = _checkpoint_for_issue(graph, issue)
         self.assertEqual(action, "start")
         self.assertIs(snapshot, empty)
         self.assertNotEqual(issue["fingerprint"], "old")

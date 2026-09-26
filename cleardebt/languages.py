@@ -11,7 +11,7 @@ from pathlib import Path
 
 # Sonar rule key prefixes we will attempt to repair.
 SUPPORTED_LANGUAGES = frozenset(
-    {"javascript", "typescript", "python", "java", "csharp", "secrets", "sca"}
+    {"javascript", "typescript", "python", "java", "csharp", "csharpsquid", "secrets", "sca"}
 )
 
 _JS_TS_SUFFIXES = (".js", ".jsx", ".mjs", ".cjs", ".ts", ".tsx")

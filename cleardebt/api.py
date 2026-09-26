@@ -524,6 +524,7 @@ def api_hosting_create(body: dict = Body(...)) -> dict:
 def api_rules_list(prefix: str = "") -> dict:
     from cleardebt.rules import pins
     from cleardebt.triage import describe, tier_for
+    from cleardebt.ai_codefix_rules import configured as ai_codefix_rules_configured, listed
 
     catalog = {}
     try:
@@ -550,6 +551,7 @@ def api_rules_list(prefix: str = "") -> dict:
                 "impacts": meta.get("impacts") or [],
                 "clean_code_attribute": meta.get("cleanCodeAttribute") or "",
                 "tier": tier_for(key),
+                "ai_codefix_listed": listed(key),
                 "label": describe(key),
                 "pinned": bool(pin),
                 "zh_source": pin.get("zh_source") or "",
@@ -557,7 +559,7 @@ def api_rules_list(prefix: str = "") -> dict:
         )
         if len(rows) >= 500:
             break
-    return {"total": len(catalog), "rules": rows}
+    return {"total": len(catalog), "ai_codefix_list_enabled": ai_codefix_rules_configured(), "rules": rows}
 
 
 _scan_threads: dict[str, "threading.Thread"] = {}

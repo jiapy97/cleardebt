@@ -12,45 +12,18 @@ interface RuleRow {
   impacts: Array<{ softwareQuality?: string; severity?: string }>;
   clean_code_attribute: string;
   tier: string;
+  ai_codefix_listed: boolean | null;
   label: string;
   pinned: boolean;
   zh_source: string;
 }
 
-function Verdict({ tier, type, impacts }: { tier: string; type: string; impacts: RuleRow["impacts"] }) {
-  const quality = (impacts?.[0]?.softwareQuality || "").toUpperCase();
-  const impact = (impacts?.[0]?.severity || "").toLowerCase();
-  const kind = (type || "").replace("_", " ").toLowerCase();
-  const bits = [kind, quality ? `${quality.toLowerCase()}·${impact || "?"}` : ""].filter(Boolean).join(" · ");
-  if (tier === "C") {
-    const why = quality === "SECURITY" || kind.includes("vulnerab") || kind.includes("hotspot")
-      ? "漏洞或安全影响"
-      : "官方成本超 30 分钟或影响面大";
-    return (
-      <Tooltip title={`不碰：${why}${bits ? `｜Sonar 信号：${bits}` : ""}`}>
-        <Tag color="orange">不碰</Tag>
-      </Tooltip>
-    );
-  }
-  if (tier === "A") {
-    return (
-      <Tooltip title={`可直接修${bits ? `｜Sonar 信号：${bits}` : ""}`}>
-        <Tag color="green">可修</Tag>
-      </Tooltip>
-    );
-  }
-  if (tier === "B") {
-    return (
-      <Tooltip title={`能修，但要过测试闸${bits ? `｜Sonar 信号：${bits}` : ""}`}>
-        <Tag color="blue">要过测试</Tag>
-      </Tooltip>
-    );
-  }
-  return (
-    <Tooltip title="Sonar 信号缺失，按规则元数据推断">
-      <Tag>看情况</Tag>
-    </Tooltip>
-  );
+function Verdict({ tier, listEnabled, listed }: { tier: string; listEnabled: boolean; listed: boolean | null }) {
+  if (!listEnabled) return <Tooltip title="尚未配置 Sonar AI CodeFix 清单，Agent 不会修复 Sonar 告警"><Tag>清单未配置</Tag></Tooltip>;
+  if (listed && tier === "unknown") return <Tooltip title="清单内，但 Agent 尚未接入此语言"><Tag>Agent 未接入</Tag></Tooltip>;
+  return <Tooltip title={listed ? "在已配置的 Sonar AI CodeFix 清单内" : "不在已配置的 Sonar AI CodeFix 清单内"}>
+    <Tag color={listed ? "green" : "orange"}>{listed ? "清单内" : "清单外"}</Tag>
+  </Tooltip>;
 }
 
 export default function RulesPage() {
@@ -116,7 +89,7 @@ export default function RulesPage() {
           </Button>
         </Space>
         <div style={{ marginTop: 8, color: "#8c8c8c", fontSize: 12 }}>
-          共 {data?.total ?? 0} 条（Sonar 全量）。类型/严重度/影响面/英文名全部是 Sonar 原文；结论只读，规则是：漏洞或安全影响 → 不碰，官方成本超 30 分钟 → 不碰，其余按影响面修或过测试闸。中文名你可以亲手写，不写就显示英文。
+          共 {data?.total ?? 0} 条（Sonar 全量）。类型/严重度/影响面/英文名全部是 Sonar 原文；{data?.ai_codefix_list_enabled ? "可修资格按已配置的 Sonar AI CodeFix 清单逐条匹配。" : "当前未配置 AI CodeFix 清单，Sonar 告警不能指派修复。"}中文名你可以亲手写，不写就显示英文。
         </div>
       </Card>
       <Card title="规则">
@@ -137,7 +110,7 @@ export default function RulesPage() {
               title: "结论",
               key: "tier",
               width: 300,
-              render: (_, r) => <Verdict tier={r.tier} type={r.type} impacts={r.impacts} />,
+              render: (_, r) => <Verdict tier={r.tier} listEnabled={!!data?.ai_codefix_list_enabled} listed={r.ai_codefix_listed} />,
             },
             {
               title: "中文名",

@@ -1,0 +1,2316 @@
+{
+  "retrieved_on": "2026-09-26",
+  "note": "Vendor eligibility is not Sonar rule eligibility or a repair guarantee.",
+  "source": "github_copilot_autofix",
+  "fix_kind": "llm_eligibility",
+  "key_kind": "codeql_query_help_slug",
+  "license": "CC-BY-4.0",
+  "source_url": "https://docs.github.com/en/code-security/reference/code-scanning/codeql/codeql-queries/built-in-queries",
+  "rules": [
+    {
+      "key": "actions/actions-artifact-poisoning-critical",
+      "name": "Artifact poisoning",
+      "url": "https://codeql.github.com/codeql-query-help/actions/actions-artifact-poisoning-critical/"
+    },
+    {
+      "key": "actions/actions-artifact-poisoning-medium",
+      "name": "Artifact poisoning",
+      "url": "https://codeql.github.com/codeql-query-help/actions/actions-artifact-poisoning-medium/"
+    },
+    {
+      "key": "actions/actions-cache-poisoning-code-injection",
+      "name": "Cache Poisoning via code injection",
+      "url": "https://codeql.github.com/codeql-query-help/actions/actions-cache-poisoning-code-injection/"
+    },
+    {
+      "key": "actions/actions-cache-poisoning-direct-cache",
+      "name": "Cache Poisoning via caching of untrusted files",
+      "url": "https://codeql.github.com/codeql-query-help/actions/actions-cache-poisoning-direct-cache/"
+    },
+    {
+      "key": "actions/actions-cache-poisoning-poisonable-step",
+      "name": "Cache Poisoning via execution of untrusted code",
+      "url": "https://codeql.github.com/codeql-query-help/actions/actions-cache-poisoning-poisonable-step/"
+    },
+    {
+      "key": "actions/actions-code-injection-critical",
+      "name": "Code injection",
+      "url": "https://codeql.github.com/codeql-query-help/actions/actions-code-injection-critical/"
+    },
+    {
+      "key": "actions/actions-code-injection-medium",
+      "name": "Code injection",
+      "url": "https://codeql.github.com/codeql-query-help/actions/actions-code-injection-medium/"
+    },
+    {
+      "key": "actions/actions-envpath-injection-critical",
+      "name": "PATH environment variable built from user-controlled sources",
+      "url": "https://codeql.github.com/codeql-query-help/actions/actions-envpath-injection-critical/"
+    },
+    {
+      "key": "actions/actions-envpath-injection-medium",
+      "name": "PATH environment variable built from user-controlled sources",
+      "url": "https://codeql.github.com/codeql-query-help/actions/actions-envpath-injection-medium/"
+    },
+    {
+      "key": "actions/actions-envvar-injection-critical",
+      "name": "Environment variable built from user-controlled sources",
+      "url": "https://codeql.github.com/codeql-query-help/actions/actions-envvar-injection-critical/"
+    },
+    {
+      "key": "actions/actions-envvar-injection-medium",
+      "name": "Environment variable built from user-controlled sources",
+      "url": "https://codeql.github.com/codeql-query-help/actions/actions-envvar-injection-medium/"
+    },
+    {
+      "key": "actions/actions-excessive-secrets-exposure",
+      "name": "Excessive Secrets Exposure",
+      "url": "https://codeql.github.com/codeql-query-help/actions/actions-excessive-secrets-exposure/"
+    },
+    {
+      "key": "actions/actions-improper-access-control",
+      "name": "Improper Access Control",
+      "url": "https://codeql.github.com/codeql-query-help/actions/actions-improper-access-control/"
+    },
+    {
+      "key": "actions/actions-missing-workflow-permissions",
+      "name": "Workflow does not contain permissions",
+      "url": "https://codeql.github.com/codeql-query-help/actions/actions-missing-workflow-permissions/"
+    },
+    {
+      "key": "actions/actions-secrets-in-artifacts",
+      "name": "Storage of sensitive information in GitHub Actions artifact",
+      "url": "https://codeql.github.com/codeql-query-help/actions/actions-secrets-in-artifacts/"
+    },
+    {
+      "key": "actions/actions-unmasked-secret-exposure",
+      "name": "Unmasked Secret Exposure",
+      "url": "https://codeql.github.com/codeql-query-help/actions/actions-unmasked-secret-exposure/"
+    },
+    {
+      "key": "actions/actions-untrusted-checkout-medium",
+      "name": "Checkout of untrusted code in a non-privileged context",
+      "url": "https://codeql.github.com/codeql-query-help/actions/actions-untrusted-checkout-medium/"
+    },
+    {
+      "key": "actions/actions-untrusted-checkout-toctou-critical",
+      "name": "Untrusted Checkout TOCTOU",
+      "url": "https://codeql.github.com/codeql-query-help/actions/actions-untrusted-checkout-toctou-critical/"
+    },
+    {
+      "key": "actions/actions-untrusted-checkout-toctou-high",
+      "name": "Untrusted Checkout TOCTOU",
+      "url": "https://codeql.github.com/codeql-query-help/actions/actions-untrusted-checkout-toctou-high/"
+    },
+    {
+      "key": "actions/actions-vulnerable-action",
+      "name": "Use of a known vulnerable action",
+      "url": "https://codeql.github.com/codeql-query-help/actions/actions-vulnerable-action/"
+    },
+    {
+      "key": "cpp/cpp-alloca-in-loop",
+      "name": "Call to alloca in a loop",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-alloca-in-loop/"
+    },
+    {
+      "key": "cpp/cpp-allocation-too-small",
+      "name": "Not enough memory allocated for pointer type",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-allocation-too-small/"
+    },
+    {
+      "key": "cpp/cpp-bad-addition-overflow-check",
+      "name": "Bad check for overflow of integer addition",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-bad-addition-overflow-check/"
+    },
+    {
+      "key": "cpp/cpp-bad-strncpy-size",
+      "name": "Possibly wrong buffer size in string copy",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-bad-strncpy-size/"
+    },
+    {
+      "key": "cpp/cpp-badly-bounded-write",
+      "name": "Badly bounded write",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-badly-bounded-write/"
+    },
+    {
+      "key": "cpp/cpp-boost-tls-settings-misconfiguration",
+      "name": "boost::asio TLS settings misconfiguration",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-boost-tls-settings-misconfiguration/"
+    },
+    {
+      "key": "cpp/cpp-boost-use-of-deprecated-hardcoded-security-protocol",
+      "name": "boost::asio use of deprecated hardcoded protocol",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-boost-use-of-deprecated-hardcoded-security-protocol/"
+    },
+    {
+      "key": "cpp/cpp-certificate-not-checked",
+      "name": "Certificate not checked",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-certificate-not-checked/"
+    },
+    {
+      "key": "cpp/cpp-certificate-result-conflation",
+      "name": "Certificate result conflation",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-certificate-result-conflation/"
+    },
+    {
+      "key": "cpp/cpp-cgi-xss",
+      "name": "CGI script vulnerable to cross-site scripting",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-cgi-xss/"
+    },
+    {
+      "key": "cpp/cpp-cleartext-storage-buffer",
+      "name": "Cleartext storage of sensitive information in buffer",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-cleartext-storage-buffer/"
+    },
+    {
+      "key": "cpp/cpp-cleartext-storage-database",
+      "name": "Cleartext storage of sensitive information in an SQLite database",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-cleartext-storage-database/"
+    },
+    {
+      "key": "cpp/cpp-cleartext-storage-file",
+      "name": "Cleartext storage of sensitive information in file",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-cleartext-storage-file/"
+    },
+    {
+      "key": "cpp/cpp-cleartext-transmission",
+      "name": "Cleartext transmission of sensitive information",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-cleartext-transmission/"
+    },
+    {
+      "key": "cpp/cpp-comma-before-misleading-indentation",
+      "name": "Comma before misleading indentation",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-comma-before-misleading-indentation/"
+    },
+    {
+      "key": "cpp/cpp-comparison-with-wider-type",
+      "name": "Comparison of narrow type with wide type in loop condition",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-comparison-with-wider-type/"
+    },
+    {
+      "key": "cpp/cpp-dangerous-cin",
+      "name": "Dangerous use of 'cin'",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-dangerous-cin/"
+    },
+    {
+      "key": "cpp/cpp-dangerous-function-overflow",
+      "name": "Use of dangerous function",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-dangerous-function-overflow/"
+    },
+    {
+      "key": "cpp/cpp-external-entity-expansion",
+      "name": "XML external entity expansion",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-external-entity-expansion/"
+    },
+    {
+      "key": "cpp/cpp-hresult-boolean-conversion",
+      "name": "Cast between HRESULT and a Boolean type",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-hresult-boolean-conversion/"
+    },
+    {
+      "key": "cpp/cpp-incorrect-allocation-error-handling",
+      "name": "Incorrect allocation-error handling",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-incorrect-allocation-error-handling/"
+    },
+    {
+      "key": "cpp/cpp-incorrect-not-operator-usage",
+      "name": "Incorrect 'not' operator usage",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-incorrect-not-operator-usage/"
+    },
+    {
+      "key": "cpp/cpp-incorrectly-checked-scanf",
+      "name": "Incorrect return-value check for a 'scanf'-like function",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-incorrectly-checked-scanf/"
+    },
+    {
+      "key": "cpp/cpp-insufficient-key-size",
+      "name": "Use of a cryptographic algorithm with insufficient key size",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-insufficient-key-size/"
+    },
+    {
+      "key": "cpp/cpp-integer-multiplication-cast-to-long",
+      "name": "Multiplication result converted to larger type",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-integer-multiplication-cast-to-long/"
+    },
+    {
+      "key": "cpp/cpp-invalid-pointer-deref",
+      "name": "Invalid pointer dereference",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-invalid-pointer-deref/"
+    },
+    {
+      "key": "cpp/cpp-iterator-to-expired-container",
+      "name": "Iterator to expired container",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-iterator-to-expired-container/"
+    },
+    {
+      "key": "cpp/cpp-memset-may-be-deleted",
+      "name": "Call to memset may be deleted",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-memset-may-be-deleted/"
+    },
+    {
+      "key": "cpp/cpp-missing-check-scanf",
+      "name": "Missing return-value check for a 'scanf'-like function",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-missing-check-scanf/"
+    },
+    {
+      "key": "cpp/cpp-new-free-mismatch",
+      "name": "Mismatching new/free or malloc/delete",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-new-free-mismatch/"
+    },
+    {
+      "key": "cpp/cpp-no-space-for-terminator",
+      "name": "No space for zero terminator",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-no-space-for-terminator/"
+    },
+    {
+      "key": "cpp/cpp-non-constant-format",
+      "name": "Non-constant format string",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-non-constant-format/"
+    },
+    {
+      "key": "cpp/cpp-non-https-url",
+      "name": "Failure to use HTTPS URLs",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-non-https-url/"
+    },
+    {
+      "key": "cpp/cpp-offset-use-before-range-check",
+      "name": "Array offset used before range check",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-offset-use-before-range-check/"
+    },
+    {
+      "key": "cpp/cpp-open-call-with-mode-argument",
+      "name": "File opened with O_CREAT flag but without mode argument",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-open-call-with-mode-argument/"
+    },
+    {
+      "key": "cpp/cpp-openssl-heartbleed",
+      "name": "Use of a version of OpenSSL with Heartbleed",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-openssl-heartbleed/"
+    },
+    {
+      "key": "cpp/cpp-overflow-buffer",
+      "name": "Call to memory access function may overflow buffer",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-overflow-buffer/"
+    },
+    {
+      "key": "cpp/cpp-overflowing-snprintf",
+      "name": "Potentially overflowing call to snprintf",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-overflowing-snprintf/"
+    },
+    {
+      "key": "cpp/cpp-overrun-write",
+      "name": "Overrunning write",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-overrun-write/"
+    },
+    {
+      "key": "cpp/cpp-overrunning-write",
+      "name": "Potentially overrunning write",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-overrunning-write/"
+    },
+    {
+      "key": "cpp/cpp-overrunning-write-with-float",
+      "name": "Potentially overrunning write with float to string conversion",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-overrunning-write-with-float/"
+    },
+    {
+      "key": "cpp/cpp-path-injection",
+      "name": "Uncontrolled data used in path expression",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-path-injection/"
+    },
+    {
+      "key": "cpp/cpp-pointer-overflow-check",
+      "name": "Pointer overflow check",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-pointer-overflow-check/"
+    },
+    {
+      "key": "cpp/cpp-potential-system-data-exposure",
+      "name": "Potential exposure of sensitive system data to an unauthorized control sphere",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-potential-system-data-exposure/"
+    },
+    {
+      "key": "cpp/cpp-potentially-dangerous-function",
+      "name": "Use of potentially dangerous function",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-potentially-dangerous-function/"
+    },
+    {
+      "key": "cpp/cpp-redundant-null-check-simple",
+      "name": "Redundant null check due to previous dereference",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-redundant-null-check-simple/"
+    },
+    {
+      "key": "cpp/cpp-return-stack-allocated-memory",
+      "name": "Returning stack-allocated memory",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-return-stack-allocated-memory/"
+    },
+    {
+      "key": "cpp/cpp-signed-overflow-check",
+      "name": "Signed overflow check",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-signed-overflow-check/"
+    },
+    {
+      "key": "cpp/cpp-static-buffer-overflow",
+      "name": "Static array access may cause overflow",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-static-buffer-overflow/"
+    },
+    {
+      "key": "cpp/cpp-suspicious-add-sizeof",
+      "name": "Suspicious add with sizeof",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-suspicious-add-sizeof/"
+    },
+    {
+      "key": "cpp/cpp-suspicious-allocation-size",
+      "name": "Not enough memory allocated for array of pointer type",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-suspicious-allocation-size/"
+    },
+    {
+      "key": "cpp/cpp-suspicious-pointer-scaling-void",
+      "name": "Suspicious pointer scaling to void",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-suspicious-pointer-scaling-void/"
+    },
+    {
+      "key": "cpp/cpp-suspicious-sizeof",
+      "name": "Suspicious 'sizeof' use",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-suspicious-sizeof/"
+    },
+    {
+      "key": "cpp/cpp-tainted-format-string",
+      "name": "Uncontrolled format string",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-tainted-format-string/"
+    },
+    {
+      "key": "cpp/cpp-tainted-permissions-check",
+      "name": "Untrusted input for a condition",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-tainted-permissions-check/"
+    },
+    {
+      "key": "cpp/cpp-toctou-race-condition",
+      "name": "Time-of-check time-of-use filesystem race condition",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-toctou-race-condition/"
+    },
+    {
+      "key": "cpp/cpp-too-few-arguments",
+      "name": "Call to function with fewer arguments than declared parameters",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-too-few-arguments/"
+    },
+    {
+      "key": "cpp/cpp-type-confusion",
+      "name": "Type confusion",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-type-confusion/"
+    },
+    {
+      "key": "cpp/cpp-unbounded-write",
+      "name": "Unbounded write",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-unbounded-write/"
+    },
+    {
+      "key": "cpp/cpp-uncontrolled-allocation-size",
+      "name": "Uncontrolled allocation size",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-uncontrolled-allocation-size/"
+    },
+    {
+      "key": "cpp/cpp-uncontrolled-arithmetic",
+      "name": "Uncontrolled data in arithmetic expression",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-uncontrolled-arithmetic/"
+    },
+    {
+      "key": "cpp/cpp-uncontrolled-process-operation",
+      "name": "Uncontrolled process operation",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-uncontrolled-process-operation/"
+    },
+    {
+      "key": "cpp/cpp-uninitialized-local",
+      "name": "Potentially uninitialized local variable",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-uninitialized-local/"
+    },
+    {
+      "key": "cpp/cpp-unsafe-create-process-call",
+      "name": "NULL application name with an unquoted path in call to CreateProcess",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-unsafe-create-process-call/"
+    },
+    {
+      "key": "cpp/cpp-unsafe-dacl-security-descriptor",
+      "name": "Setting a DACL to NULL in a SECURITY_DESCRIPTOR",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-unsafe-dacl-security-descriptor/"
+    },
+    {
+      "key": "cpp/cpp-unsafe-strcat",
+      "name": "Potentially unsafe use of strcat",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-unsafe-strcat/"
+    },
+    {
+      "key": "cpp/cpp-unsafe-strncat",
+      "name": "Potentially unsafe call to strncat",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-unsafe-strncat/"
+    },
+    {
+      "key": "cpp/cpp-unsafe-use-of-this",
+      "name": "Unsafe use of this in constructor",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-unsafe-use-of-this/"
+    },
+    {
+      "key": "cpp/cpp-unsigned-difference-expression-compared-zero",
+      "name": "Unsigned difference expression compared to zero",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-unsigned-difference-expression-compared-zero/"
+    },
+    {
+      "key": "cpp/cpp-unterminated-variadic-call",
+      "name": "Unterminated variadic call",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-unterminated-variadic-call/"
+    },
+    {
+      "key": "cpp/cpp-upcast-array-pointer-arithmetic",
+      "name": "Upcast array used in pointer arithmetic",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-upcast-array-pointer-arithmetic/"
+    },
+    {
+      "key": "cpp/cpp-use-after-free",
+      "name": "Potential use after free",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-use-after-free/"
+    },
+    {
+      "key": "cpp/cpp-use-of-string-after-lifetime-ends",
+      "name": "Use of string after lifetime ends",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-use-of-string-after-lifetime-ends/"
+    },
+    {
+      "key": "cpp/cpp-use-of-unique-pointer-after-lifetime-ends",
+      "name": "Use of unique pointer after lifetime ends",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-use-of-unique-pointer-after-lifetime-ends/"
+    },
+    {
+      "key": "cpp/cpp-using-expired-stack-address",
+      "name": "Use of expired stack-address",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-using-expired-stack-address/"
+    },
+    {
+      "key": "cpp/cpp-very-likely-overrunning-write",
+      "name": "Likely overrunning write",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-very-likely-overrunning-write/"
+    },
+    {
+      "key": "cpp/cpp-world-writable-file-creation",
+      "name": "File created without restricting permissions",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-world-writable-file-creation/"
+    },
+    {
+      "key": "cpp/cpp-wrong-number-format-arguments",
+      "name": "Too few arguments to formatting function",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-wrong-number-format-arguments/"
+    },
+    {
+      "key": "cpp/cpp-wrong-type-format-argument",
+      "name": "Wrong type of arguments to formatting function",
+      "url": "https://codeql.github.com/codeql-query-help/cpp/cpp-wrong-type-format-argument/"
+    },
+    {
+      "key": "csharp/cs-assembly-path-injection",
+      "name": "Assembly path injection",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-assembly-path-injection/"
+    },
+    {
+      "key": "csharp/cs-cleartext-storage-of-sensitive-information",
+      "name": "Clear text storage of sensitive information",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-cleartext-storage-of-sensitive-information/"
+    },
+    {
+      "key": "csharp/cs-code-injection",
+      "name": "Improper control of generation of code",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-code-injection/"
+    },
+    {
+      "key": "csharp/cs-command-line-injection",
+      "name": "Uncontrolled command line",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-command-line-injection/"
+    },
+    {
+      "key": "csharp/cs-deserialized-delegate",
+      "name": "Deserialized delegate",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-deserialized-delegate/"
+    },
+    {
+      "key": "csharp/cs-ecb-encryption",
+      "name": "Encryption using ECB",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-ecb-encryption/"
+    },
+    {
+      "key": "csharp/cs-exposure-of-sensitive-information",
+      "name": "Exposure of private information",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-exposure-of-sensitive-information/"
+    },
+    {
+      "key": "csharp/cs-inadequate-rsa-padding",
+      "name": "Weak encryption: inadequate RSA padding",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-inadequate-rsa-padding/"
+    },
+    {
+      "key": "csharp/cs-information-exposure-through-exception",
+      "name": "Information exposure through an exception",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-information-exposure-through-exception/"
+    },
+    {
+      "key": "csharp/cs-insecure-randomness",
+      "name": "Insecure randomness",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-insecure-randomness/"
+    },
+    {
+      "key": "csharp/cs-insecure-sql-connection",
+      "name": "Insecure SQL connection",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-insecure-sql-connection/"
+    },
+    {
+      "key": "csharp/cs-insufficient-key-size",
+      "name": "Weak encryption: Insufficient key size",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-insufficient-key-size/"
+    },
+    {
+      "key": "csharp/cs-ldap-injection",
+      "name": "LDAP query built from user-controlled sources",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-ldap-injection/"
+    },
+    {
+      "key": "csharp/cs-log-forging",
+      "name": "Log entries created from user input",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-log-forging/"
+    },
+    {
+      "key": "csharp/cs-path-injection",
+      "name": "Uncontrolled data used in path expression",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-path-injection/"
+    },
+    {
+      "key": "csharp/cs-redos",
+      "name": "Denial of Service from comparison of user input against expensive regex",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-redos/"
+    },
+    {
+      "key": "csharp/cs-regex-injection",
+      "name": "Regular expression injection",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-regex-injection/"
+    },
+    {
+      "key": "csharp/cs-resource-injection",
+      "name": "Resource injection",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-resource-injection/"
+    },
+    {
+      "key": "csharp/cs-sensitive-data-transmission",
+      "name": "Information exposure through transmitted data",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-sensitive-data-transmission/"
+    },
+    {
+      "key": "csharp/cs-serialization-check-bypass",
+      "name": "Serialization check bypass",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-serialization-check-bypass/"
+    },
+    {
+      "key": "csharp/cs-session-reuse",
+      "name": "Failure to abandon session",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-session-reuse/"
+    },
+    {
+      "key": "csharp/cs-sql-injection",
+      "name": "SQL query built from user-controlled sources",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-sql-injection/"
+    },
+    {
+      "key": "csharp/cs-thread-unsafe-icryptotransform-captured-in-lambda",
+      "name": "Thread-unsafe capturing of an ICryptoTransform object",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-thread-unsafe-icryptotransform-captured-in-lambda/"
+    },
+    {
+      "key": "csharp/cs-thread-unsafe-icryptotransform-field-in-class",
+      "name": "Thread-unsafe use of a static ICryptoTransform field",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-thread-unsafe-icryptotransform-field-in-class/"
+    },
+    {
+      "key": "csharp/cs-uncontrolled-format-string",
+      "name": "Uncontrolled format string",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-uncontrolled-format-string/"
+    },
+    {
+      "key": "csharp/cs-unsafe-deserialization-untrusted-input",
+      "name": "Deserialization of untrusted data",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-unsafe-deserialization-untrusted-input/"
+    },
+    {
+      "key": "csharp/cs-unvalidated-local-pointer-arithmetic",
+      "name": "Unvalidated local pointer arithmetic",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-unvalidated-local-pointer-arithmetic/"
+    },
+    {
+      "key": "csharp/cs-user-controlled-bypass",
+      "name": "User-controlled bypass of sensitive method",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-user-controlled-bypass/"
+    },
+    {
+      "key": "csharp/cs-weak-encryption",
+      "name": "Weak encryption",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-weak-encryption/"
+    },
+    {
+      "key": "csharp/cs-web-ambiguous-client-variable",
+      "name": "Value shadowing",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-web-ambiguous-client-variable/"
+    },
+    {
+      "key": "csharp/cs-web-ambiguous-server-variable",
+      "name": "Value shadowing: server variable",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-web-ambiguous-server-variable/"
+    },
+    {
+      "key": "csharp/cs-web-broad-cookie-domain",
+      "name": "Cookie security: overly broad domain",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-web-broad-cookie-domain/"
+    },
+    {
+      "key": "csharp/cs-web-broad-cookie-path",
+      "name": "Cookie security: overly broad path",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-web-broad-cookie-path/"
+    },
+    {
+      "key": "csharp/cs-web-debug-binary",
+      "name": "Creating an ASP.NET debug binary may reveal sensitive information",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-web-debug-binary/"
+    },
+    {
+      "key": "csharp/cs-web-directory-browse-enabled",
+      "name": "ASP.NET config file enables directory browsing",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-web-directory-browse-enabled/"
+    },
+    {
+      "key": "csharp/cs-web-disabled-header-checking",
+      "name": "Header checking disabled",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-web-disabled-header-checking/"
+    },
+    {
+      "key": "csharp/cs-web-file-upload",
+      "name": "Use of file upload",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-web-file-upload/"
+    },
+    {
+      "key": "csharp/cs-web-insecure-direct-object-reference",
+      "name": "Insecure Direct Object Reference",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-web-insecure-direct-object-reference/"
+    },
+    {
+      "key": "csharp/cs-web-missing-function-level-access-control",
+      "name": "Missing function level access control",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-web-missing-function-level-access-control/"
+    },
+    {
+      "key": "csharp/cs-web-missing-global-error-handler",
+      "name": "Missing global error handler",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-web-missing-global-error-handler/"
+    },
+    {
+      "key": "csharp/cs-web-missing-token-validation",
+      "name": "Missing cross-site request forgery token validation",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-web-missing-token-validation/"
+    },
+    {
+      "key": "csharp/cs-web-persistent-cookie",
+      "name": "Cookie security: persistent cookie",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-web-persistent-cookie/"
+    },
+    {
+      "key": "csharp/cs-web-request-validation-disabled",
+      "name": "Page request validation is disabled",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-web-request-validation-disabled/"
+    },
+    {
+      "key": "csharp/cs-web-requiressl-not-set",
+      "name": "'requireSSL' attribute is not set to true",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-web-requiressl-not-set/"
+    },
+    {
+      "key": "csharp/cs-web-unvalidated-url-redirection",
+      "name": "URL redirection from remote source",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-web-unvalidated-url-redirection/"
+    },
+    {
+      "key": "csharp/cs-web-xss",
+      "name": "Cross-site scripting",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-web-xss/"
+    },
+    {
+      "key": "csharp/cs-xml-injection",
+      "name": "XML injection",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-xml-injection/"
+    },
+    {
+      "key": "csharp/cs-xml-insecure-dtd-handling",
+      "name": "Untrusted XML is read insecurely",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-xml-insecure-dtd-handling/"
+    },
+    {
+      "key": "csharp/cs-xml-missing-validation",
+      "name": "Missing XML validation",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-xml-missing-validation/"
+    },
+    {
+      "key": "csharp/cs-xml-xpath-injection",
+      "name": "XPath injection",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-xml-xpath-injection/"
+    },
+    {
+      "key": "csharp/cs-zipslip",
+      "name": "Arbitrary file access during archive extraction (\"Zip Slip\")",
+      "url": "https://codeql.github.com/codeql-query-help/csharp/cs-zipslip/"
+    },
+    {
+      "key": "go/go-allocation-size-overflow",
+      "name": "Size computation for allocation may overflow",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-allocation-size-overflow/"
+    },
+    {
+      "key": "go/go-bad-redirect-check",
+      "name": "Bad redirect check",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-bad-redirect-check/"
+    },
+    {
+      "key": "go/go-clear-text-logging",
+      "name": "Clear-text logging of sensitive information",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-clear-text-logging/"
+    },
+    {
+      "key": "go/go-constant-oauth2-state",
+      "name": "Use of constant state value in OAuth 2.0 URL",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-constant-oauth2-state/"
+    },
+    {
+      "key": "go/go-disabled-certificate-check",
+      "name": "Disabled TLS certificate check",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-disabled-certificate-check/"
+    },
+    {
+      "key": "go/go-email-injection",
+      "name": "Email content injection",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-email-injection/"
+    },
+    {
+      "key": "go/go-incomplete-hostname-regexp",
+      "name": "Incomplete regular expression for hostnames",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-incomplete-hostname-regexp/"
+    },
+    {
+      "key": "go/go-incomplete-url-scheme-check",
+      "name": "Incomplete URL scheme check",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-incomplete-url-scheme-check/"
+    },
+    {
+      "key": "go/go-incorrect-integer-conversion",
+      "name": "Incorrect conversion between integer types",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-incorrect-integer-conversion/"
+    },
+    {
+      "key": "go/go-insecure-hostkeycallback",
+      "name": "Use of insecure HostKeyCallback implementation",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-insecure-hostkeycallback/"
+    },
+    {
+      "key": "go/go-insecure-randomness",
+      "name": "Use of insufficient randomness as the key of a cryptographic algorithm",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-insecure-randomness/"
+    },
+    {
+      "key": "go/go-insecure-tls",
+      "name": "Insecure TLS configuration",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-insecure-tls/"
+    },
+    {
+      "key": "go/go-log-injection",
+      "name": "Log entries created from user input",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-log-injection/"
+    },
+    {
+      "key": "go/go-missing-jwt-signature-check",
+      "name": "Missing JWT signature check",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-missing-jwt-signature-check/"
+    },
+    {
+      "key": "go/go-path-injection",
+      "name": "Uncontrolled data used in path expression",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-path-injection/"
+    },
+    {
+      "key": "go/go-reflected-xss",
+      "name": "Reflected cross-site scripting",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-reflected-xss/"
+    },
+    {
+      "key": "go/go-regex-missing-regexp-anchor",
+      "name": "Missing regular expression anchor",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-regex-missing-regexp-anchor/"
+    },
+    {
+      "key": "go/go-sql-injection",
+      "name": "Database query built from user-controlled sources",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-sql-injection/"
+    },
+    {
+      "key": "go/go-stack-trace-exposure",
+      "name": "Information exposure through a stack trace",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-stack-trace-exposure/"
+    },
+    {
+      "key": "go/go-suspicious-character-in-regex",
+      "name": "Suspicious characters in a regular expression",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-suspicious-character-in-regex/"
+    },
+    {
+      "key": "go/go-uncontrolled-allocation-size",
+      "name": "Slice memory allocation with excessive size value",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-uncontrolled-allocation-size/"
+    },
+    {
+      "key": "go/go-unsafe-quoting",
+      "name": "Potentially unsafe quoting",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-unsafe-quoting/"
+    },
+    {
+      "key": "go/go-unsafe-unzip-symlink",
+      "name": "Arbitrary file write extracting an archive containing symbolic links",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-unsafe-unzip-symlink/"
+    },
+    {
+      "key": "go/go-unvalidated-url-redirection",
+      "name": "Open URL redirect",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-unvalidated-url-redirection/"
+    },
+    {
+      "key": "go/go-weak-crypto-key",
+      "name": "Use of a weak cryptographic key",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-weak-crypto-key/"
+    },
+    {
+      "key": "go/go-xml-xpath-injection",
+      "name": "XPath injection",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-xml-xpath-injection/"
+    },
+    {
+      "key": "go/go-zipslip",
+      "name": "Arbitrary file access during archive extraction (\"Zip Slip\")",
+      "url": "https://codeql.github.com/codeql-query-help/go/go-zipslip/"
+    },
+    {
+      "key": "java/java-android-backup-enabled",
+      "name": "Application backup allowed",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-android-backup-enabled/"
+    },
+    {
+      "key": "java/java-android-cleartext-storage-filesystem",
+      "name": "Cleartext storage of sensitive information in the Android filesystem",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-android-cleartext-storage-filesystem/"
+    },
+    {
+      "key": "java/java-android-cleartext-storage-shared-prefs",
+      "name": "Cleartext storage of sensitive information using SharedPreferences on Android",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-android-cleartext-storage-shared-prefs/"
+    },
+    {
+      "key": "java/java-android-debuggable-attribute-enabled",
+      "name": "Android debuggable attribute enabled",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-android-debuggable-attribute-enabled/"
+    },
+    {
+      "key": "java/java-android-fragment-injection",
+      "name": "Android fragment injection",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-android-fragment-injection/"
+    },
+    {
+      "key": "java/java-android-fragment-injection-preference-activity",
+      "name": "Android fragment injection in PreferenceActivity",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-android-fragment-injection-preference-activity/"
+    },
+    {
+      "key": "java/java-android-implicit-pendingintents",
+      "name": "Use of implicit PendingIntents",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-android-implicit-pendingintents/"
+    },
+    {
+      "key": "java/java-android-implicitly-exported-component",
+      "name": "Implicitly exported Android component",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-android-implicitly-exported-component/"
+    },
+    {
+      "key": "java/java-android-incomplete-provider-permissions",
+      "name": "Missing read or write permission in a content provider",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-android-incomplete-provider-permissions/"
+    },
+    {
+      "key": "java/java-android-insecure-local-authentication",
+      "name": "Insecure local authentication",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-android-insecure-local-authentication/"
+    },
+    {
+      "key": "java/java-android-insecure-local-key-gen",
+      "name": "Insecurely generated keys for local authentication",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-android-insecure-local-key-gen/"
+    },
+    {
+      "key": "java/java-android-intent-redirection",
+      "name": "Android Intent redirection",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-android-intent-redirection/"
+    },
+    {
+      "key": "java/java-android-intent-uri-permission-manipulation",
+      "name": "Intent URI permission manipulation",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-android-intent-uri-permission-manipulation/"
+    },
+    {
+      "key": "java/java-android-missing-certificate-pinning",
+      "name": "Android missing certificate pinning",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-android-missing-certificate-pinning/"
+    },
+    {
+      "key": "java/java-android-sensitive-keyboard-cache",
+      "name": "Android sensitive keyboard cache",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-android-sensitive-keyboard-cache/"
+    },
+    {
+      "key": "java/java-android-sensitive-notification",
+      "name": "Exposure of sensitive information to notifications",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-android-sensitive-notification/"
+    },
+    {
+      "key": "java/java-android-sensitive-result-receiver",
+      "name": "Leaking sensitive information through a ResultReceiver",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-android-sensitive-result-receiver/"
+    },
+    {
+      "key": "java/java-android-sensitive-text",
+      "name": "Exposure of sensitive information to UI text views",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-android-sensitive-text/"
+    },
+    {
+      "key": "java/java-android-unsafe-content-uri-resolution",
+      "name": "Uncontrolled data used in content resolution",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-android-unsafe-content-uri-resolution/"
+    },
+    {
+      "key": "java/java-android-websettings-allow-content-access",
+      "name": "Android WebView settings allows access to content links",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-android-websettings-allow-content-access/"
+    },
+    {
+      "key": "java/java-android-websettings-file-access",
+      "name": "Android WebSettings file access",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-android-websettings-file-access/"
+    },
+    {
+      "key": "java/java-android-websettings-javascript-enabled",
+      "name": "Android WebView JavaScript settings",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-android-websettings-javascript-enabled/"
+    },
+    {
+      "key": "java/java-android-webview-debugging-enabled",
+      "name": "Android Webview debugging enabled",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-android-webview-debugging-enabled/"
+    },
+    {
+      "key": "java/java-cleartext-storage-in-cookie",
+      "name": "Cleartext storage of sensitive information in cookie",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-cleartext-storage-in-cookie/"
+    },
+    {
+      "key": "java/java-cleartext-storage-in-properties",
+      "name": "Cleartext storage of sensitive information using 'Properties' class",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-cleartext-storage-in-properties/"
+    },
+    {
+      "key": "java/java-command-line-injection",
+      "name": "Uncontrolled command line",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-command-line-injection/"
+    },
+    {
+      "key": "java/java-comparison-with-wider-type",
+      "name": "Comparison of narrow type with wide type in loop condition",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-comparison-with-wider-type/"
+    },
+    {
+      "key": "java/java-concatenated-sql-query",
+      "name": "Query built by concatenation with a possibly-untrusted string",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-concatenated-sql-query/"
+    },
+    {
+      "key": "java/java-csrf-unprotected-request-type",
+      "name": "HTTP request type unprotected from CSRF",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-csrf-unprotected-request-type/"
+    },
+    {
+      "key": "java/java-error-message-exposure",
+      "name": "Information exposure through an error message",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-error-message-exposure/"
+    },
+    {
+      "key": "java/java-exec-tainted-environment",
+      "name": "Building a command with an injected environment variable",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-exec-tainted-environment/"
+    },
+    {
+      "key": "java/java-groovy-injection",
+      "name": "Groovy Language injection",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-groovy-injection/"
+    },
+    {
+      "key": "java/java-http-response-splitting",
+      "name": "HTTP response splitting",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-http-response-splitting/"
+    },
+    {
+      "key": "java/java-implicit-cast-in-compound-assignment",
+      "name": "Implicit narrowing conversion in compound assignment",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-implicit-cast-in-compound-assignment/"
+    },
+    {
+      "key": "java/java-improper-intent-verification",
+      "name": "Improper verification of intent by broadcast receiver",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-improper-intent-verification/"
+    },
+    {
+      "key": "java/java-improper-validation-of-array-construction",
+      "name": "Improper validation of user-provided size used for array construction",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-improper-validation-of-array-construction/"
+    },
+    {
+      "key": "java/java-improper-validation-of-array-index",
+      "name": "Improper validation of user-provided array index",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-improper-validation-of-array-index/"
+    },
+    {
+      "key": "java/java-improper-webview-certificate-validation",
+      "name": "Android WebView that accepts all certificates",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-improper-webview-certificate-validation/"
+    },
+    {
+      "key": "java/java-insecure-basic-auth",
+      "name": "Insecure basic authentication",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-insecure-basic-auth/"
+    },
+    {
+      "key": "java/java-insecure-bean-validation",
+      "name": "Insecure Bean Validation",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-insecure-bean-validation/"
+    },
+    {
+      "key": "java/java-insecure-cookie",
+      "name": "Failure to use secure cookies",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-insecure-cookie/"
+    },
+    {
+      "key": "java/java-insecure-ldap-auth",
+      "name": "Insecure LDAP authentication",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-insecure-ldap-auth/"
+    },
+    {
+      "key": "java/java-insecure-randomness",
+      "name": "Insecure randomness",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-insecure-randomness/"
+    },
+    {
+      "key": "java/java-insecure-smtp-ssl",
+      "name": "Insecure JavaMail SSL Configuration",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-insecure-smtp-ssl/"
+    },
+    {
+      "key": "java/java-insecure-trustmanager",
+      "name": "TrustManager that accepts all certificates",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-insecure-trustmanager/"
+    },
+    {
+      "key": "java/java-insufficient-key-size",
+      "name": "Use of a cryptographic algorithm with insufficient key size",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-insufficient-key-size/"
+    },
+    {
+      "key": "java/java-jexl-expression-injection",
+      "name": "Expression language injection (JEXL)",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-jexl-expression-injection/"
+    },
+    {
+      "key": "java/java-jhipster-prng",
+      "name": "Detect JHipster Generator Vulnerability CVE-2019-16303",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-jhipster-prng/"
+    },
+    {
+      "key": "java/java-jndi-injection",
+      "name": "JNDI lookup with user-controlled name",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-jndi-injection/"
+    },
+    {
+      "key": "java/java-ldap-injection",
+      "name": "LDAP query built from user-controlled sources",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-ldap-injection/"
+    },
+    {
+      "key": "java/java-local-temp-file-or-directory-information-disclosure",
+      "name": "Local information disclosure in a temporary directory",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-local-temp-file-or-directory-information-disclosure/"
+    },
+    {
+      "key": "java/java-log-injection",
+      "name": "Log Injection",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-log-injection/"
+    },
+    {
+      "key": "java/java-maven-dependency-upon-bintray",
+      "name": "Depending upon JCenter/Bintray as an artifact repository",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-maven-dependency-upon-bintray/"
+    },
+    {
+      "key": "java/java-maven-non-https-url",
+      "name": "Failure to use HTTPS or SFTP URL in Maven artifact upload/download",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-maven-non-https-url/"
+    },
+    {
+      "key": "java/java-missing-jwt-signature-check",
+      "name": "Missing JWT signature check",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-missing-jwt-signature-check/"
+    },
+    {
+      "key": "java/java-mvel-expression-injection",
+      "name": "Expression language injection (MVEL)",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-mvel-expression-injection/"
+    },
+    {
+      "key": "java/java-netty-http-request-or-response-splitting",
+      "name": "Disabled Netty HTTP header validation",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-netty-http-request-or-response-splitting/"
+    },
+    {
+      "key": "java/java-ognl-injection",
+      "name": "OGNL Expression Language statement with user-controlled input",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-ognl-injection/"
+    },
+    {
+      "key": "java/java-overly-large-range",
+      "name": "Overly permissive regular expression range",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-overly-large-range/"
+    },
+    {
+      "key": "java/java-partial-path-traversal",
+      "name": "Partial path traversal vulnerability",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-partial-path-traversal/"
+    },
+    {
+      "key": "java/java-partial-path-traversal-from-remote",
+      "name": "Partial path traversal vulnerability from remote",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-partial-path-traversal-from-remote/"
+    },
+    {
+      "key": "java/java-path-injection",
+      "name": "Uncontrolled data used in path expression",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-path-injection/"
+    },
+    {
+      "key": "java/java-potentially-weak-cryptographic-algorithm",
+      "name": "Use of a potentially broken or risky cryptographic algorithm",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-potentially-weak-cryptographic-algorithm/"
+    },
+    {
+      "key": "java/java-predictable-seed",
+      "name": "Use of a predictable seed in a secure random number generator",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-predictable-seed/"
+    },
+    {
+      "key": "java/java-relative-path-command",
+      "name": "Executing a command with a relative path",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-relative-path-command/"
+    },
+    {
+      "key": "java/java-rsa-without-oaep",
+      "name": "Use of RSA algorithm without OAEP",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-rsa-without-oaep/"
+    },
+    {
+      "key": "java/java-sensitive-log",
+      "name": "Insertion of sensitive information into log files",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-sensitive-log/"
+    },
+    {
+      "key": "java/java-server-side-template-injection",
+      "name": "Server-side template injection",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-server-side-template-injection/"
+    },
+    {
+      "key": "java/java-socket-auth-race-condition",
+      "name": "Race condition in socket authentication",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-socket-auth-race-condition/"
+    },
+    {
+      "key": "java/java-spel-expression-injection",
+      "name": "Expression language injection (Spring)",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-spel-expression-injection/"
+    },
+    {
+      "key": "java/java-spring-disabled-csrf-protection",
+      "name": "Disabled Spring CSRF protection",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-spring-disabled-csrf-protection/"
+    },
+    {
+      "key": "java/java-sql-injection",
+      "name": "Query built from user-controlled sources",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-sql-injection/"
+    },
+    {
+      "key": "java/java-ssrf",
+      "name": "Server-side request forgery",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-ssrf/"
+    },
+    {
+      "key": "java/java-stack-trace-exposure",
+      "name": "Information exposure through a stack trace",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-stack-trace-exposure/"
+    },
+    {
+      "key": "java/java-static-initialization-vector",
+      "name": "Using a static initialization vector for encryption",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-static-initialization-vector/"
+    },
+    {
+      "key": "java/java-tainted-arithmetic",
+      "name": "User-controlled data in arithmetic expression",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-tainted-arithmetic/"
+    },
+    {
+      "key": "java/java-tainted-format-string",
+      "name": "Use of externally-controlled format string",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-tainted-format-string/"
+    },
+    {
+      "key": "java/java-tainted-numeric-cast",
+      "name": "User-controlled data in numeric cast",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-tainted-numeric-cast/"
+    },
+    {
+      "key": "java/java-tainted-permissions-check",
+      "name": "User-controlled data used in permissions check",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-tainted-permissions-check/"
+    },
+    {
+      "key": "java/java-toctou-race-condition",
+      "name": "Time-of-check time-of-use race condition",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-toctou-race-condition/"
+    },
+    {
+      "key": "java/java-trust-boundary-violation",
+      "name": "Trust boundary violation",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-trust-boundary-violation/"
+    },
+    {
+      "key": "java/java-uncontrolled-arithmetic",
+      "name": "Uncontrolled data in arithmetic expression",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-uncontrolled-arithmetic/"
+    },
+    {
+      "key": "java/java-unsafe-cert-trust",
+      "name": "Unsafe certificate trust",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-unsafe-cert-trust/"
+    },
+    {
+      "key": "java/java-unsafe-hostname-verification",
+      "name": "Unsafe hostname verification",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-unsafe-hostname-verification/"
+    },
+    {
+      "key": "java/java-unvalidated-url-forward",
+      "name": "URL forward from a remote source",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-unvalidated-url-forward/"
+    },
+    {
+      "key": "java/java-unvalidated-url-redirection",
+      "name": "URL redirection from remote source",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-unvalidated-url-redirection/"
+    },
+    {
+      "key": "java/java-weak-cryptographic-algorithm",
+      "name": "Use of a broken or risky cryptographic algorithm",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-weak-cryptographic-algorithm/"
+    },
+    {
+      "key": "java/java-world-writable-file-read",
+      "name": "Reading from a world writable file",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-world-writable-file-read/"
+    },
+    {
+      "key": "java/java-xml-xpath-injection",
+      "name": "XPath injection",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-xml-xpath-injection/"
+    },
+    {
+      "key": "java/java-xslt-injection",
+      "name": "XSLT transformation with user-controlled stylesheet",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-xslt-injection/"
+    },
+    {
+      "key": "java/java-xss",
+      "name": "Cross-site scripting",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-xss/"
+    },
+    {
+      "key": "java/java-xxe",
+      "name": "Resolving XML external entity in user-controlled data",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-xxe/"
+    },
+    {
+      "key": "java/java-zipslip",
+      "name": "Arbitrary file access during archive extraction (\"Zip Slip\")",
+      "url": "https://codeql.github.com/codeql-query-help/java/java-zipslip/"
+    },
+    {
+      "key": "javascript/js-angular-disabling-sce",
+      "name": "Disabling SCE",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-angular-disabling-sce/"
+    },
+    {
+      "key": "javascript/js-angular-double-compilation",
+      "name": "Double compilation",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-angular-double-compilation/"
+    },
+    {
+      "key": "javascript/js-angular-insecure-url-whitelist",
+      "name": "Insecure URL whitelist",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-angular-insecure-url-whitelist/"
+    },
+    {
+      "key": "javascript/js-bad-code-sanitization",
+      "name": "Improper code sanitization",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-bad-code-sanitization/"
+    },
+    {
+      "key": "javascript/js-bad-tag-filter",
+      "name": "Bad HTML filtering regexp",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-bad-tag-filter/"
+    },
+    {
+      "key": "javascript/js-biased-cryptographic-random",
+      "name": "Creating biased random numbers from a cryptographically secure source",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-biased-cryptographic-random/"
+    },
+    {
+      "key": "javascript/js-build-artifact-leak",
+      "name": "Storage of sensitive information in build artifact",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-build-artifact-leak/"
+    },
+    {
+      "key": "javascript/js-case-sensitive-middleware-path",
+      "name": "Case-sensitive middleware path",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-case-sensitive-middleware-path/"
+    },
+    {
+      "key": "javascript/js-clear-text-cookie",
+      "name": "Clear text transmission of sensitive cookie",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-clear-text-cookie/"
+    },
+    {
+      "key": "javascript/js-clear-text-logging",
+      "name": "Clear-text logging of sensitive information",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-clear-text-logging/"
+    },
+    {
+      "key": "javascript/js-clear-text-storage-of-sensitive-data",
+      "name": "Clear text storage of sensitive information",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-clear-text-storage-of-sensitive-data/"
+    },
+    {
+      "key": "javascript/js-client-exposed-cookie",
+      "name": "Sensitive server cookie exposed to the client",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-client-exposed-cookie/"
+    },
+    {
+      "key": "javascript/js-client-side-unvalidated-url-redirection",
+      "name": "Client-side URL redirect",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-client-side-unvalidated-url-redirection/"
+    },
+    {
+      "key": "javascript/js-code-injection",
+      "name": "Code injection",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-code-injection/"
+    },
+    {
+      "key": "javascript/js-command-line-injection",
+      "name": "Uncontrolled command line",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-command-line-injection/"
+    },
+    {
+      "key": "javascript/js-cors-misconfiguration-for-credentials",
+      "name": "CORS misconfiguration for credentials transfer",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-cors-misconfiguration-for-credentials/"
+    },
+    {
+      "key": "javascript/js-cross-window-information-leak",
+      "name": "Cross-window communication with unrestricted target origin",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-cross-window-information-leak/"
+    },
+    {
+      "key": "javascript/js-disabling-certificate-validation",
+      "name": "Disabling certificate validation",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-disabling-certificate-validation/"
+    },
+    {
+      "key": "javascript/js-disabling-electron-websecurity",
+      "name": "Disabling Electron webSecurity",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-disabling-electron-websecurity/"
+    },
+    {
+      "key": "javascript/js-double-escaping",
+      "name": "Double escaping or unescaping",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-double-escaping/"
+    },
+    {
+      "key": "javascript/js-enabling-electron-insecure-content",
+      "name": "Enabling Electron allowRunningInsecureContent",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-enabling-electron-insecure-content/"
+    },
+    {
+      "key": "javascript/js-exposure-of-private-files",
+      "name": "Exposure of private files",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-exposure-of-private-files/"
+    },
+    {
+      "key": "javascript/js-host-header-forgery-in-email-generation",
+      "name": "Host header poisoning in email generation",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-host-header-forgery-in-email-generation/"
+    },
+    {
+      "key": "javascript/js-html-constructed-from-input",
+      "name": "Unsafe HTML constructed from library input",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-html-constructed-from-input/"
+    },
+    {
+      "key": "javascript/js-identity-replacement",
+      "name": "Replacement of a substring with itself",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-identity-replacement/"
+    },
+    {
+      "key": "javascript/js-incomplete-hostname-regexp",
+      "name": "Incomplete regular expression for hostnames",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-incomplete-hostname-regexp/"
+    },
+    {
+      "key": "javascript/js-incomplete-html-attribute-sanitization",
+      "name": "Incomplete HTML attribute sanitization",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-incomplete-html-attribute-sanitization/"
+    },
+    {
+      "key": "javascript/js-incomplete-multi-character-sanitization",
+      "name": "Incomplete multi-character sanitization",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-incomplete-multi-character-sanitization/"
+    },
+    {
+      "key": "javascript/js-incomplete-sanitization",
+      "name": "Incomplete string escaping or encoding",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-incomplete-sanitization/"
+    },
+    {
+      "key": "javascript/js-incomplete-url-scheme-check",
+      "name": "Incomplete URL scheme check",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-incomplete-url-scheme-check/"
+    },
+    {
+      "key": "javascript/js-incomplete-url-substring-sanitization",
+      "name": "Incomplete URL substring sanitization",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-incomplete-url-substring-sanitization/"
+    },
+    {
+      "key": "javascript/js-incorrect-suffix-check",
+      "name": "Incorrect suffix check",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-incorrect-suffix-check/"
+    },
+    {
+      "key": "javascript/js-indirect-command-line-injection",
+      "name": "Indirect uncontrolled command line",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-indirect-command-line-injection/"
+    },
+    {
+      "key": "javascript/js-insecure-dependency",
+      "name": "Dependency download using unencrypted communication channel",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-insecure-dependency/"
+    },
+    {
+      "key": "javascript/js-insecure-download",
+      "name": "Download of sensitive file through insecure connection",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-insecure-download/"
+    },
+    {
+      "key": "javascript/js-insecure-helmet-configuration",
+      "name": "Insecure configuration of Helmet security middleware",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-insecure-helmet-configuration/"
+    },
+    {
+      "key": "javascript/js-insecure-randomness",
+      "name": "Insecure randomness",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-insecure-randomness/"
+    },
+    {
+      "key": "javascript/js-insecure-temporary-file",
+      "name": "Insecure temporary file",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-insecure-temporary-file/"
+    },
+    {
+      "key": "javascript/js-insufficient-key-size",
+      "name": "Use of a weak cryptographic key",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-insufficient-key-size/"
+    },
+    {
+      "key": "javascript/js-insufficient-password-hash",
+      "name": "Use of password hash with insufficient computational effort",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-insufficient-password-hash/"
+    },
+    {
+      "key": "javascript/js-jwt-missing-verification",
+      "name": "JWT missing secret or public key verification",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-jwt-missing-verification/"
+    },
+    {
+      "key": "javascript/js-log-injection",
+      "name": "Log injection",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-log-injection/"
+    },
+    {
+      "key": "javascript/js-loop-bound-injection",
+      "name": "Loop bound injection",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-loop-bound-injection/"
+    },
+    {
+      "key": "javascript/js-missing-origin-check",
+      "name": "Missing origin verification in postMessage handler",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-missing-origin-check/"
+    },
+    {
+      "key": "javascript/js-missing-rate-limiting",
+      "name": "Missing rate limiting",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-missing-rate-limiting/"
+    },
+    {
+      "key": "javascript/js-missing-token-validation",
+      "name": "Missing CSRF middleware",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-missing-token-validation/"
+    },
+    {
+      "key": "javascript/js-overly-large-range",
+      "name": "Overly permissive regular expression range",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-overly-large-range/"
+    },
+    {
+      "key": "javascript/js-path-injection",
+      "name": "Uncontrolled data used in path expression",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-path-injection/"
+    },
+    {
+      "key": "javascript/js-prototype-polluting-assignment",
+      "name": "Prototype-polluting assignment",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-prototype-polluting-assignment/"
+    },
+    {
+      "key": "javascript/js-prototype-pollution",
+      "name": "Prototype-polluting merge call",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-prototype-pollution/"
+    },
+    {
+      "key": "javascript/js-prototype-pollution-utility",
+      "name": "Prototype-polluting function",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-prototype-pollution-utility/"
+    },
+    {
+      "key": "javascript/js-redos",
+      "name": "Inefficient regular expression",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-redos/"
+    },
+    {
+      "key": "javascript/js-reflected-xss",
+      "name": "Reflected cross-site scripting",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-reflected-xss/"
+    },
+    {
+      "key": "javascript/js-regex-injection",
+      "name": "Regular expression injection",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-regex-injection/"
+    },
+    {
+      "key": "javascript/js-regex-missing-regexp-anchor",
+      "name": "Missing regular expression anchor",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-regex-missing-regexp-anchor/"
+    },
+    {
+      "key": "javascript/js-request-forgery",
+      "name": "Server-side request forgery",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-request-forgery/"
+    },
+    {
+      "key": "javascript/js-resource-exhaustion",
+      "name": "Resource exhaustion",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-resource-exhaustion/"
+    },
+    {
+      "key": "javascript/js-resource-exhaustion-from-deep-object-traversal",
+      "name": "Resources exhaustion from deep object traversal",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-resource-exhaustion-from-deep-object-traversal/"
+    },
+    {
+      "key": "javascript/js-samesite-none-cookie",
+      "name": "Sensitive cookie without SameSite restrictions",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-samesite-none-cookie/"
+    },
+    {
+      "key": "javascript/js-second-order-command-line-injection",
+      "name": "Second order command injection",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-second-order-command-line-injection/"
+    },
+    {
+      "key": "javascript/js-sensitive-get-query",
+      "name": "Sensitive data read from GET request",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-sensitive-get-query/"
+    },
+    {
+      "key": "javascript/js-server-crash",
+      "name": "Server crash",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-server-crash/"
+    },
+    {
+      "key": "javascript/js-server-side-unvalidated-url-redirection",
+      "name": "Server-side URL redirect",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-server-side-unvalidated-url-redirection/"
+    },
+    {
+      "key": "javascript/js-shell-command-constructed-from-input",
+      "name": "Unsafe shell command constructed from library input",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-shell-command-constructed-from-input/"
+    },
+    {
+      "key": "javascript/js-shell-command-injection-from-environment",
+      "name": "Shell command built from environment values",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-shell-command-injection-from-environment/"
+    },
+    {
+      "key": "javascript/js-sql-injection",
+      "name": "Database query built from user-controlled sources",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-sql-injection/"
+    },
+    {
+      "key": "javascript/js-stack-trace-exposure",
+      "name": "Information exposure through a stack trace",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-stack-trace-exposure/"
+    },
+    {
+      "key": "javascript/js-stored-xss",
+      "name": "Stored cross-site scripting",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-stored-xss/"
+    },
+    {
+      "key": "javascript/js-tainted-format-string",
+      "name": "Use of externally-controlled format string",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-tainted-format-string/"
+    },
+    {
+      "key": "javascript/js-template-object-injection",
+      "name": "Template Object Injection",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-template-object-injection/"
+    },
+    {
+      "key": "javascript/js-type-confusion-through-parameter-tampering",
+      "name": "Type confusion through parameter tampering",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-type-confusion-through-parameter-tampering/"
+    },
+    {
+      "key": "javascript/js-unnecessary-use-of-cat",
+      "name": "Unnecessary use of cat process",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-unnecessary-use-of-cat/"
+    },
+    {
+      "key": "javascript/js-unsafe-deserialization",
+      "name": "Deserialization of user-controlled data",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-unsafe-deserialization/"
+    },
+    {
+      "key": "javascript/js-unsafe-dynamic-method-access",
+      "name": "Unsafe dynamic method access",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-unsafe-dynamic-method-access/"
+    },
+    {
+      "key": "javascript/js-unsafe-html-expansion",
+      "name": "Unsafe expansion of self-closing HTML tag",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-unsafe-html-expansion/"
+    },
+    {
+      "key": "javascript/js-unsafe-jquery-plugin",
+      "name": "Unsafe jQuery plugin",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-unsafe-jquery-plugin/"
+    },
+    {
+      "key": "javascript/js-unvalidated-dynamic-method-call",
+      "name": "Unvalidated dynamic method call",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-unvalidated-dynamic-method-call/"
+    },
+    {
+      "key": "javascript/js-useless-regexp-character-escape",
+      "name": "Useless regular-expression character escape",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-useless-regexp-character-escape/"
+    },
+    {
+      "key": "javascript/js-weak-cryptographic-algorithm",
+      "name": "Use of a broken or weak cryptographic algorithm",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-weak-cryptographic-algorithm/"
+    },
+    {
+      "key": "javascript/js-xml-bomb",
+      "name": "XML internal entity expansion",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-xml-bomb/"
+    },
+    {
+      "key": "javascript/js-xpath-injection",
+      "name": "XPath injection",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-xpath-injection/"
+    },
+    {
+      "key": "javascript/js-xss",
+      "name": "Client-side cross-site scripting",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-xss/"
+    },
+    {
+      "key": "javascript/js-xss-through-dom",
+      "name": "DOM text reinterpreted as HTML",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-xss-through-dom/"
+    },
+    {
+      "key": "javascript/js-xss-through-exception",
+      "name": "Exception text reinterpreted as HTML",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-xss-through-exception/"
+    },
+    {
+      "key": "javascript/js-xxe",
+      "name": "XML external entity expansion",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-xxe/"
+    },
+    {
+      "key": "javascript/js-zipslip",
+      "name": "Arbitrary file access during archive extraction (\"Zip Slip\")",
+      "url": "https://codeql.github.com/codeql-query-help/javascript/js-zipslip/"
+    },
+    {
+      "key": "python/py-bad-tag-filter",
+      "name": "Bad HTML filtering regexp",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-bad-tag-filter/"
+    },
+    {
+      "key": "python/py-bind-socket-all-network-interfaces",
+      "name": "Binding a socket to all network interfaces",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-bind-socket-all-network-interfaces/"
+    },
+    {
+      "key": "python/py-clear-text-logging-sensitive-data",
+      "name": "Clear-text logging of sensitive information",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-clear-text-logging-sensitive-data/"
+    },
+    {
+      "key": "python/py-clear-text-storage-sensitive-data",
+      "name": "Clear-text storage of sensitive information",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-clear-text-storage-sensitive-data/"
+    },
+    {
+      "key": "python/py-code-injection",
+      "name": "Code injection",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-code-injection/"
+    },
+    {
+      "key": "python/py-command-line-injection",
+      "name": "Uncontrolled command line",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-command-line-injection/"
+    },
+    {
+      "key": "python/py-cookie-injection",
+      "name": "Construction of a cookie using user-supplied input",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-cookie-injection/"
+    },
+    {
+      "key": "python/py-csrf-protection-disabled",
+      "name": "CSRF protection weakened or disabled",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-csrf-protection-disabled/"
+    },
+    {
+      "key": "python/py-flask-debug",
+      "name": "Flask app is run in debug mode",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-flask-debug/"
+    },
+    {
+      "key": "python/py-full-ssrf",
+      "name": "Full server-side request forgery",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-full-ssrf/"
+    },
+    {
+      "key": "python/py-http-response-splitting",
+      "name": "HTTP Response Splitting",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-http-response-splitting/"
+    },
+    {
+      "key": "python/py-incomplete-hostname-regexp",
+      "name": "Incomplete regular expression for hostnames",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-incomplete-hostname-regexp/"
+    },
+    {
+      "key": "python/py-incomplete-url-substring-sanitization",
+      "name": "Incomplete URL substring sanitization",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-incomplete-url-substring-sanitization/"
+    },
+    {
+      "key": "python/py-insecure-cookie",
+      "name": "Failure to use secure cookies",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-insecure-cookie/"
+    },
+    {
+      "key": "python/py-insecure-default-protocol",
+      "name": "Default version of SSL/TLS may be insecure",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-insecure-default-protocol/"
+    },
+    {
+      "key": "python/py-insecure-protocol",
+      "name": "Use of insecure SSL/TLS version",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-insecure-protocol/"
+    },
+    {
+      "key": "python/py-jinja2-autoescape-false",
+      "name": "Jinja2 templating with autoescape=False",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-jinja2-autoescape-false/"
+    },
+    {
+      "key": "python/py-ldap-injection",
+      "name": "LDAP query built from user-controlled sources",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-ldap-injection/"
+    },
+    {
+      "key": "python/py-log-injection",
+      "name": "Log Injection",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-log-injection/"
+    },
+    {
+      "key": "python/py-nosql-injection",
+      "name": "NoSQL Injection",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-nosql-injection/"
+    },
+    {
+      "key": "python/py-overly-permissive-file",
+      "name": "Overly permissive file permissions",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-overly-permissive-file/"
+    },
+    {
+      "key": "python/py-pam-auth-bypass",
+      "name": "PAM authorization bypass due to incorrect usage",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-pam-auth-bypass/"
+    },
+    {
+      "key": "python/py-paramiko-missing-host-key-validation",
+      "name": "Accepting unknown SSH host keys when using Paramiko",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-paramiko-missing-host-key-validation/"
+    },
+    {
+      "key": "python/py-partial-ssrf",
+      "name": "Partial server-side request forgery",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-partial-ssrf/"
+    },
+    {
+      "key": "python/py-path-injection",
+      "name": "Uncontrolled data used in path expression",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-path-injection/"
+    },
+    {
+      "key": "python/py-reflective-xss",
+      "name": "Reflected server-side cross-site scripting",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-reflective-xss/"
+    },
+    {
+      "key": "python/py-regex-injection",
+      "name": "Regular expression injection",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-regex-injection/"
+    },
+    {
+      "key": "python/py-request-without-cert-validation",
+      "name": "Request without certificate validation",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-request-without-cert-validation/"
+    },
+    {
+      "key": "python/py-shell-command-constructed-from-input",
+      "name": "Unsafe shell command constructed from library input",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-shell-command-constructed-from-input/"
+    },
+    {
+      "key": "python/py-sql-injection",
+      "name": "SQL query built from user-controlled sources",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-sql-injection/"
+    },
+    {
+      "key": "python/py-stack-trace-exposure",
+      "name": "Information exposure through an exception",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-stack-trace-exposure/"
+    },
+    {
+      "key": "python/py-tarslip",
+      "name": "Arbitrary file write during tarfile extraction",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-tarslip/"
+    },
+    {
+      "key": "python/py-template-injection",
+      "name": "Server Side Template Injection",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-template-injection/"
+    },
+    {
+      "key": "python/py-unsafe-deserialization",
+      "name": "Deserialization of user-controlled data",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-unsafe-deserialization/"
+    },
+    {
+      "key": "python/py-url-redirection",
+      "name": "URL redirection from remote source",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-url-redirection/"
+    },
+    {
+      "key": "python/py-use-of-input",
+      "name": "'input' function used in Python 2",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-use-of-input/"
+    },
+    {
+      "key": "python/py-weak-crypto-key",
+      "name": "Use of weak cryptographic key",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-weak-crypto-key/"
+    },
+    {
+      "key": "python/py-weak-cryptographic-algorithm",
+      "name": "Use of a broken or weak cryptographic algorithm",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-weak-cryptographic-algorithm/"
+    },
+    {
+      "key": "python/py-weak-sensitive-data-hashing",
+      "name": "Use of a broken or weak cryptographic hashing algorithm on sensitive data",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-weak-sensitive-data-hashing/"
+    },
+    {
+      "key": "python/py-xml-bomb",
+      "name": "XML internal entity expansion",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-xml-bomb/"
+    },
+    {
+      "key": "python/py-xpath-injection",
+      "name": "XPath query built from user-controlled sources",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-xpath-injection/"
+    },
+    {
+      "key": "python/py-xxe",
+      "name": "XML external entity expansion",
+      "url": "https://codeql.github.com/codeql-query-help/python/py-xxe/"
+    },
+    {
+      "key": "ruby/rb-bad-tag-filter",
+      "name": "Bad HTML filtering regexp",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-bad-tag-filter/"
+    },
+    {
+      "key": "ruby/rb-clear-text-logging-sensitive-data",
+      "name": "Clear-text logging of sensitive information",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-clear-text-logging-sensitive-data/"
+    },
+    {
+      "key": "ruby/rb-clear-text-storage-sensitive-data",
+      "name": "Clear-text storage of sensitive information",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-clear-text-storage-sensitive-data/"
+    },
+    {
+      "key": "ruby/rb-code-injection",
+      "name": "Code injection",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-code-injection/"
+    },
+    {
+      "key": "ruby/rb-command-line-injection",
+      "name": "Uncontrolled command line",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-command-line-injection/"
+    },
+    {
+      "key": "ruby/rb-csrf-protection-disabled",
+      "name": "CSRF protection weakened or disabled",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-csrf-protection-disabled/"
+    },
+    {
+      "key": "ruby/rb-csrf-protection-not-enabled",
+      "name": "CSRF protection not enabled",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-csrf-protection-not-enabled/"
+    },
+    {
+      "key": "ruby/rb-hardcoded-data-interpreted-as-code",
+      "name": "Hard-coded data interpreted as code",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-hardcoded-data-interpreted-as-code/"
+    },
+    {
+      "key": "ruby/rb-html-constructed-from-input",
+      "name": "Unsafe HTML constructed from library input",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-html-constructed-from-input/"
+    },
+    {
+      "key": "ruby/rb-http-to-file-access",
+      "name": "Network data written to file",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-http-to-file-access/"
+    },
+    {
+      "key": "ruby/rb-incomplete-hostname-regexp",
+      "name": "Incomplete regular expression for hostnames",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-incomplete-hostname-regexp/"
+    },
+    {
+      "key": "ruby/rb-incomplete-multi-character-sanitization",
+      "name": "Incomplete multi-character sanitization",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-incomplete-multi-character-sanitization/"
+    },
+    {
+      "key": "ruby/rb-incomplete-sanitization",
+      "name": "Incomplete string escaping or encoding",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-incomplete-sanitization/"
+    },
+    {
+      "key": "ruby/rb-incomplete-url-substring-sanitization",
+      "name": "Incomplete URL substring sanitization",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-incomplete-url-substring-sanitization/"
+    },
+    {
+      "key": "ruby/rb-insecure-dependency",
+      "name": "Dependency download using unencrypted communication channel",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-insecure-dependency/"
+    },
+    {
+      "key": "ruby/rb-insecure-download",
+      "name": "Download of sensitive file through insecure connection",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-insecure-download/"
+    },
+    {
+      "key": "ruby/rb-insecure-mass-assignment",
+      "name": "Insecure Mass Assignment",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-insecure-mass-assignment/"
+    },
+    {
+      "key": "ruby/rb-kernel-open",
+      "name": "Use of Kernel.open, IO.read or similar sinks with user-controlled input",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-kernel-open/"
+    },
+    {
+      "key": "ruby/rb-log-injection",
+      "name": "Log injection",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-log-injection/"
+    },
+    {
+      "key": "ruby/rb-non-constant-kernel-open",
+      "name": "Use of Kernel.open or IO.read or similar sinks with a non-constant value",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-non-constant-kernel-open/"
+    },
+    {
+      "key": "ruby/rb-overly-large-range",
+      "name": "Overly permissive regular expression range",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-overly-large-range/"
+    },
+    {
+      "key": "ruby/rb-path-injection",
+      "name": "Uncontrolled data used in path expression",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-path-injection/"
+    },
+    {
+      "key": "ruby/rb-reflected-xss",
+      "name": "Reflected server-side cross-site scripting",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-reflected-xss/"
+    },
+    {
+      "key": "ruby/rb-regex-badly-anchored-regexp",
+      "name": "Badly anchored regular expression",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-regex-badly-anchored-regexp/"
+    },
+    {
+      "key": "ruby/rb-regex-missing-regexp-anchor",
+      "name": "Missing regular expression anchor",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-regex-missing-regexp-anchor/"
+    },
+    {
+      "key": "ruby/rb-regexp-injection",
+      "name": "Regular expression injection",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-regexp-injection/"
+    },
+    {
+      "key": "ruby/rb-request-forgery",
+      "name": "Server-side request forgery",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-request-forgery/"
+    },
+    {
+      "key": "ruby/rb-request-without-cert-validation",
+      "name": "Request without certificate validation",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-request-without-cert-validation/"
+    },
+    {
+      "key": "ruby/rb-shell-command-constructed-from-input",
+      "name": "Unsafe shell command constructed from library input",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-shell-command-constructed-from-input/"
+    },
+    {
+      "key": "ruby/rb-sql-injection",
+      "name": "SQL query built from user-controlled sources",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-sql-injection/"
+    },
+    {
+      "key": "ruby/rb-stack-trace-exposure",
+      "name": "Information exposure through an exception",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-stack-trace-exposure/"
+    },
+    {
+      "key": "ruby/rb-stored-xss",
+      "name": "Stored cross-site scripting",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-stored-xss/"
+    },
+    {
+      "key": "ruby/rb-tainted-format-string",
+      "name": "Use of externally-controlled format string",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-tainted-format-string/"
+    },
+    {
+      "key": "ruby/rb-unsafe-code-construction",
+      "name": "Unsafe code constructed from library input",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-unsafe-code-construction/"
+    },
+    {
+      "key": "ruby/rb-unsafe-deserialization",
+      "name": "Deserialization of user-controlled data",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-unsafe-deserialization/"
+    },
+    {
+      "key": "ruby/rb-url-redirection",
+      "name": "URL redirection from remote source",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-url-redirection/"
+    },
+    {
+      "key": "ruby/rb-weak-cookie-configuration",
+      "name": "Weak cookie configuration",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-weak-cookie-configuration/"
+    },
+    {
+      "key": "ruby/rb-weak-cryptographic-algorithm",
+      "name": "Use of a broken or weak cryptographic algorithm",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-weak-cryptographic-algorithm/"
+    },
+    {
+      "key": "ruby/rb-weak-sensitive-data-hashing",
+      "name": "Use of a broken or weak cryptographic hashing algorithm on sensitive data",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-weak-sensitive-data-hashing/"
+    },
+    {
+      "key": "ruby/rb-xxe",
+      "name": "XML external entity expansion",
+      "url": "https://codeql.github.com/codeql-query-help/ruby/rb-xxe/"
+    },
+    {
+      "key": "swift/swift-bad-tag-filter",
+      "name": "Bad HTML filtering regexp",
+      "url": "https://codeql.github.com/codeql-query-help/swift/swift-bad-tag-filter/"
+    },
+    {
+      "key": "swift/swift-cleartext-logging",
+      "name": "Cleartext logging of sensitive information",
+      "url": "https://codeql.github.com/codeql-query-help/swift/swift-cleartext-logging/"
+    },
+    {
+      "key": "swift/swift-cleartext-storage-database",
+      "name": "Cleartext storage of sensitive information in a local database",
+      "url": "https://codeql.github.com/codeql-query-help/swift/swift-cleartext-storage-database/"
+    },
+    {
+      "key": "swift/swift-cleartext-storage-preferences",
+      "name": "Cleartext storage of sensitive information in an application preference store",
+      "url": "https://codeql.github.com/codeql-query-help/swift/swift-cleartext-storage-preferences/"
+    },
+    {
+      "key": "swift/swift-command-line-injection",
+      "name": "System command built from user-controlled sources",
+      "url": "https://codeql.github.com/codeql-query-help/swift/swift-command-line-injection/"
+    },
+    {
+      "key": "swift/swift-constant-salt",
+      "name": "Use of constant salts",
+      "url": "https://codeql.github.com/codeql-query-help/swift/swift-constant-salt/"
+    },
+    {
+      "key": "swift/swift-ecb-encryption",
+      "name": "Encryption using ECB",
+      "url": "https://codeql.github.com/codeql-query-help/swift/swift-ecb-encryption/"
+    },
+    {
+      "key": "swift/swift-incomplete-hostname-regexp",
+      "name": "Incomplete regular expression for hostnames",
+      "url": "https://codeql.github.com/codeql-query-help/swift/swift-incomplete-hostname-regexp/"
+    },
+    {
+      "key": "swift/swift-insecure-tls",
+      "name": "Insecure TLS configuration",
+      "url": "https://codeql.github.com/codeql-query-help/swift/swift-insecure-tls/"
+    },
+    {
+      "key": "swift/swift-insufficient-hash-iterations",
+      "name": "Insufficient hash iterations",
+      "url": "https://codeql.github.com/codeql-query-help/swift/swift-insufficient-hash-iterations/"
+    },
+    {
+      "key": "swift/swift-missing-regexp-anchor",
+      "name": "Missing regular expression anchor",
+      "url": "https://codeql.github.com/codeql-query-help/swift/swift-missing-regexp-anchor/"
+    },
+    {
+      "key": "swift/swift-path-injection",
+      "name": "Uncontrolled data used in path expression",
+      "url": "https://codeql.github.com/codeql-query-help/swift/swift-path-injection/"
+    },
+    {
+      "key": "swift/swift-predicate-injection",
+      "name": "Predicate built from user-controlled sources",
+      "url": "https://codeql.github.com/codeql-query-help/swift/swift-predicate-injection/"
+    },
+    {
+      "key": "swift/swift-regex-injection",
+      "name": "Regular expression injection",
+      "url": "https://codeql.github.com/codeql-query-help/swift/swift-regex-injection/"
+    },
+    {
+      "key": "swift/swift-sql-injection",
+      "name": "Database query built from user-controlled sources",
+      "url": "https://codeql.github.com/codeql-query-help/swift/swift-sql-injection/"
+    },
+    {
+      "key": "swift/swift-static-initialization-vector",
+      "name": "Static initialization vector for encryption",
+      "url": "https://codeql.github.com/codeql-query-help/swift/swift-static-initialization-vector/"
+    },
+    {
+      "key": "swift/swift-string-length-conflation",
+      "name": "String length conflation",
+      "url": "https://codeql.github.com/codeql-query-help/swift/swift-string-length-conflation/"
+    },
+    {
+      "key": "swift/swift-uncontrolled-format-string",
+      "name": "Uncontrolled format string",
+      "url": "https://codeql.github.com/codeql-query-help/swift/swift-uncontrolled-format-string/"
+    },
+    {
+      "key": "swift/swift-unsafe-js-eval",
+      "name": "JavaScript Injection",
+      "url": "https://codeql.github.com/codeql-query-help/swift/swift-unsafe-js-eval/"
+    },
+    {
+      "key": "swift/swift-unsafe-webview-fetch",
+      "name": "Unsafe WebView fetch",
+      "url": "https://codeql.github.com/codeql-query-help/swift/swift-unsafe-webview-fetch/"
+    },
+    {
+      "key": "swift/swift-weak-password-hashing",
+      "name": "Use of an inappropriate cryptographic hashing algorithm on passwords",
+      "url": "https://codeql.github.com/codeql-query-help/swift/swift-weak-password-hashing/"
+    },
+    {
+      "key": "swift/swift-weak-sensitive-data-hashing",
+      "name": "Use of a broken or weak cryptographic hashing algorithm on sensitive data",
+      "url": "https://codeql.github.com/codeql-query-help/swift/swift-weak-sensitive-data-hashing/"
+    },
+    {
+      "key": "swift/swift-xxe",
+      "name": "Resolving XML external entity in user-controlled data",
+      "url": "https://codeql.github.com/codeql-query-help/swift/swift-xxe/"
+    }
+  ]
+}

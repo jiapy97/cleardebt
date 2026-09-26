@@ -16,9 +16,13 @@ from cleardebt.triage import llm_repairable, tier_for
 
 class LanguagesTest(unittest.TestCase):
     def test_four_languages_share_rule_numbers(self):
-        for prefix in ("javascript", "typescript", "python", "java"):
-            self.assertEqual(tier_for(f"{prefix}:S1128"), "A")
-            self.assertTrue(llm_repairable(f"{prefix}:S1128"))
+        with patch("cleardebt.triage.listed", side_effect=lambda rule: rule in {"javascript:S1128", "typescript:S1128"}):
+            for prefix in ("javascript", "typescript"):
+                self.assertEqual(tier_for(f"{prefix}:S1128"), "B")
+                self.assertTrue(llm_repairable(f"{prefix}:S1128"))
+            for prefix in ("python", "java"):
+                self.assertEqual(tier_for(f"{prefix}:S1128"), "C")
+                self.assertFalse(llm_repairable(f"{prefix}:S1128"))
         self.assertFalse(language_supported("kotlin:S1128"))
         self.assertFalse(llm_repairable("kotlin:S1128"))
         self.assertEqual(tier_for("kotlin:S1128"), "unknown")

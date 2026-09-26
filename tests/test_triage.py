@@ -25,14 +25,16 @@ class DescribeMessageTest(unittest.TestCase):
         self.assertIn("按建议升依赖版本", text)
         self.assertIn("lodash", text)
 
-    def test_secret_override_does_not_allow_other_security_issues(self):
+    def test_secret_setting_cannot_override_list_membership(self):
         signals = {
             "sonar_type": "VULNERABILITY",
             "sonar_impacts": [{"softwareQuality": "SECURITY", "severity": "HIGH"}],
         }
-        with patch.dict("os.environ", {"CLEARDEBT_FIX_SECRETS": "1"}):
+        with patch.dict("os.environ", {"CLEARDEBT_FIX_SECRETS": "1"}), patch("cleardebt.triage.listed", return_value=False):
             self.assertEqual(tier_for_issue({"rule": "javascript:S2077", **signals}), "C")
-            self.assertEqual(tier_for_issue({"rule": "javascript:S2068", **signals}), "A")
+            self.assertEqual(tier_for_issue({"rule": "javascript:S2068", **signals}), "C")
+        with patch("cleardebt.triage.listed", return_value=True):
+            self.assertEqual(tier_for_issue({"rule": "javascript:S2068", **signals}), "B")
 
 
 if __name__ == "__main__":

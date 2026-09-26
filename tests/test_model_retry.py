@@ -122,6 +122,7 @@ class ModelRetryGraphTest(unittest.TestCase):
                 patch("cleardebt.issue_graph.apply_mechanical", return_value=None),
                 patch("cleardebt.issue_graph.collect", return_value={"nearby": "1|import"}),
                 patch("cleardebt.controls.load_controls", return_value={"retrieve": False}),
+                patch("cleardebt.triage.listed", return_value=True),
             ):
                 result = graph.invoke(
                     _blank_state(work_dir=str(work), path="src/a.js"),
@@ -158,6 +159,7 @@ class ModelRetryGraphTest(unittest.TestCase):
                 patch("cleardebt.issue_graph.apply_mechanical", return_value=None),
                 patch("cleardebt.issue_graph.collect", return_value={}),
                 patch("cleardebt.controls.load_controls", return_value={"retrieve": False}),
+                patch("cleardebt.triage.listed", return_value=True),
             ):
                 result = graph.invoke(
                     _blank_state(work_dir=str(work), path="src/a.js"),

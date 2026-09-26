@@ -1,0 +1,163 @@
+{
+  "retrieved_on": "2026-09-26",
+  "note": "Vendor eligibility is not Sonar rule eligibility or a repair guarantee.",
+  "source": "eslint_core",
+  "fix_kind": "deterministic_autofix",
+  "key_kind": "eslint_rule_name",
+  "license": "MIT",
+  "source_url": "https://eslint.org/docs/latest/rules/",
+  "rules": [
+    {
+      "key": "arrow-body-style",
+      "url": "https://eslint.org/docs/latest/rules/arrow-body-style"
+    },
+    {
+      "key": "capitalized-comments",
+      "url": "https://eslint.org/docs/latest/rules/capitalized-comments"
+    },
+    {
+      "key": "curly",
+      "url": "https://eslint.org/docs/latest/rules/curly"
+    },
+    {
+      "key": "dot-notation",
+      "url": "https://eslint.org/docs/latest/rules/dot-notation"
+    },
+    {
+      "key": "eqeqeq",
+      "url": "https://eslint.org/docs/latest/rules/eqeqeq"
+    },
+    {
+      "key": "logical-assignment-operators",
+      "url": "https://eslint.org/docs/latest/rules/logical-assignment-operators"
+    },
+    {
+      "key": "no-array-constructor",
+      "url": "https://eslint.org/docs/latest/rules/no-array-constructor"
+    },
+    {
+      "key": "no-div-regex",
+      "url": "https://eslint.org/docs/latest/rules/no-div-regex"
+    },
+    {
+      "key": "no-else-return",
+      "url": "https://eslint.org/docs/latest/rules/no-else-return"
+    },
+    {
+      "key": "no-extra-bind",
+      "url": "https://eslint.org/docs/latest/rules/no-extra-bind"
+    },
+    {
+      "key": "no-extra-boolean-cast",
+      "url": "https://eslint.org/docs/latest/rules/no-extra-boolean-cast"
+    },
+    {
+      "key": "no-extra-label",
+      "url": "https://eslint.org/docs/latest/rules/no-extra-label"
+    },
+    {
+      "key": "no-implicit-coercion",
+      "url": "https://eslint.org/docs/latest/rules/no-implicit-coercion"
+    },
+    {
+      "key": "no-lonely-if",
+      "url": "https://eslint.org/docs/latest/rules/no-lonely-if"
+    },
+    {
+      "key": "no-regex-spaces",
+      "url": "https://eslint.org/docs/latest/rules/no-regex-spaces"
+    },
+    {
+      "key": "no-undef-init",
+      "url": "https://eslint.org/docs/latest/rules/no-undef-init"
+    },
+    {
+      "key": "no-unneeded-ternary",
+      "url": "https://eslint.org/docs/latest/rules/no-unneeded-ternary"
+    },
+    {
+      "key": "no-unused-labels",
+      "url": "https://eslint.org/docs/latest/rules/no-unused-labels"
+    },
+    {
+      "key": "no-useless-computed-key",
+      "url": "https://eslint.org/docs/latest/rules/no-useless-computed-key"
+    },
+    {
+      "key": "no-useless-rename",
+      "url": "https://eslint.org/docs/latest/rules/no-useless-rename"
+    },
+    {
+      "key": "no-useless-return",
+      "url": "https://eslint.org/docs/latest/rules/no-useless-return"
+    },
+    {
+      "key": "no-var",
+      "url": "https://eslint.org/docs/latest/rules/no-var"
+    },
+    {
+      "key": "object-shorthand",
+      "url": "https://eslint.org/docs/latest/rules/object-shorthand"
+    },
+    {
+      "key": "one-var",
+      "url": "https://eslint.org/docs/latest/rules/one-var"
+    },
+    {
+      "key": "operator-assignment",
+      "url": "https://eslint.org/docs/latest/rules/operator-assignment"
+    },
+    {
+      "key": "prefer-arrow-callback",
+      "url": "https://eslint.org/docs/latest/rules/prefer-arrow-callback"
+    },
+    {
+      "key": "prefer-const",
+      "url": "https://eslint.org/docs/latest/rules/prefer-const"
+    },
+    {
+      "key": "prefer-destructuring",
+      "url": "https://eslint.org/docs/latest/rules/prefer-destructuring"
+    },
+    {
+      "key": "prefer-exponentiation-operator",
+      "url": "https://eslint.org/docs/latest/rules/prefer-exponentiation-operator"
+    },
+    {
+      "key": "prefer-numeric-literals",
+      "url": "https://eslint.org/docs/latest/rules/prefer-numeric-literals"
+    },
+    {
+      "key": "prefer-object-has-own",
+      "url": "https://eslint.org/docs/latest/rules/prefer-object-has-own"
+    },
+    {
+      "key": "prefer-object-spread",
+      "url": "https://eslint.org/docs/latest/rules/prefer-object-spread"
+    },
+    {
+      "key": "prefer-template",
+      "url": "https://eslint.org/docs/latest/rules/prefer-template"
+    },
+    {
+      "key": "sort-imports",
+      "url": "https://eslint.org/docs/latest/rules/sort-imports"
+    },
+    {
+      "key": "sort-vars",
+      "url": "https://eslint.org/docs/latest/rules/sort-vars"
+    },
+    {
+      "key": "strict",
+      "url": "https://eslint.org/docs/latest/rules/strict"
+    },
+    {
+      "key": "yoda",
+      "url": "https://eslint.org/docs/latest/rules/yoda"
+    },
+    {
+      "key": "unicode-bom",
+      "url": "https://eslint.org/docs/latest/rules/unicode-bom"
+    }
+  ]
+}

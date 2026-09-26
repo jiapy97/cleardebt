@@ -1,16 +1,15 @@
-"""Rule tiers for one issue. The model does not choose the tier.
+"""Rule tiers for one issue. Sonar repair eligibility uses exact list keys.
 
-Source of truth is the Sonar server (see cleardebt.rules): thousands of
-rules with severity/type, refreshed live. the rule_pins table holds Chinese labels only; tiers are always derived
-from Sonar signals by the policy below. Only javascript / typescript /
-python / java / csharp / secrets prefixes.
+Without a configured AI CodeFix list, no Sonar issue is repairable. SCA
+dependency upgrades have their own route.
 """
 
 import re
 
+from cleardebt.ai_codefix_rules import listed
 from cleardebt.languages import language_of, language_supported
-from cleardebt.rules import lookup, pins, policy_tier
-from cleardebt.sca import SCA_RULE, is_sca_rule
+from cleardebt.rules import lookup, pins
+from cleardebt.sca import is_sca_rule
 
 
 def rule_number(rule: str) -> str:
@@ -34,7 +33,7 @@ def problem_surface(rule: str) -> str:
         return "reliability"
     if "MAINTAINABILITY" in qualities:
         return "maintainability"
-    return {"A": "maintainability", "B": "reliability", "C": "maintainability"}.get(tier_for(rule), "unknown")
+    return "unknown"
 
 
 def _secret_rule(rule: str) -> bool:
@@ -47,91 +46,23 @@ def is_secret_rule(rule: str) -> bool:
     return _secret_rule(rule)
 
 
-_EFFORT = re.compile(r"(\d+)\s*(min|h|d)", re.IGNORECASE)
-
-
-def parse_effort(value) -> float | None:
-    """Sonar reports remediation cost as '5min' / '2h' / '1d'. → minutes."""
-    from cleardebt.rules import parse_effort as _shared
-
-    return _shared(value)
-
-
-def sonar_tier(issue: dict) -> str:
-    """Tier from Sonar's own issue signals only — no hand-written rule list.
-
-    Signals: type, severity, impacts (Clean Code quality+severity), effort
-    (SQALE cost), quickFixAvailable. Security is always C; anything Sonar
-    rates HIGH-impact, informational, or expensive (>30min) is left to
-    humans; LOW-impact quick-fixable smells are the agent's sweet spot.
-    """
-    kind = (issue.get("sonar_type") or "").upper()
-    severity = (issue.get("sonar_severity") or "").upper()
-    impacts = issue.get("sonar_impacts") or []
-    quality = {str((i or {}).get("softwareQuality") or "").upper() for i in impacts}
-    impact_sev = {str((i or {}).get("severity") or "").upper() for i in impacts}
-    if kind in {"VULNERABILITY", "SECURITY_HOTSPOT"} or "SECURITY" in quality:
-        return "A" if _secret_rule(issue.get("rule") or "") and _secrets_carveout() else "C"
-    effort = parse_effort(issue.get("sonar_effort"))
-    if effort is not None and effort > 30:
-        return "C"
-    if kind == "BUG":
-        if severity in {"BLOCKER", "CRITICAL"} or "HIGH" in impact_sev:
-            return "C"
-        return "B"
-    if kind == "CODE_SMELL":
-        if "INFO" in impact_sev or "HIGH" in impact_sev:
-            return "C"
-        if "LOW" in impact_sev:
-            return "A"
-        return "A" if issue.get("quick_fix") else "B"
-    return "unknown"
-
-
-def _secrets_carveout() -> bool:
-    """Hard-coded-credential rules are VULNERABILITY in Sonar → C by default.
-
-    Rotating a leaked secret is a human job, so pure alignment stops here.
-    Set CLEARDEBT_FIX_SECRETS=1 to let the agent rewrite them to env
-    placeholders (the file change is still gated by rescan + tests).
-    """
-    import os
-
-    return os.environ.get("CLEARDEBT_FIX_SECRETS", "").strip().lower() in {"1", "true", "yes"}
-
-
 def tier_for(rule: str) -> str:
-    """Rule-level tier, computed from Sonar's rule metadata only.
-
-    No curated list anymore: the pins table keeps Chinese labels, but tiers
-    are 100% derived (see sonar_tier for the issue-level twin).
-    """
+    """Listed Sonar rules use the model path; all other Sonar rules stop."""
     if is_sca_rule(rule):
         return "A"
     if not language_supported(rule):
         return "unknown"
-    try:
-        return policy_tier(lookup(rule))
-    except Exception:
-        return "unknown"
+    return "B" if listed(rule) is True else "C"
 
 
 def tier_for_issue(issue: dict) -> str:
     """One issue's tier, shared by the backlog and the execution graph."""
-    rule = issue.get("rule") or ""
-    if is_sca_rule(rule):
-        return "A"
-    if not language_supported(rule):
-        return "unknown"
-    if issue.get("sonar_type") or issue.get("sonar_impacts"):
-        tier = sonar_tier(issue)
-        if tier != "unknown":
-            return tier
-    return tier_for(rule)
+    return tier_for(issue.get("rule") or "")
 
 
 def issue_repairable(issue: dict) -> bool:
-    return (issue.get("tier") or tier_for_issue(issue)) in {"A", "B"}
+    # Persisted snapshots and resumed graph states can carry an old A/B tier.
+    return tier_for_issue(issue) in {"A", "B"}
 
 
 def _english_name(rule: str) -> str:
@@ -187,13 +118,4 @@ def describe_message(rule: str, message: str) -> str:
 
 
 def llm_repairable(rule: str) -> bool:
-    if is_sca_rule(rule):
-        return True
-    if not language_supported(rule):
-        return False
-    tier = tier_for(rule)
-    if tier in {"A", "B"}:
-        return True
-    if tier == "C":
-        return False
-    return language_of(rule) == "secrets" and _secrets_carveout()
+    return tier_for(rule) in {"A", "B"}

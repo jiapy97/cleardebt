@@ -4,16 +4,15 @@ Source of truth is the Sonar server itself (`/api/rules/search`): thousands
 of rules with severity/type/tags. This module fetches them, caches for
 CLEARDEBT_RULES_TTL seconds (default 60), and answers metadata lookups.
 Chinese labels live in the rule_pins table (manual edits + machine
-translations). Tiers are always derived from Sonar signals; if Sonar is
-unreachable, the disk cache backs lookups and everything else reports
-unknown (fail closed).
+translations). Rule metadata is not an AI CodeFix eligibility signal;
+cleardebt.triage requires an exact-key list separately. If Sonar is
+unreachable, the disk cache backs metadata lookups.
 """
 
 from __future__ import annotations
 
 import json
 import os
-import re
 import threading
 import time
 import urllib.parse
@@ -88,9 +87,8 @@ def pins() -> dict[str, dict]:
     """Chinese labels for rules: manual edits and machine translations.
 
     This table is a translation memory ONLY. It used to carry curated tiers
-    ('seed' rows); those are deprecated and tiers are now 100% derived from
-    Sonar's native signals (see triage.sonar_tier / policy_tier). No row in
-    this table can change a tier anymore.
+    ('seed' rows); those are deprecated. No row in this table can change a
+    tier anymore.
     """
     global _pins
     if _pins is not None:
@@ -128,9 +126,7 @@ def forget_pins() -> None:
 
 
 def save_pin(number: str, *, zh: str = "", zh_source: str = "manual") -> dict:
-    """Save a Chinese label for a rule. Tiers are NOT stored here anymore:
-    tiering is 100% derived from Sonar's native signals, so this table is
-    a translation memory, not a curated tier list."""
+    """Save a Chinese label for a rule; this table is not a tier list."""
     number = (number or "").strip()
     if not number:
         raise ValueError("规则号不能为空。")
@@ -219,49 +215,3 @@ def lookup(rule: str) -> dict | None:
     if not key or ":" not in key:
         return None
     return catalog().get(key)
-
-
-_EFFORT_RE = re.compile(r"(\d+)\s*(min|h|d)", re.IGNORECASE)
-
-
-def parse_effort(value) -> float | None:
-    """Sonar reports remediation cost as '5min' / '2h' / '1d' → minutes."""
-    text = str(value or "").strip()
-    if not text:
-        return None
-    match = _EFFORT_RE.search(text)
-    if not match:
-        return None
-    amount = float(match.group(1))
-    return amount * {"min": 1.0, "h": 60.0, "d": 480.0}[match.group(2).lower()]
-
-
-def policy_tier(meta: dict | None) -> str:
-    """Tier from Sonar's rule metadata only (type / impacts / SQALE effort).
-
-    Security is never touched. High maintainability impact or expensive
-    remediation means a refactor, so it stays for humans. Low-impact smells
-    are the sweet spot for mechanical/LLM cleanup.
-    """
-    if not meta:
-        return "unknown"
-    kind = (meta.get("type") or "").upper()
-    quality = {str((i or {}).get("softwareQuality") or "").upper() for i in (meta.get("impacts") or [])}
-    impact_sev = {str((i or {}).get("severity") or "").upper() for i in (meta.get("impacts") or [])}
-    severity = (meta.get("severity") or "").upper()
-    if kind in {"VULNERABILITY", "SECURITY_HOTSPOT"} or "SECURITY" in quality:
-        return "C"
-    effort = parse_effort(meta.get("remFnBaseEffort") or meta.get("defaultRemFnBaseEffort"))
-    if effort is not None and effort > 30:
-        return "C"
-    if kind == "BUG":
-        if severity in {"BLOCKER", "CRITICAL"} or "HIGH" in impact_sev:
-            return "C"
-        return "B"
-    if kind == "CODE_SMELL":
-        if "INFO" in impact_sev:
-            return "C"
-        if "HIGH" in impact_sev:
-            return "C"
-        return "A" if "LOW" in impact_sev else "B"
-    return "unknown"

@@ -14,11 +14,12 @@ if str(ROOT / "scripts") not in sys.path:
 
 import open_merge_request
 import run_issue
+from cleardebt.ai_codefix_rules import configured as ai_codefix_rules_configured
 from cleardebt.controls import backlog_gate, gate, load_controls, save_report
 from cleardebt.gitlab_mr import NotEligible
 from cleardebt.issue_graph import sonar_base_url
-from cleardebt.sca import fetch_dependency_risks
-from cleardebt.triage import describe_message, issue_repairable, sonar_tier, tier_for_issue
+from cleardebt.sca import fetch_dependency_risks, is_sca_rule
+from cleardebt.triage import describe_message, issue_repairable, tier_for_issue
 from list_issues import fetch_issues, issue_path, load_token
 
 DB_URI = os.environ.get(
@@ -63,7 +64,7 @@ def _sonar_row(name: str, issue: dict) -> dict:
         "line": int(text_range.get("startLine") or 0),
         "message": text,
         "sonar_key": issue.get("key") or "",
-        # Native Sonar signals: tiering reads only these, never a hand-written list.
+        # Retain Sonar metadata for display and evidence; it does not grant repair eligibility.
         "sonar_type": issue.get("type") or "",
         "sonar_severity": issue.get("severity") or "",
         "sonar_impacts": impacts,
@@ -82,8 +83,11 @@ def _enrich(name: str, rows: list[dict]) -> list[dict]:
         item["line"] = item.get("line") or 0
         item["tier"] = tier_for_issue(item)
         item["eligible"] = issue_repairable(item)
-        native_tier = sonar_tier(item) if item.get("sonar_type") or item.get("sonar_impacts") else "unknown"
-        item["tier_source"] = "sonar" if native_tier != "unknown" else "policy"
+        item["tier_source"] = (
+            "sca" if is_sca_rule(rule)
+            else "sonar_ai_codefix_list" if ai_codefix_rules_configured()
+            else "sonar_ai_codefix_list_missing"
+        )
     suppressed = suppressed_map(name)
     seen = first_seen_map(name)
     for item in rows:

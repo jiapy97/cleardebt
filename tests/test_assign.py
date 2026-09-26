@@ -12,7 +12,7 @@ READY = {"configured": True, "enabled": True, "whitelist": ["toy-js"], "dry_run"
 
 
 class AssignApiTest(unittest.TestCase):
-    def test_backlog_eligibility_uses_each_issues_sonar_signals(self):
+    def test_backlog_eligibility_uses_exact_list_membership(self):
         rows = [
             {"rule": "javascript:S1186", "path": "src/a.js", "sonar_type": "CODE_SMELL",
              "sonar_impacts": [{"softwareQuality": "MAINTAINABILITY", "severity": "LOW"}]},
@@ -20,7 +20,7 @@ class AssignApiTest(unittest.TestCase):
              "sonar_impacts": [{"softwareQuality": "MAINTAINABILITY", "severity": "HIGH"}]},
         ]
         with (
-            patch("cleardebt.triage.tier_for", side_effect=lambda rule: "C" if rule.endswith("S1186") else "A"),
+            patch("cleardebt.triage.listed", side_effect=lambda rule: rule == "javascript:S1186"),
             patch("cleardebt.assign.describe_message", return_value="告警"),
             patch("cleardebt.assign.suppressed_map", return_value={}),
             patch("cleardebt.assign.first_seen_map", return_value={}),
@@ -28,7 +28,7 @@ class AssignApiTest(unittest.TestCase):
         ):
             enriched = _enrich("toy-js", rows)
         by_rule = {row["rule"]: row for row in enriched}
-        self.assertEqual((by_rule["javascript:S1186"]["tier"], by_rule["javascript:S1186"]["eligible"]), ("A", True))
+        self.assertEqual((by_rule["javascript:S1186"]["tier"], by_rule["javascript:S1186"]["eligible"]), ("B", True))
         self.assertEqual((by_rule["javascript:S1128"]["tier"], by_rule["javascript:S1128"]["eligible"]), ("C", False))
 
     def test_selection_uses_issue_identity_and_rejects_ambiguous_legacy_pick(self):
@@ -63,6 +63,7 @@ class AssignApiTest(unittest.TestCase):
             patch("cleardebt.assign.sonar_base_url", return_value="http://sonar"),
             patch("cleardebt.assign.fetch_issues", return_value=rows),
             patch("cleardebt.assign.fetch_dependency_risks", return_value=[]),
+            patch("cleardebt.triage.listed", side_effect=lambda rule: rule == "javascript:S1128"),
             patch(
                 "cleardebt.assign.issue_path",
                 side_effect=lambda component, project: component.split(":", 1)[-1],

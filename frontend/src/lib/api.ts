@@ -38,6 +38,7 @@ export interface Issue {
   first_seen?: string;
   status?: { level: string; reason: string; mr_url: string } | null;
   tier?: string;
+  tier_source?: string;
   sonar_type?: string;
   sonar_severity?: string;
   sonar_impacts?: Array<{ softwareQuality?: string; severity?: string }>;
@@ -189,6 +190,7 @@ export const api = {
   rulesList: (prefix: string) =>
     req<{
       total: number;
+      ai_codefix_list_enabled: boolean;
       rules: Array<{
         key: string;
         number: string;
@@ -198,6 +200,7 @@ export const api = {
         impacts: Array<{ softwareQuality?: string; severity?: string }>;
         clean_code_attribute: string;
         tier: string;
+        ai_codefix_listed: boolean | null;
         label: string;
         pinned: boolean;
         zh_source: string;

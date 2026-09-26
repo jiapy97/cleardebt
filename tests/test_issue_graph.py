@@ -79,7 +79,21 @@ class NextActionTest(unittest.TestCase):
 
 
 class IssueGraphTest(unittest.TestCase):
-    def test_issue_signals_drive_graph_triage_and_fix_gate(self):
+    def setUp(self):
+        self._rules_dir = tempfile.TemporaryDirectory()
+        rule_file = Path(self._rules_dir.name) / "ai_codefix.txt"
+        rule_file.write_text(
+            "javascript:S1186\njavascript:S1128\ntypescript:S1128\ntypescript:S2301\n",
+            encoding="utf-8",
+        )
+        self._rules_env = patch.dict(os.environ, {"CLEARDEBT_AI_CODEFIX_RULES_FILE": str(rule_file)})
+        self._rules_env.start()
+
+    def tearDown(self):
+        self._rules_env.stop()
+        self._rules_dir.cleanup()
+
+    def test_list_membership_drives_graph_triage_and_fix_gate(self):
         signals = {
             "sonar_type": "CODE_SMELL",
             "sonar_impacts": [{"softwareQuality": "MAINTAINABILITY", "severity": "LOW"}],
@@ -89,12 +103,9 @@ class IssueGraphTest(unittest.TestCase):
             (work / "src").mkdir()
             (work / "src" / "a.js").write_text("const a = 1;\n", encoding="utf-8")
             state = _blank_state(rule="javascript:S1186", path="src/a.js", work_dir=str(work), **signals)
-            with (
-                patch("cleardebt.triage.tier_for", return_value="C"),
-                patch("cleardebt.issue_graph.apply_mechanical", return_value="const a = 2;\n"),
-            ):
+            with patch("cleardebt.issue_graph.apply_mechanical", return_value="const a = 2;\n"):
                 state.update(triage(state))
-                self.assertEqual(state["tier"], "A")
+                self.assertEqual(state["tier"], "B")
                 self.assertEqual(fix(state)["fix_method"], "mechanical")
 
         high = _blank_state(
@@ -102,8 +113,7 @@ class IssueGraphTest(unittest.TestCase):
             sonar_type="CODE_SMELL",
             sonar_impacts=[{"softwareQuality": "MAINTAINABILITY", "severity": "HIGH"}],
         )
-        with patch("cleardebt.triage.tier_for", return_value="A"):
-            self.assertEqual(triage(high)["tier"], "C")
+        self.assertEqual(triage(high)["tier"], "B")
 
     def test_c_tier_stops_at_triage(self):
         graph = build_graph(MemorySaver())
@@ -119,14 +129,14 @@ class IssueGraphTest(unittest.TestCase):
 
         self.assertEqual(problem_surface("javascript:S2068"), "secrets")
 
-    def test_unknown_rule_is_l3_without_a_fix(self):
+    def test_unlisted_rule_is_c_without_a_fix(self):
         graph = build_graph(MemorySaver())
         result = graph.invoke(
             _blank_state(rule="javascript:S9999"),
             {"configurable": {"thread_id": "unknown"}},
         )
-        self.assertEqual(result["level"], "L3")
-        self.assertIn("不是已接入的规则", result["reason"])
+        self.assertEqual(result["level"], "C")
+        self.assertIn("C 档不修", result["reason"])
         self.assertEqual(result["history"], ["triage", "decide"])
 
     def test_b_tier_smell_reaches_fix_preparation(self):
@@ -170,7 +180,7 @@ class IssueGraphTest(unittest.TestCase):
                     {"configurable": {"thread_id": "ts-import"}},
                 )
             updated = (source / "labels.ts").read_text(encoding="utf-8")
-        self.assertEqual(result["tier"], "A")
+        self.assertEqual(result["tier"], "B")
         self.assertEqual(result["fix_method"], "mechanical")
         self.assertEqual(result["level"], "L1")
         self.assertEqual(result["history"], ["triage", "fix", "anti_cheat", "rescan", "test", "decide"])
