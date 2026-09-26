@@ -34,19 +34,19 @@ export function StatusBadge({
     );
   const label =
     status.level === "L1"
-      ? "已验证"
+      ? "修好了"
       : status.level === "L2"
-        ? "待人工看"
+        ? "要人工改"
         : status.level === "L3"
-          ? "修不好"
+          ? "没修成"
           : status.level || "已跑过";
   const hint =
     status.level === "L1"
-      ? "重扫和测试都过了，可以合"
+      ? "告警消失了，测试也过了，可以合并"
       : status.level === "L2"
-        ? "只有建议片段，需要人动手"
+        ? "只给了修改建议，需要人来改"
         : status.level === "L3"
-          ? "自动修没通过，点行看原因"
+          ? "这次改动没通过检查，点开这一行看原因"
           : "";
   return (
     <span className={`pill ${toneClass[status.level] ?? "pill-mute"}`} title={hint}>

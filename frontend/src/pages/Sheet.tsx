@@ -66,7 +66,7 @@ export default function SheetPage() {
             key: "level",
             width: 90,
             render: (v: string) => (
-              <StatusBadge tone={v} text={v === "L1" ? "已验证" : v === "L2" ? "待人工看" : v === "L3" ? "修不好" : v} />
+              <StatusBadge tone={v} text={v === "L1" ? "修好了" : v === "L2" ? "要人工改" : v === "L3" ? "没修成" : v} />
             ),
           },
           {

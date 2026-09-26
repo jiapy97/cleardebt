@@ -65,10 +65,10 @@ export default function MrsPage() {
       render: (v: number) => (v ? `L${v}` : "—"),
     },
     {
-      title: "可修",
+      title: "是否可以指派给 Agent",
       key: "eligible",
-      width: 90,
-      render: (_, r) => <StatusBadge tone="x" text={r.eligible ? "可修" : "跳过"} />,
+      width: 170,
+      render: (_, r) => <StatusBadge tone="x" text={r.eligible ? "是" : "否"} />,
     },
     { title: "最新状态", key: "status", width: 170, render: (_, r) => <StatusBadge status={r.status} /> },
   ];

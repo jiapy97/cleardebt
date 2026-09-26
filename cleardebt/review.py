@@ -377,7 +377,7 @@ def _status_cell(status: dict | None) -> str:
         )
     level = (status.get("level") or "").strip()
     reason = escape(str(status.get("reason") or ""))
-    label = {"L1": "已验证", "L2": "待人工看", "L3": "修不好"}.get(level, level or "已跑过")
+    label = {"L1": "修好了", "L2": "要人工改", "L3": "没修成"}.get(level, level or "已跑过")
     classes = _LEVEL_CLASS.get(level, "bg-zinc-100 text-zinc-700 ring-zinc-200")
     return (
         "<span class='inline-flex whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ring-1 "

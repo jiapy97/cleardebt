@@ -175,10 +175,10 @@ export default function AssignPage() {
       ),
     },
     {
-      title: "可修",
+      title: "是否可以指派给 Agent",
       key: "eligible",
-      width: 80,
-      render: (_, r) => <StatusBadge tone={!readOnly && r.eligible ? "ok" : "mute"} text={readOnly ? "仅查看" : r.eligible ? "可修" : "跳过"} />,
+      width: 170,
+      render: (_, r) => <StatusBadge tone={!readOnly && r.eligible ? "ok" : "mute"} text={!readOnly && r.eligible ? "是" : "否"} />,
     },
     {
       title: "结论",
