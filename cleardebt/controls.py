@@ -5,6 +5,7 @@ from __future__ import annotations
 import os
 import threading
 import urllib.parse
+import urllib.request
 from pathlib import Path
 
 import psycopg
@@ -317,7 +318,6 @@ def _resolve_project_id(provider: str, url: str, path: str):
     if not token or not base:
         return None
     import json
-    import urllib.request
 
     encoded = urllib.parse.quote(path, safe="")
     request = urllib.request.Request(

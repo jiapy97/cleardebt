@@ -6,7 +6,7 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
 from cleardebt.batch_worker import WorkerSettings
-from cleardebt.controls import gate
+from cleardebt.controls import _resolve_project_id, gate
 from run_batch import run_whitelist
 
 
@@ -60,6 +60,27 @@ class ControlGateTest(unittest.TestCase):
         self.assertIn("总开关", result["reason"])
         self.assertEqual(result["repos"], [])
         run.assert_not_called()
+
+    def test_gitlab_project_id_lookup_uses_the_repo_path(self):
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args):
+                return False
+
+            def read(self):
+                return b'{"id": 42}'
+
+        row = [None] * 8
+        row[7] = "token"
+        with patch("cleardebt.controls._row", return_value=row), \
+                patch("urllib.request.urlopen", return_value=Response()) as opened:
+            project_id = _resolve_project_id(
+                "gitlab", "https://gitlab.com/qq1120637483/test4", "qq1120637483/test4",
+            )
+        self.assertEqual(project_id, 42)
+        self.assertIn("/projects/qq1120637483%2Ftest4", opened.call_args.args[0].full_url)
 
     def test_nightly_job_ticks_every_minute(self):
         job = WorkerSettings.cron_jobs[0]
