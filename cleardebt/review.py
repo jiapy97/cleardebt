@@ -20,7 +20,7 @@ _ACTIONS = {
 _LEVEL_CLASS = {
     "L1": "bg-emerald-50 text-emerald-800 ring-emerald-200",
     "L2": "bg-amber-50 text-amber-800 ring-amber-200",
-    "L3": "bg-rose-50 text-rose-800 ring-rose-200",
+    "L3": "bg-amber-50 text-amber-800 ring-amber-200",
     "skip": "bg-zinc-100 text-zinc-700 ring-zinc-200",
 }
 
@@ -377,7 +377,7 @@ def _status_cell(status: dict | None) -> str:
         )
     level = (status.get("level") or "").strip()
     reason = escape(str(status.get("reason") or ""))
-    label = {"L1": "修好了", "L2": "要人工改", "L3": "没修成", "skip": "不修"}.get(level, level or "已跑过")
+    label = {"L1": "修好了", "L2": "需要人工处理", "L3": "需要人工处理", "skip": "不修"}.get(level, level or "已跑过")
     classes = _LEVEL_CLASS.get(level, "bg-zinc-100 text-zinc-700 ring-zinc-200")
     return (
         "<span class='inline-flex whitespace-nowrap rounded-full px-2 py-0.5 text-xs font-medium ring-1 "

@@ -7,17 +7,31 @@ Sonar 告警自动清偿 Agent：读 Sonar 告警 → 自备大模型交补丁 �
 ## 架构：状态机，不是调包
 
 ```mermaid
-flowchart LR
-    T[triage<br/>定档 A/B/C] --> E[evidence<br/>取证]
-    E --> F{fix<br/>机械模板优先}
-    F -->|模板命中| R[rescan<br/>临时项目重扫]
-    F -->|模板无解| M[LLM 补丁<br/>梯队重试]
-    M --> R
-    R -->|告警消失| TS[test<br/>沙箱套件]
-    R -->|还在| RF[retry_fix<br/>回滚换模型]
-    RF --> F
-    TS -->|过| D[decide<br/>L1 开 MR]
-    TS -->|挂| RF
+flowchart TD
+    S([Sonar 告警]) --> T{triage 分诊}
+    T -->|不修 / 语言未接入| D
+    T -->|依赖升级 / 规则改写 / AI 修复| FX
+
+    FX[fix 修复<br/>依赖升级：改到建议版本<br/>规则改写：JS/TS 确定性改写，改不了转 AI<br/>AI 修复：取证后让模型给一处替换]
+    FX -->|模型出错| RT
+    FX -->|依赖升级| RS
+    FX -->|代码改动| AC[anti_cheat 防作弊<br/>抑制注释 / 改测试文件 / 掏空函数]
+    AC -->|拦下| RT
+    AC -->|通过| RS[rescan 重扫<br/>临时 Sonar 项目<br/>目标告警消失且没有新告警]
+    RS -->|没过| RT
+    RS -->|过了| TS[test 测试<br/>Node 项目：跑测试 + 查改动行覆盖<br/>其他语言跳过]
+    TS -->|没过 / 改动行没覆盖| RT
+    TS -->|过了| D
+
+    RT{还有备用模型?}
+    RT -->|有| RF[retry_fix<br/>还原文件，换下一个模型] --> FX
+    RT -->|没有| D
+
+    D{decide 定级}
+    D --> L1[修好了 L1] --> MR[开合并请求<br/>空跑 / 每日额度 / 人工合并]
+    D --> L2[需要人工处理 L2<br/>有改法，改动的行没测试覆盖]
+    D --> L3[需要人工处理 L3<br/>没通过检查]
+    D --> SK[不修]
 ```
 
 要点：
@@ -25,18 +39,20 @@ flowchart LR
 - **不信任模型输出**：L1 必须同时满足“Sonar 重扫告警消失 + 测试闸通过”，缺一不可
 - **防作弊**：NOSONAR 抑制注释、删代码消告警会被 anti-cheat 节点判 L3（评测里真抓到过现行）
 - **断点续跑**：Postgres checkpoint 按指纹存状态，中断后 resume 不重跑
-- **机械优先**：8 条确定性规则（删 import、死存储、自赋值…）走 tree-sitter 模板，零模型调用；模板无解自动降级 LLM
-- **规则元数据**：从 Sonar API 拉取规则名称、严重度和影响供展示；有 AI CodeFix 清单时按完整规则键判断可修资格，否则只放行 Sonar 本次扫描标记 `quickFixAvailable=true` 的告警
+- **分诊五档**：依赖升级 / 规则改写 / AI 修复 / 不修 / 语言未接入（旧记录里的 A/B/C 会自动换成新名字）
+- **规则改写优先**：8 个规则编号（删 import、死存储、自赋值…）在 JS/TS 上共 15 条规则，走 tree-sitter 确定性改写，零模型调用；改不了自动转 AI。其他语言直接走 AI
+- **重试**：只有配置了备用模型（`CLEARDEBT_LLM_UPGRADE_MODEL` 或 `CLEARDEBT_LLM_MODELS`）才会失败后换模型重试；默认只有一个模型，不重试
+- **规则元数据**：从 Sonar API 拉取规则名称、严重度和影响供展示；可修资格按完整规则键查 AI CodeFix 清单（默认用仓库内置快照），`secrets:*` 密钥规则始终可修
 
 ### 与 Sonar AI CodeFix 名单对齐
 
-设置 `CLEARDEBT_AI_CODEFIX_RULES_FILE` 为本地清单路径后，Sonar 告警的可修资格只由该清单决定。文件为 UTF-8 纯文本，每行一个完整规则键（如 `javascript:S6582`），允许空行和 `#` 注释。修改文件后无需重启；清单格式错误或文件不可读会报错。未设置此变量时，只放行 Sonar 扫描结果里 `quickFixAvailable=true` 的具体告警；这表示 Sonar Quick Fix 可用，不等于该规则属于 AI CodeFix 名单。旧的类型、严重度、影响面及耗时分档已移除；放行且语言已接入的告警统一走 B 档，其余走 C 档。
+默认使用仓库内置的 Sonar AI CodeFix 适用规则快照 [`data/public_fix_lists/sonar_ai_codefix-2026-09-26.json`](data/public_fix_lists/sonar_ai_codefix-2026-09-26.json)（2635 条规则键）：Sonar 扫描命中清单里的规则，这条告警就可以指派给 Agent。清单只按完整规则键匹配；Agent 当前只接入 JavaScript、TypeScript、Python、Java 和 C#，其余语言的清单规则显示为「语言未接入」。Sonar 的 `secrets:*` 密钥规则不在清单里，但始终可修。SCA 依赖升级是独立工作流，不属于清单。
 
-请使用有权复用的 Sonar AI CodeFix 名单。仓库不附带 SonarSource 的名单，也不自动抓取官方文档。名单只决定 **Sonar 规则是否在 AI CodeFix 范围内**；Agent 当前仍只尝试 JavaScript、TypeScript、Python、Java 和 C# 等已接入语言。SCA 依赖升级是独立工作流，不属于 AI CodeFix 名单。
+设置 `CLEARDEBT_AI_CODEFIX_RULES_FILE` 可换一份清单：同格式的 JSON 快照，或每行一个完整规则键（如 `javascript:S6582`）的 UTF-8 文本，允许空行和 `#` 注释。修改文件后无需重启；格式错误或文件不可读会报错。把它设为空字符串会关闭清单，改为只放行 Sonar 扫描结果里 `quickFixAvailable=true` 的具体告警。
 
 公开竞品的自动修复资格快照和各自编号体系见 [data/public_fix_lists/README.md](data/public_fix_lists/README.md)。这些快照用于对照研究，不会把 CodeQL、CWE 或其他工具的编号误当成 Sonar 规则键。
 
-控制台的「可修规则」页面实时读取当前 Sonar 打开的告警，按规则键汇总命中数和项目。没有 AI CodeFix 清单时，只统计 Sonar 对具体告警标记的 Quick Fix；配置清单后，显示 Agent 已接入语言中的完整清单，并附当前命中数。
+控制台的「Agent可修规则清单」页面列出清单里 Agent 已接入语言的规则（加上密钥规则），只列规则键、名称和语言，不统计告警数。
 
 ## 评测：OSS 真实异味集
 

@@ -7,7 +7,7 @@ const toneClass: Record<string, string> = {
   x: "pill-mute",
   L1: "pill-ok",
   L2: "pill-warn",
-  L3: "pill-err",
+  L3: "pill-warn",
   skip: "pill-mute",
 };
 
@@ -23,7 +23,7 @@ export const TIER_LABELS: Record<string, string> = {
   unsupported: "语言未接入",
 };
 export const FIX_METHOD_LABELS: Record<string, string> = { sca: "依赖升级", mechanical: "规则改写", llm: "AI 修复" };
-const LEVEL_LABELS: Record<string, string> = { L1: "修好了", L2: "要人工改", L3: "没修成", skip: "不修", C: "不修" };
+const LEVEL_LABELS: Record<string, string> = { L1: "修好了", L2: "需要人工处理", L3: "需要人工处理", skip: "不修", C: "不修" };
 export const levelLabel = (level?: string) => LEVEL_LABELS[level ?? ""] ?? level ?? "";
 
 export function StatusBadge({
@@ -52,9 +52,9 @@ export function StatusBadge({
     status.level === "L1"
       ? "告警消失了，测试也过了，可以合并"
       : status.level === "L2"
-        ? "只给了修改建议，需要人来改"
+        ? "有改法，改动的行没有测试覆盖，审一下就能用"
         : status.level === "L3"
-          ? "这次改动没通过检查，点开这一行看原因"
+          ? "这次改动没通过检查，需要人来修，点开这一行看原因"
           : status.level === "skip" || status.level === "C"
             ? "不在可修范围，Agent 没有动这条"
             : "";
