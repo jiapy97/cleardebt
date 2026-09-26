@@ -36,7 +36,7 @@ export default function RepairableRulesPage() {
       )}
       <Card>
         <Space size="large" wrap>
-          <Statistic title="当前可修规则" value={data?.rule_count ?? 0} suffix="条" />
+          <Statistic title={listMode ? "清单内已接入规则" : "当前告警涉及的 Quick Fix 规则"} value={data?.rule_count ?? 0} suffix="条" />
           <Statistic title="命中告警" value={data?.eligible_issue_count ?? 0} suffix="条" />
           <Statistic title="打开的 Sonar 告警" value={data?.open_issue_count ?? 0} suffix="条" />
         </Space>
