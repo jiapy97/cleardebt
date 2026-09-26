@@ -58,15 +58,15 @@ class LiveRulesTest(unittest.TestCase):
             patch("cleardebt.rules.fetch_all", return_value=dict(FAKE)),
         ):
             refresh()
-            self.assertEqual(tier_for("javascript:S3649"), "C")
-            self.assertEqual(tier_for("javascript:S9999"), "C")
+            self.assertEqual(tier_for("javascript:S3649"), "skip")
+            self.assertEqual(tier_for("javascript:S9999"), "skip")
             self.assertFalse(llm_repairable("javascript:S9999"))
 
     def test_lookup_miss_is_unknown(self):
         with patch("cleardebt.rules.fetch_all", return_value={}):
             refresh()
             self.assertIsNone(lookup("javascript:S0000"))
-            self.assertEqual(tier_for("javascript:S0000"), "C")
+            self.assertEqual(tier_for("javascript:S0000"), "skip")
 
     def test_sonar_unreachable_keeps_pins_working(self):
         with (
@@ -77,7 +77,7 @@ class LiveRulesTest(unittest.TestCase):
                 refresh()
             except ConnectionError:
                 pass
-            self.assertEqual(tier_for("javascript:S1128"), "C")
+            self.assertEqual(tier_for("javascript:S1128"), "skip")
             self.assertFalse(llm_repairable("javascript:S1128"))
 
 

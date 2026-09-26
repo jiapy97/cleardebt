@@ -575,6 +575,7 @@ def assign_to_agent(
                 "level": ran.get("level"),
                 "reason": ran.get("reason"),
                 "fingerprint": ran.get("fingerprint"),
+                "fix_method": ran.get("fix_method") or "",
                 "action": "no_mr",
             }
             if ran.get("level") == "L1" and not settings.get("dry_run"):

@@ -28,6 +28,14 @@ class RepairableRulesTest(unittest.TestCase):
         self.assertEqual([row["key"] for row in result["rules"]], ["javascript:S1128", "typescript:S6582"])
         self.assertNotIn("issue_count", result["rules"][0])
 
+    def test_secrets_catalog_rules_are_always_listed(self):
+        metadata = {"secrets:S6290": {"name": "AWS credentials"}, "kotlin:S1": {}}
+        for keys in (frozenset({"javascript:S1128"}), None):
+            with self.subTest(list_mode=keys is not None):
+                result = summarize([], keys, metadata)
+                self.assertIn({"key": "secrets:S6290", "language": "secrets", "name": "AWS credentials"}, result["rules"])
+                self.assertNotIn("kotlin:S1", [row["key"] for row in result["rules"]])
+
     def test_api_lists_rules_without_reading_issues(self):
         with (
             patch("cleardebt.controls.sonar_credentials", return_value={"url": "http://sonar", "token": "secret"}),

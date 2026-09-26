@@ -90,6 +90,7 @@ export interface AssignDecision {
   rule: string;
   path: string;
   level: string;
+  fix_method?: string;
   reason: string;
   fingerprint?: string | null;
   action: string;

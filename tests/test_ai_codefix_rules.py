@@ -32,9 +32,9 @@ class AiCodefixRulesTest(unittest.TestCase):
                     "sonar_impacts": [{"softwareQuality": "SECURITY", "severity": "HIGH"}]}
         unlisted = {"rule": "javascript:S1186", "tier": "A", "sonar_type": "CODE_SMELL",
                     "sonar_impacts": [{"softwareQuality": "MAINTAINABILITY", "severity": "LOW"}]}
-        self.assertEqual(tier_for_issue(security), "B")
+        self.assertEqual(tier_for_issue(security), "llm")
         self.assertTrue(issue_repairable(security))
-        self.assertEqual(tier_for_issue(unlisted), "C")
+        self.assertEqual(tier_for_issue(unlisted), "skip")
         self.assertFalse(issue_repairable(unlisted))
         with patch("cleardebt.triage.lookup", return_value=None):
             self.assertTrue(issue_repairable({"rule": "csharpsquid:S1128"}))
@@ -42,9 +42,9 @@ class AiCodefixRulesTest(unittest.TestCase):
     def test_missing_list_uses_only_sonar_issue_quick_fix(self):
         with patch.dict("os.environ", {"CLEARDEBT_AI_CODEFIX_RULES_FILE": ""}):
             self.assertIsNone(rule_keys())
-            self.assertEqual(tier_for_issue({"rule": "javascript:S1128", "sonar_type": "CODE_SMELL"}), "C")
+            self.assertEqual(tier_for_issue({"rule": "javascript:S1128", "sonar_type": "CODE_SMELL"}), "skip")
             self.assertFalse(issue_repairable({"rule": "javascript:S1128", "tier": "A"}))
-            self.assertEqual(tier_for_issue({"rule": "javascript:S1128", "quick_fix": True}), "B")
+            self.assertEqual(tier_for_issue({"rule": "javascript:S1128", "quick_fix": True}), "rewrite")
             self.assertTrue(issue_repairable({"rule": "javascript:S1128", "quick_fix": True}))
             self.assertFalse(issue_repairable({"rule": "javascript:S1128", "quick_fix": "true"}))
 
@@ -65,6 +65,12 @@ class AiCodefixRulesTest(unittest.TestCase):
     def test_configured_list_overrides_sonar_quick_fix(self):
         self.assertFalse(issue_repairable({"rule": "javascript:S1186", "quick_fix": True}))
         self.assertTrue(issue_repairable({"rule": "javascript:S6582", "quick_fix": False}))
+
+    def test_secrets_repo_is_repairable_outside_the_list(self):
+        self.assertFalse(listed("secrets:S6290"))
+        self.assertTrue(issue_repairable({"rule": "secrets:S6290"}))
+        with patch.dict("os.environ", {"CLEARDEBT_AI_CODEFIX_RULES_FILE": ""}):
+            self.assertTrue(issue_repairable({"rule": "secrets:S6290", "quick_fix": False}))
 
     def test_bad_configured_list_fails_closed(self):
         self.path.write_text("javascript:S6582\ntypescript:S6582 extra\n", encoding="utf-8")

@@ -4,7 +4,7 @@ import { Alert, Button, Card, Checkbox, Select, Space, Spin, Table, Tag, Tooltip
 import type { ColumnsType } from "antd/es/table";
 import { api, issueId, issueSelection, type AssignDecision, type Issue } from "../lib/api";
 import { useRepoChoices } from "../lib/useOverview";
-import { StatusBadge } from "./widgets";
+import { REPAIR_TIERS, StatusBadge, TIER_LABELS, normalizeTier } from "./widgets";
 
 export default function AssignPage() {
   const { choices, def, overview } = useRepoChoices();
@@ -191,9 +191,15 @@ export default function AssignPage() {
           </Tooltip>;
         }
         if (r.tier_source === "sonar_ai_codefix_list") {
-          const listed = r.tier === "A" || r.tier === "B";
-          return <Tooltip title={listed ? "在已配置的 Sonar AI CodeFix 清单内" : r.tier === "unknown" ? "清单内的语言尚未接入 Agent" : "不在已配置的 Sonar AI CodeFix 清单内"}>
-            <Tag color={listed ? "green" : "orange"}>{listed ? "清单内" : r.tier === "unknown" ? "Agent 未接入" : "清单外"}</Tag>
+          const tier = normalizeTier(r.tier);
+          const listed = REPAIR_TIERS.includes(tier);
+          const hint = tier === "rewrite"
+            ? "在可修规则清单内：先用确定性规则改写，不行再交给 AI"
+            : listed
+              ? "在可修规则清单内，交给 AI 修复"
+              : tier === "unsupported" ? "这门语言 Agent 还没接入" : "不在可修规则清单内";
+          return <Tooltip title={hint}>
+            <Tag color={listed ? "green" : tier === "unsupported" ? undefined : "orange"}>{TIER_LABELS[tier] ?? tier}</Tag>
           </Tooltip>;
         }
         return <Tooltip title="依赖升级由独立的 SCA 流程处理"><Tag color="green">依赖升级</Tag></Tooltip>;

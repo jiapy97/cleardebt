@@ -5,6 +5,7 @@ from __future__ import annotations
 from tree_sitter import Node
 
 from cleardebt.grammar import parser_for
+from cleardebt.languages import is_js_ts_path, language_of
 from cleardebt.triage import rule_number
 from cleardebt.unused_import import remove_unused_imports
 
@@ -24,20 +25,20 @@ _EFFECT_TYPES = {
 }
 
 
+def has_mechanical_fix(rule: str, path: str = "") -> bool:
+    """The fixers parse JavaScript/TypeScript only; other languages go to the model."""
+    language = language_of(rule)
+    if language and language not in _MECHANICAL_LANGUAGES:
+        return False
+    if path and not is_js_ts_path(path):
+        return False
+    return rule_number(rule) in _FIXERS
+
+
 def apply_mechanical(rule: str, source: str, path: str = "") -> str | None:
-    fixer = {
-        "S1128": remove_unused_imports,
-        "S1481": remove_unused_locals,
-        "S1854": collapse_overwritten_declarations,
-        "S1656": remove_self_assignments,
-        "S905": remove_useless_expressions,
-        "S3923": collapse_identical_branches,
-        "S1862": remove_duplicate_conditions,
-        "S1871": remove_duplicate_conditions,
-    }.get(rule_number(rule))
-    if fixer is None:
+    if not has_mechanical_fix(rule, path):
         return None
-    return fixer(source, path)
+    return _FIXERS[rule_number(rule)](source, path)
 
 
 def remove_unused_locals(source: str, path: str = "") -> str:
@@ -300,3 +301,16 @@ def _walk(node: Node):
 
 def _text(node: Node) -> str:
     return node.text.decode("utf-8")
+
+
+_MECHANICAL_LANGUAGES = frozenset({"javascript", "typescript"})
+_FIXERS = {
+    "S1128": remove_unused_imports,
+    "S1481": remove_unused_locals,
+    "S1854": collapse_overwritten_declarations,
+    "S1656": remove_self_assignments,
+    "S905": remove_useless_expressions,
+    "S3923": collapse_identical_branches,
+    "S1862": remove_duplicate_conditions,
+    "S1871": remove_duplicate_conditions,
+}

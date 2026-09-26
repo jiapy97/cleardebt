@@ -38,7 +38,12 @@ def plan_merges(
     for rule, kind in sorted(grouped):
         group = grouped[(rule, kind)]
         passed = [row for row in group if row.get("level") == "L1"]
-        label = {"rule": rule, "file_kind": kind, "path": group[0].get("path")}
+        label = {
+            "rule": rule,
+            "file_kind": kind,
+            "path": group[0].get("path"),
+            "fix_method": (passed or group)[0].get("fix_method") or "",
+        }
         if not passed:
             decisions.append(
                 {

@@ -28,8 +28,8 @@ class AssignApiTest(unittest.TestCase):
         ):
             enriched = _enrich("toy-js", rows)
         by_rule = {row["rule"]: row for row in enriched}
-        self.assertEqual((by_rule["javascript:S1186"]["tier"], by_rule["javascript:S1186"]["eligible"]), ("B", True))
-        self.assertEqual((by_rule["javascript:S1128"]["tier"], by_rule["javascript:S1128"]["eligible"]), ("C", False))
+        self.assertEqual((by_rule["javascript:S1186"]["tier"], by_rule["javascript:S1186"]["eligible"]), ("llm", True))
+        self.assertEqual((by_rule["javascript:S1128"]["tier"], by_rule["javascript:S1128"]["eligible"]), ("skip", False))
 
     def test_selection_uses_issue_identity_and_rejects_ambiguous_legacy_pick(self):
         rows = [

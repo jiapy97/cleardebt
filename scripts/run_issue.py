@@ -16,7 +16,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from langgraph.checkpoint.postgres import PostgresSaver
 
 from cleardebt.issue_graph import build_graph, next_action, sonar_base_url
-from cleardebt.triage import tier_for_issue
+from cleardebt.triage import same_route, tier_for_issue
 from list_issues import fetch_issues, fingerprint, issue_path, line_span, load_token
 import rescan_check
 
@@ -96,6 +96,7 @@ def execute(
         "path": result["path"],
         "work_dir": result.get("work_dir"),
         "tier": result.get("tier"),
+        "fix_method": result.get("fix_method") or "",
         "level": result.get("level"),
         "reason": result.get("reason"),
         "history": result.get("history"),
@@ -118,7 +119,7 @@ def _checkpoint_for_issue(graph, issue: dict) -> tuple[dict, object, str]:
     action = next_action(snapshot)
     if action != "start":
         current_tier = tier_for_issue(issue)
-        if (snapshot.values or {}).get("tier") != current_tier:
+        if not same_route((snapshot.values or {}).get("tier"), current_tier):
             # Keep the old result intact while giving the changed decision its own work directory.
             raw = f"{issue['fingerprint']}\ntriage:{current_tier}"
             issue["fingerprint"] = hashlib.sha256(raw.encode("utf-8")).hexdigest()

@@ -217,6 +217,7 @@ def remediate_merge_request(
                 "level": ran.get("level"),
                 "reason": ran.get("reason"),
                 "fingerprint": ran.get("fingerprint"),
+                "fix_method": ran.get("fix_method") or "",
                 "action": "no_mr",
                 "target_branch": mr["source_branch"],
                 "parent_mr_iid": mr["mr_iid"],

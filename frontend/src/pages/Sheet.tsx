@@ -1,12 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card, Table } from "antd";
 import { api } from "../lib/api";
-import { StatusBadge } from "./widgets";
+import { FIX_METHOD_LABELS, StatusBadge, levelLabel } from "./widgets";
 
 interface Decision {
   rule?: string;
   path?: string;
   level?: string;
+  fix_method?: string;
   action?: string;
   reason?: string;
   web_url?: string;
@@ -66,8 +67,15 @@ export default function SheetPage() {
             key: "level",
             width: 90,
             render: (v: string) => (
-              <StatusBadge tone={v} text={v === "L1" ? "修好了" : v === "L2" ? "要人工改" : v === "L3" ? "没修成" : v} />
+              <StatusBadge tone={v} text={levelLabel(v)} />
             ),
+          },
+          {
+            title: "修复方式",
+            dataIndex: "fix_method",
+            key: "fix_method",
+            width: 100,
+            render: (v?: string) => (v ? FIX_METHOD_LABELS[v] ?? v : "—"),
           },
           {
             title: "这一轮",

@@ -18,14 +18,14 @@ class LanguagesTest(unittest.TestCase):
     def test_four_languages_share_rule_numbers(self):
         with patch("cleardebt.triage.listed", side_effect=lambda rule: rule in {"javascript:S1128", "typescript:S1128"}):
             for prefix in ("javascript", "typescript"):
-                self.assertEqual(tier_for(f"{prefix}:S1128"), "B")
+                self.assertEqual(tier_for(f"{prefix}:S1128"), "rewrite")
                 self.assertTrue(llm_repairable(f"{prefix}:S1128"))
             for prefix in ("python", "java"):
-                self.assertEqual(tier_for(f"{prefix}:S1128"), "C")
+                self.assertEqual(tier_for(f"{prefix}:S1128"), "skip")
                 self.assertFalse(llm_repairable(f"{prefix}:S1128"))
         self.assertFalse(language_supported("kotlin:S1128"))
         self.assertFalse(llm_repairable("kotlin:S1128"))
-        self.assertEqual(tier_for("kotlin:S1128"), "unknown")
+        self.assertEqual(tier_for("kotlin:S1128"), "unsupported")
 
     def test_problem_surfaces_include_secrets_and_security(self):
         from cleardebt.triage import is_secret_rule, problem_surface
@@ -37,9 +37,18 @@ class LanguagesTest(unittest.TestCase):
         self.assertTrue(is_secret_rule("secrets:S6290"))
         with patch.dict("os.environ", {"CLEARDEBT_AI_CODEFIX_RULES_FILE": ""}):
             self.assertFalse(llm_repairable("javascript:S2068"))
-            self.assertFalse(llm_repairable("secrets:S6290"))
+            self.assertTrue(llm_repairable("secrets:S6290"))
             self.assertFalse(llm_repairable("javascript:S2077"))
-            self.assertEqual(tier_for("javascript:S2077"), "C")
+            self.assertEqual(tier_for("javascript:S2077"), "skip")
+
+    def test_rescan_sources_always_include_the_issue_file(self):
+        from cleardebt.languages import sources_covering
+
+        self.assertEqual(sources_covering("src", "src/app.js"), "src")
+        self.assertEqual(sources_covering(".", ".env"), ".")
+        self.assertEqual(sources_covering("src", ".env"), "src,.env")
+        self.assertEqual(sources_covering("src,lib", "config/db.yml"), "src,lib,config/db.yml")
+        self.assertEqual(sources_covering("src", "srcx/a.py"), "src,srcx/a.py")
 
     def test_test_paths_cover_four_languages(self):
         self.assertTrue(is_test_path("src/pricing.test.js"))

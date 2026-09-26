@@ -34,7 +34,7 @@ class RequestFixTest(unittest.TestCase):
             patch("cleardebt.triage.listed", return_value=False),
         ):
             row = list_mr_issues("toy-js", 42)["issues"][0]
-        self.assertEqual(row["tier"], "C")
+        self.assertEqual(row["tier"], "skip")
         self.assertFalse(row["eligible"])
 
     def test_remediate_endpoint_returns_before_worker_finishes(self):

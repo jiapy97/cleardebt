@@ -20,7 +20,7 @@ interface RuleRow {
 
 function Verdict({ tier, listEnabled, listed }: { tier: string; listEnabled: boolean; listed: boolean | null }) {
   if (!listEnabled) return <Tooltip title="本页是规则目录；实际可修资格按扫描结果中每条告警的 Quick Fix 标记判断"><Tag>按告警判断</Tag></Tooltip>;
-  if (listed && tier === "unknown") return <Tooltip title="清单内，但 Agent 尚未接入此语言"><Tag>Agent 未接入</Tag></Tooltip>;
+  if (listed && (tier === "unsupported" || tier === "unknown")) return <Tooltip title="清单内，但 Agent 尚未接入此语言"><Tag>Agent 未接入</Tag></Tooltip>;
   return <Tooltip title={listed ? "在已配置的 Sonar AI CodeFix 清单内" : "不在已配置的 Sonar AI CodeFix 清单内"}>
     <Tag color={listed ? "green" : "orange"}>{listed ? "清单内" : "清单外"}</Tag>
   </Tooltip>;

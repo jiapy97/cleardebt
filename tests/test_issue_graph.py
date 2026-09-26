@@ -105,7 +105,7 @@ class IssueGraphTest(unittest.TestCase):
             state = _blank_state(rule="javascript:S1186", path="src/a.js", work_dir=str(work), **signals)
             with patch("cleardebt.issue_graph.apply_mechanical", return_value="const a = 2;\n"):
                 state.update(triage(state))
-                self.assertEqual(state["tier"], "B")
+                self.assertEqual(state["tier"], "llm")
                 self.assertEqual(fix(state)["fix_method"], "mechanical")
 
         high = _blank_state(
@@ -113,13 +113,13 @@ class IssueGraphTest(unittest.TestCase):
             sonar_type="CODE_SMELL",
             sonar_impacts=[{"softwareQuality": "MAINTAINABILITY", "severity": "HIGH"}],
         )
-        self.assertEqual(triage(high)["tier"], "B")
+        self.assertEqual(triage(high)["tier"], "rewrite")
 
     def test_c_tier_stops_at_triage(self):
         graph = build_graph(MemorySaver())
         result = graph.invoke(_blank_state(), {"configurable": {"thread_id": "c-tier"}})
-        self.assertEqual(result["level"], "C")
-        self.assertIn("C 档不修", result["reason"])
+        self.assertEqual(result["level"], "skip")
+        self.assertIn("不在可修规则清单里", result["reason"])
         self.assertNotIn("不是已接入的规则", result["reason"])
         self.assertEqual(result["history"], ["triage", "decide"])
         self.assertNotIn("fix", result["history"])
@@ -135,16 +135,16 @@ class IssueGraphTest(unittest.TestCase):
             _blank_state(rule="javascript:S9999"),
             {"configurable": {"thread_id": "unknown"}},
         )
-        self.assertEqual(result["level"], "C")
-        self.assertIn("C 档不修", result["reason"])
+        self.assertEqual(result["level"], "skip")
+        self.assertIn("不在可修规则清单里", result["reason"])
         self.assertEqual(result["history"], ["triage", "decide"])
 
     def test_b_tier_smell_reaches_fix_preparation(self):
         from cleardebt.triage import tier_for
 
-        self.assertEqual(tier_for("typescript:S2301"), "B")
+        self.assertEqual(tier_for("typescript:S2301"), "llm")
         state = _blank_state(rule="typescript:S2301", path="src/labels.ts")
-        self.assertEqual({"tier": "B", "history": ["triage"]}, triage(state))
+        self.assertEqual({"tier": "llm", "history": ["triage"]}, triage(state))
 
     def test_typescript_empty_function_is_the_same_c_tier(self):
         graph = build_graph(MemorySaver())
@@ -152,8 +152,8 @@ class IssueGraphTest(unittest.TestCase):
             _blank_state(rule="typescript:S1186", path="src/labels.ts"),
             {"configurable": {"thread_id": "ts-c"}},
         )
-        self.assertEqual(result["tier"], "C")
-        self.assertEqual(result["level"], "C")
+        self.assertEqual(result["tier"], "skip")
+        self.assertEqual(result["level"], "skip")
         self.assertNotIn("不是已接入的规则", result["reason"])
 
     def test_typescript_unused_import_uses_the_same_fix_path(self):
@@ -180,7 +180,7 @@ class IssueGraphTest(unittest.TestCase):
                     {"configurable": {"thread_id": "ts-import"}},
                 )
             updated = (source / "labels.ts").read_text(encoding="utf-8")
-        self.assertEqual(result["tier"], "B")
+        self.assertEqual(result["tier"], "rewrite")
         self.assertEqual(result["fix_method"], "mechanical")
         self.assertEqual(result["level"], "L1")
         self.assertEqual(result["history"], ["triage", "fix", "anti_cheat", "rescan", "test", "decide"])

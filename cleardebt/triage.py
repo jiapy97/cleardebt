@@ -1,8 +1,13 @@
-"""Rule tiers for one issue from Sonar's own repair signals.
+"""Triage tiers for one issue from Sonar's own repair signals.
 
 An authorized AI CodeFix list, when configured, controls exact rule keys.
 Otherwise an issue needs Sonar's own quickFixAvailable flag. SCA dependency
-upgrades have their own route.
+upgrades and Sonar's secrets repository have their own routes: the AI CodeFix
+list carries no secrets:* keys, but the fix prompt handles hard-coded secrets.
+
+Tiers: dependency (upgrade a package), rewrite (deterministic JS/TS edit first,
+model as fallback), llm (model patch), skip (not repairable), unsupported
+(language the agent has not onboarded).
 """
 
 import re
@@ -47,31 +52,67 @@ def is_secret_rule(rule: str) -> bool:
     return _secret_rule(rule)
 
 
+REPAIR_TIERS = frozenset({"dependency", "rewrite", "llm"})
+TIER_LABELS = {
+    "dependency": "依赖升级",
+    "rewrite": "规则改写",
+    "llm": "AI 修复",
+    "skip": "不修",
+    "unsupported": "语言未接入",
+}
+# Checkpoints and snapshots written before the rename carry letter tiers.
+_LEGACY_TIERS = {"A": "dependency", "B": "llm", "C": "skip", "unknown": "unsupported"}
+_ROUTE = {"rewrite": "code", "llm": "code"}
+
+
+def normalize_tier(tier: str | None) -> str:
+    return _LEGACY_TIERS.get(tier or "", tier or "")
+
+
+def same_route(old: str | None, new: str | None) -> bool:
+    """rewrite and llm run the same graph path (rewrite only tries a deterministic edit first)."""
+    old, new = normalize_tier(old), normalize_tier(new)
+    return _ROUTE.get(old, old) == _ROUTE.get(new, new)
+
+
+def is_secrets_repo_rule(rule: str) -> bool:
+    return language_of(rule) == "secrets"
+
+
+def _code_tier(rule: str, path: str = "") -> str:
+    from cleardebt.a_fix import has_mechanical_fix
+
+    return "rewrite" if has_mechanical_fix(rule, path) else "llm"
+
+
 def tier_for(rule: str) -> str:
     """Rule-level membership; without a list, eligibility is issue-specific."""
     if is_sca_rule(rule):
-        return "A"
+        return "dependency"
     if not language_supported(rule):
-        return "unknown"
-    return "B" if listed(rule) is True else "C"
+        return "unsupported"
+    if is_secrets_repo_rule(rule):
+        return "llm"
+    return _code_tier(rule) if listed(rule) is True else "skip"
 
 
 def tier_for_issue(issue: dict) -> str:
     """One issue's tier, shared by the backlog and the execution graph."""
     rule = issue.get("rule") or ""
     if is_sca_rule(rule):
-        return "A"
+        return "dependency"
     if not language_supported(rule):
-        return "unknown"
+        return "unsupported"
+    if is_secrets_repo_rule(rule):
+        return "llm"
     in_list = listed(rule)
-    if in_list is not None:
-        return "B" if in_list else "C"
-    return "B" if issue.get("quick_fix") is True else "C"
+    eligible = in_list if in_list is not None else issue.get("quick_fix") is True
+    return _code_tier(rule, issue.get("path") or "") if eligible else "skip"
 
 
 def issue_repairable(issue: dict) -> bool:
-    # Persisted snapshots and resumed graph states can carry an old A/B tier.
-    return tier_for_issue(issue) in {"A", "B"}
+    # Recomputed from the rule: persisted snapshots can carry a stale tier.
+    return tier_for_issue(issue) in REPAIR_TIERS
 
 
 def _english_name(rule: str) -> str:
@@ -127,4 +168,4 @@ def describe_message(rule: str, message: str) -> str:
 
 
 def llm_repairable(rule: str) -> bool:
-    return tier_for(rule) in {"A", "B"}
+    return tier_for(rule) in REPAIR_TIERS

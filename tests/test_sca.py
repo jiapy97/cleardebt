@@ -98,7 +98,7 @@ class ScaBumpTest(unittest.TestCase):
             self.assertIn("com.google.guava:guava:32.0.0-jre", text)
 
     def test_triage_marks_sca_repairable(self):
-        self.assertEqual(tier_for(SCA_RULE), "A")
+        self.assertEqual(tier_for(SCA_RULE), "dependency")
         self.assertTrue(llm_repairable(SCA_RULE))
         self.assertEqual(problem_surface(SCA_RULE), "sca")
 

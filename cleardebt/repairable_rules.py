@@ -38,7 +38,8 @@ def summarize(issues: list[dict] | None, rule_keys: frozenset[str] | None, metad
     """List the rules the agent can repair, keyed by exact rule key.
 
     With a configured AI CodeFix list the list alone decides; otherwise the rules
-    come from open issues Sonar marks quickFixAvailable=true.
+    come from open issues Sonar marks quickFixAvailable=true. Sonar's secrets
+    repository is always repairable, so its catalog rules are listed in both modes.
     """
     list_mode = rule_keys is not None
     if list_mode:
@@ -51,6 +52,7 @@ def summarize(issues: list[dict] | None, rule_keys: frozenset[str] | None, metad
             and language_supported(key)
             and issue.get("quickFixAvailable") is True
         }
+    keys |= {key for key in metadata if language_of(key) == "secrets"}
     ordered = [
         {"key": key, "language": language_of(key), "name": (metadata.get(key) or {}).get("name") or ""}
         for key in sorted(keys)

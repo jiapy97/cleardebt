@@ -106,6 +106,24 @@ def has_node_test_stack(work: Path) -> bool:
     return (root / "package-lock.json").is_file() and (root / "package.json").is_file()
 
 
+def sources_covering(value: str, path: str) -> str:
+    """Add the issue's own file when the chosen sources would miss it.
+
+    A rescan that never reads the file reports its issue as gone, which is a
+    false fix (hard-coded secrets often sit in root config files).
+    """
+    target = (path or "").strip()
+    while target.startswith("./"):
+        target = target[2:]
+    if not target:
+        return value
+    for source in value.split(","):
+        source = source.strip().rstrip("/")
+        if source in {"", "."} or target == source or target.startswith(source + "/"):
+            return value
+    return f"{value},{target}"
+
+
 def sonar_sources_value(work: Path) -> str:
     """Pick a sonar.sources value that works for JS/TS, Python, Java, and C# layouts."""
     root = Path(work)

@@ -19,7 +19,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from cleardebt.batch import DAILY_MR_CAP, plan_merges
 from cleardebt.checkout import checkout_default
 from cleardebt.controls import automation_for, backlog_gate, gitlab_credentials, load_controls, save_report, unbound_reason
-from cleardebt.triage import tier_for
+from cleardebt.triage import normalize_tier, tier_for
 from list_issues import fetch_issues, load_token
 from open_merge_request import (
     find_merge_request,
@@ -365,12 +365,12 @@ def _level_counts(results: list[dict]) -> dict:
     for row in results:
         level = row.get("level") or "?"
         counts[level] = counts.get(level, 0) + 1
-    counts["C"] = sum(1 for row in results if row.get("tier") == "C")
+    counts["skip"] = sum(1 for row in results if normalize_tier(row.get("tier")) == "skip")
     try:
         from cleardebt.rules import catalog, pins
 
         live = catalog()
-        tiers = {"A": 0, "B": 0, "C": 0, "unknown": 0}
+        tiers = {"dependency": 0, "rewrite": 0, "llm": 0, "skip": 0, "unsupported": 0}
         for key in live:
             tiers[tier_for(key)] = tiers.get(tier_for(key), 0) + 1
         counts["rules"] = {"pinned": len(pins()), "live": len(live), **tiers}

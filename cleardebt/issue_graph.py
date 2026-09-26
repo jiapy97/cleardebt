@@ -19,10 +19,10 @@ from cleardebt.b_fix import ModelOutputError, apply_once, mechanical_fix_enabled
 from cleardebt.coverage_gate import changed_lines, uncovered_changed_lines
 from cleardebt.evidence import collect
 from cleardebt.fake_fix import review_patch
-from cleardebt.languages import TEST_EXCLUSIONS, has_node_test_stack, sonar_sources_value
+from cleardebt.languages import TEST_EXCLUSIONS, has_node_test_stack, sonar_sources_value, sources_covering
 from cleardebt.sandbox import run_project_tests
 from cleardebt.sca import apply_bump, is_sca_rule, parse_risk, verify_bump
-from cleardebt.triage import describe, issue_repairable, tier_for_issue
+from cleardebt.triage import REPAIR_TIERS, describe, issue_repairable, normalize_tier, tier_for_issue
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
@@ -291,7 +291,7 @@ def rescan(state: IssueState) -> dict:
             token,
             sources=Path(state["work_dir"]),
             exclusions=TEST_EXCLUSIONS,
-            sonar_sources=sonar_sources_value(Path(state["work_dir"])),
+            sonar_sources=sources_covering(sonar_sources_value(Path(state["work_dir"])), state.get("path") or ""),
             sonar_url=_docker_sonar_url(sonar_base_url()),
             baseline=project,
         )
@@ -353,10 +353,11 @@ def run_tests(state: IssueState) -> dict:
 
 
 def decide(state: IssueState) -> dict:
-    if state.get("tier") == "C":
-        level, reason = "C", f"C 档不修：{describe(state['rule'])}。"
-    elif state.get("tier") not in {"A", "B"}:
-        level, reason = "L3", "不是已接入的规则，这一步不修。"
+    tier = normalize_tier(state.get("tier"))
+    if tier == "skip":
+        level, reason = "skip", f"不在可修规则清单里，不修：{describe(state['rule'])}。"
+    elif tier not in REPAIR_TIERS:
+        level, reason = "skip", "这门语言 Agent 还没接入，不修。"
     elif state.get("model_error"):
         level, reason = "L3", state["model_error"]
     elif state.get("rejections"):
@@ -379,7 +380,7 @@ def decide(state: IssueState) -> dict:
 
 
 def route_after_triage(state: IssueState) -> str:
-    if state.get("tier") in {"A", "B"}:
+    if normalize_tier(state.get("tier")) in REPAIR_TIERS:
         return "fix"
     return "decide"
 
