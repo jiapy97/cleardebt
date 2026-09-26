@@ -1,6 +1,6 @@
 # ClearDebt
 
-Sonar 告警自动清偿 Agent：读 Sonar 告警 → 自备大模型交补丁 → Sonar 重扫 + 沙箱测试双闸验证 → 在 GitLab / GitHub / Azure DevOps 开修复请求。人只在托管平台上审，Agent 不自动合并。
+Sonar 告警自动清偿 Agent：读 Sonar 告警 → 模型取证并交补丁 → Sonar 重扫 + 沙箱测试验证 → 在 GitLab / GitHub / Azure DevOps 开修复请求。人只在托管平台上审，Agent 不自动合并。
 
 支持语言：JavaScript / TypeScript、Python、Java、C#；另含密钥类告警与 SCA 依赖升版本。
 
@@ -12,7 +12,7 @@ flowchart TD
     T -->|不修 / 语言未接入| D
     T -->|依赖升级 / 规则改写 / AI 修复| FX
 
-    FX[fix 修复<br/>依赖升级：改到建议版本<br/>规则改写：JS/TS 确定性改写，改不了转 AI<br/>AI 修复：取证后让模型给一处替换]
+    FX[fix 修复<br/>依赖升级：改到建议版本<br/>规则改写：JS/TS 确定性改写，改不了转 AI<br/>AI 修复：固定替换或自主工具循环]
     FX -->|模型出错| RT
     FX -->|依赖升级| RS
     FX -->|代码改动| AC[anti_cheat 防作弊<br/>抑制注释 / 改测试文件 / 掏空函数]
@@ -42,6 +42,7 @@ flowchart TD
 - **分诊五档**：依赖升级 / 规则改写 / AI 修复 / 不修 / 语言未接入（旧记录里的 A/B/C 会自动换成新名字）
 - **规则改写优先**：8 个规则编号（删 import、死存储、自赋值…）在 JS/TS 上共 15 条规则，走 tree-sitter 确定性改写，零模型调用；改不了自动转 AI。其他语言直接走 AI
 - **重试**：只有配置了备用模型（`CLEARDEBT_LLM_UPGRADE_MODEL` 或 `CLEARDEBT_LLM_MODELS`）才会失败后换模型重试；默认只有一个模型，不重试
+- **自主模式**：按项目开启后，AI 修复可调用仓库与检查工具，在反馈后继续调查和改动；次数与时间有上限，最终等级仍由检查结果决定
 - **规则元数据**：从 Sonar API 拉取规则名称、严重度和影响供展示；可修资格按完整规则键查 AI CodeFix 清单（默认用仓库内置快照），`secrets:*` 密钥规则始终可修
 
 ### 与 Sonar AI CodeFix 名单对齐
@@ -83,7 +84,7 @@ python3.12 scripts/up.py
 1. **Sonar** 地址与令牌  
 2. **代码托管**令牌（GitLab / GitHub / Azure DevOps 按需；公开仓可免令牌，匿名拉取、扫描和查看问题，不能指派修复）
 3. **绑定**：每个 Sonar 项目一行，写成 `项目key https://托管地址`（按 URL 识别平台）  
-4. **大模型**：审核页填密钥，或设 `CLEARDEBT_LLM_API_KEY` / `deploy/llm/.token`。模型只交 `old_string` / `new_string`，过不过由重扫与测试决定  
+4. **大模型**：审核页填密钥，或设 `CLEARDEBT_LLM_API_KEY` / `deploy/llm/.token`。固定流程的模型交 `old_string` / `new_string`；自主模式的模型逐轮调用受限工具。过不过由重扫与测试决定
 
 可选：`CLEARDEBT_LLM_MODELS` / `CLEARDEBT_LLM_UPGRADE_MODEL`（失败升级重试）；管理页按项目开关 Backlog / 请求修复 / 覆盖日程，以及定时清 backlog 日程。
 
@@ -98,6 +99,12 @@ python3.12 scripts/up.py
 ```bash
 .venv/bin/python scripts/run_batch.py
 ```
+
+### 自主工具调用（按项目开启）
+
+在「开关与日程 → 按项目开关」打开 **自主工具调用** 后，该项目的 AI 修复会让模型逐轮选择受限工具：搜索仓库、读取文件、查看 diff、提交多文件精确补丁、运行检查。Sonar 或测试失败的结果会返回给模型，由它决定下一轮怎么查、怎么改。机械改写和 SCA 升版本仍走确定性流程。所选模型必须支持 OpenAI 兼容的原生 `tool_calls`；不支持时会留下 L3 原因，不会开请求。
+
+默认每条告警最多调用 20 次工具、连续取证 8 次、提交 3 个候选补丁、运行 2 次完整 Sonar 检查，最长 15 分钟，模型报告的 token 累计上限为 30000。分别用 `CLEARDEBT_AGENT_MAX_TOOLS`、`CLEARDEBT_AGENT_MAX_RESEARCH_TOOLS`、`CLEARDEBT_AGENT_MAX_PATCHES`、`CLEARDEBT_AGENT_MAX_FULL_CHECKS`、`CLEARDEBT_AGENT_MAX_SECONDS`、`CLEARDEBT_AGENT_MAX_TOKENS` 调整。无法确定安全改法时，模型可调用 `report_blocker` 留下原因并结束为 L3。也可用 `CLEARDEBT_AUTONOMOUS_AGENT=1` 在所有允许修复的项目上开启，`=0` 强制关闭。工具选择默认 `required`；官方 DeepSeek Chat Completions 请求会关闭思考模式以支持该参数。其他兼容接口若不支持 `required`，可设置 `CLEARDEBT_AGENT_TOOL_CHOICE=auto`，但模型返回纯文本时会停在 L3。活动页展开会话可看工具记录并取消任务。更细的设计与验收见 [自主agent实现方案.md](自主agent实现方案.md)。
 
 ## 实战故事（STAR）
 

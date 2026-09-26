@@ -127,6 +127,16 @@ export interface Session {
   finished_at: string;
 }
 
+export interface SessionEvent {
+  id: number;
+  created_at: string;
+  fingerprint: string;
+  kind: string;
+  tool: string;
+  summary: string;
+  details: { ok?: boolean; passed?: boolean; error_code?: string; tool_count?: number };
+}
+
 async function req<T>(path: string, init?: RequestInit, timeoutMs = 30000): Promise<T> {
   const ctrl = new AbortController();
   const timer = setTimeout(() => ctrl.abort(), timeoutMs);
@@ -159,7 +169,7 @@ export const api = {
   saveControls: (body: Record<string, unknown>) =>
     req<Record<string, unknown>>("/controls", { method: "POST", body: JSON.stringify(body) }),
   listIssues: (repo: string) =>
-    req<{ repo: string; issues: Issue[]; scan_note: string }>("/api/issues/list", {
+    req<{ repo: string; started: boolean; already_running: boolean }>("/api/issues/list", {
       method: "POST",
       body: JSON.stringify({ repo }),
     }),
@@ -178,7 +188,7 @@ export const api = {
       body: JSON.stringify({ repo, rule, path, line }),
     }),
   scanProgress: (repo: string) =>
-    req<{ repo: string; step: string; stale: boolean }>(
+    req<{ repo: string; step: string; status: "running" | "success" | "error" | ""; note?: string; issue_count?: number | null; stale: boolean }>(
       `/api/scan/progress?repo=${encodeURIComponent(repo)}`,
     ),
   bindings: (body: { sonar_key: string; gitlab_url: string }) =>
@@ -261,6 +271,10 @@ export const api = {
       details: Record<string, unknown>;
     }>(`/api/sessions/${session_id}`),
   sessions: () => req<{ sessions: Session[] }>("/sessions"),
+  sessionEvents: (session_id: number) =>
+    req<{ events: SessionEvent[]; source_session_ids?: number[] }>(`/api/sessions/${session_id}/events`),
+  cancelSession: (session_id: number) =>
+    req<{ cancelled: boolean }>(`/api/sessions/${session_id}/cancel`, { method: "POST", body: "{}" }),
   mrIssues: (repo: string, mr_iid: number) =>
     req<{ issues: Issue[]; merge_request: { source_branch: string } }>(
       `/mrs/issues?repo=${encodeURIComponent(repo)}&mr_iid=${mr_iid}`,

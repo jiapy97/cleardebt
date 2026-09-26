@@ -23,6 +23,33 @@ async def run_one(ctx, rule: str, project: str | None = None) -> dict:
     return await asyncio.to_thread(execute, rule, name)
 
 
+async def run_assign_session(ctx, repo: str, selections: list[dict], session_id: int) -> dict:
+    from cleardebt.assign import assign_to_agent, finish_session, mark_running, session_cancelled
+
+    if session_cancelled(session_id):
+        return {"started": False, "reason": "会话已取消"}
+    mark_running(session_id)
+    try:
+        return await asyncio.to_thread(assign_to_agent, repo, selections, session_id=session_id)
+    except Exception as error:
+        finish_session(session_id, status="failed", details={"error": str(error)})
+        raise
+
+
+async def run_request_fix_session(ctx, repo: str, mr_iid: int, selections: list[dict], session_id: int) -> dict:
+    from cleardebt.assign import finish_session, mark_running, session_cancelled
+    from cleardebt.request_fix import remediate_merge_request
+
+    if session_cancelled(session_id):
+        return {"started": False, "reason": "会话已取消"}
+    mark_running(session_id)
+    try:
+        return await asyncio.to_thread(remediate_merge_request, repo, mr_iid, selections, session_id=session_id)
+    except Exception as error:
+        finish_session(session_id, status="failed", details={"error": str(error)})
+        raise
+
+
 async def nightly(ctx) -> dict:
     """Tick every hour; each whitelist repo runs only when its schedule is due."""
     from cleardebt.controls import automation_for, load_controls, save_report
@@ -69,7 +96,7 @@ async def nightly(ctx) -> dict:
 
             session_id = create_session(source="scheduled", repo=name, issue_count=0, status="running")
             try:
-                outcome = dict(await asyncio.to_thread(run_controlled, name))
+                outcome = dict(await asyncio.to_thread(run_controlled, name, session_id=session_id))
                 finish_session(
                     session_id,
                     status="completed" if outcome.get("started") else "failed",
@@ -140,10 +167,10 @@ def _note(result: dict) -> None:
 
 
 class WorkerSettings:
-    functions = [run_one]
+    functions = [run_one, run_assign_session, run_request_fix_session]
     # Tick every minute; schedule_due() decides whether each repo's configured
     # local hour/minute is due.
     cron_jobs = [cron(nightly)]
     redis_settings = RedisSettings(host="127.0.0.1", port=6379)
-    job_timeout = 600
+    job_timeout = 7200
     max_jobs = 4

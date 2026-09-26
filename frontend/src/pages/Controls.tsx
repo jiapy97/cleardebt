@@ -41,11 +41,13 @@ export default function ControlsPage() {
     key: String(b.sonar_key ?? ""),
     backlog: (b.backlog_fix as boolean) ?? true,
     request: (b.request_fix as boolean) ?? true,
+    agent: (b.agent_mode as boolean) ?? false,
+    automation: (b.automation as Record<string, unknown>) ?? {},
     override: !!b.automation && Object.keys(b.automation as object).length > 0,
   }));
   const [rows, setRows] = useState<typeof base | null>(null);
   const data = rows ?? base;
-  const flip = (key: string, field: "backlog" | "request" | "override") =>
+  const flip = (key: string, field: "backlog" | "request" | "agent" | "override") =>
     setRows((data).map((x) => (x.key === key ? { ...x, [field]: !x[field] } : x)));
   const saveProj = useMutation({
     mutationFn: () =>
@@ -54,10 +56,15 @@ export default function ControlsPage() {
           sonar_key: r.key,
           backlog_fix: r.backlog,
           request_fix: r.request,
-          automation: r.override ? { enabled: true } : {},
+          agent_mode: r.agent,
+          automation: r.override ? (Object.keys(r.automation).length ? r.automation : { enabled: true }) : {},
         })),
       }),
-    onSuccess: refresh,
+    onSuccess: async () => {
+      await qc.invalidateQueries({ queryKey: ["overview"] });
+      setRows(null);
+      message.success("项目开关已保存");
+    },
     onError: fail,
   });
 
@@ -148,6 +155,13 @@ export default function ControlsPage() {
                   dataIndex: "request",
                   render: (v: boolean, r: { key: string }) => (
                     <Switch checked={v} onChange={() => flip(r.key, "request")} />
+                  ),
+                },
+                {
+                  title: "自主工具调用",
+                  dataIndex: "agent",
+                  render: (v: boolean, r: { key: string }) => (
+                    <Switch checked={v} onChange={() => flip(r.key, "agent")} />
                   ),
                 },
               ]}

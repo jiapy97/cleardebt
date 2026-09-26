@@ -57,7 +57,7 @@ def model_ladder() -> list[str]:
         found = [item.strip() for item in raw.split(",") if item.strip()]
         if found:
             return found
-    base = os.environ.get("CLEARDEBT_LLM_MODEL", "").strip() or "deepseek-chat"
+    base = os.environ.get("CLEARDEBT_LLM_MODEL", "").strip() or "deepseek-flash"
     upgrade = os.environ.get("CLEARDEBT_LLM_UPGRADE_MODEL", "").strip()
     if upgrade and upgrade != base:
         return [base, upgrade]

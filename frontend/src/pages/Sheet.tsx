@@ -35,7 +35,7 @@ export default function SheetPage() {
   return (
     <Card
       title="清算单"
-      extra={sheet ? `${sheet.repo} · ${sheet.created_at} · ${sheet.dry_run ? "空跑" : "实跑"}` : ""}
+      extra={sheet ? `${sheet.repo} · ${sheet.created_at}（北京） · ${sheet.dry_run ? "空跑" : "实跑"}` : ""}
       loading={isLoading}
     >
       <Table<Decision>

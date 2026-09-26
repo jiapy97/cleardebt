@@ -1,7 +1,7 @@
 import unittest
-from unittest.mock import patch
+from unittest.mock import MagicMock, patch
 
-from cleardebt.controls import backlog_gate, gate, project_switches
+from cleardebt.controls import backlog_gate, gate, project_switches, save_controls, save_project_switches
 from cleardebt.gitlab_mr import render_description
 from cleardebt.request_fix import request_fix_gate
 
@@ -19,6 +19,33 @@ READY = {
 
 
 class ProjectSwitchesTest(unittest.TestCase):
+    def test_agent_mode_is_written_to_project_binding(self):
+        settings = {"whitelist": ["alpha"]}
+        row = (None, None, ["alpha"], None, None, None, None, None, None, None,
+               [{"sonar_key": "alpha", "backlog_fix": True, "agent_mode": False}])
+        connection = MagicMock()
+        connection.__enter__.return_value = connection
+        with patch("cleardebt.controls._ensure"), \
+                patch("cleardebt.controls.load_controls", return_value=settings), \
+                patch("cleardebt.controls._row", return_value=row), \
+                patch("cleardebt.controls.psycopg.connect", return_value=connection):
+            save_project_switches([{"sonar_key": "alpha", "agent_mode": True}])
+        saved = connection.execute.call_args.args[1][0].obj
+        self.assertTrue(saved[0]["agent_mode"])
+
+    def test_saving_switches_accepts_automation_object(self):
+        settings = {
+            "enabled": True, "dry_run": False, "retrieve": False,
+            "request_fix": True, "backlog_automation": {"enabled": True, "hour": 8},
+        }
+        connection = MagicMock()
+        connection.__enter__.return_value = connection
+        with patch("cleardebt.controls.load_controls", return_value=settings), \
+                patch("cleardebt.controls.psycopg.connect", return_value=connection):
+            save_controls()
+        parameters = connection.execute.call_args.args[1]
+        self.assertEqual(parameters[3].obj, settings["backlog_automation"])
+
     def test_defaults_are_on(self):
         settings = {"configured": True, "enabled": True, "whitelist": ["x"], "request_fix": True, "bindings": []}
         self.assertEqual(project_switches(settings, "x"), {"backlog_fix": True, "request_fix": True})
@@ -60,9 +87,9 @@ class ProjectSwitchesApiTest(unittest.TestCase):
 
         client = TestClient(app)
         with (
-            patch("cleardebt.assign.load_controls", return_value=READY),
+            patch("cleardebt.api.load_controls", return_value=READY),
             patch("cleardebt.assign.backlog_gate", return_value="beta 的 backlog 修复关掉了。") as blocked,
-            patch("cleardebt.assign.create_session") as session,
+            patch("cleardebt.assign.reserve_session") as session,
             patch("cleardebt.assign.run_issue.execute") as execute,
         ):
             response = client.post(

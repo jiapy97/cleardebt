@@ -21,7 +21,21 @@ def report(repo: str, step: str) -> None:
     if not name:
         return
     with _lock:
-        _steps[name] = {"step": step, "updated_at": time.time()}
+        _steps[name] = {"step": step, "status": "running", "updated_at": time.time()}
+
+
+def complete(repo: str, *, ok: bool, note: str, issue_count: int | None = None) -> None:
+    name = (repo or "").strip()
+    if not name:
+        return
+    with _lock:
+        _steps[name] = {
+            "step": "DONE" if ok else "FAILED",
+            "status": "success" if ok else "error",
+            "note": note,
+            "issue_count": issue_count,
+            "updated_at": time.time(),
+        }
 
 
 def read(repo: str) -> dict:
@@ -29,9 +43,9 @@ def read(repo: str) -> dict:
     with _lock:
         entry = _steps.get(name)
         if not entry:
-            return {"step": "", "stale": True}
+            return {"step": "", "status": "", "stale": True}
         return {
-            "step": entry["step"],
+            **{key: entry[key] for key in ("step", "status", "note", "issue_count") if key in entry},
             "stale": (time.time() - entry["updated_at"]) > STALE_AFTER,
         }
 

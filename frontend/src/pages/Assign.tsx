@@ -16,7 +16,7 @@ export default function AssignPage() {
   const shown = (cur && cache[cur]) || null;
   const [phase, setPhase] = useState("");
   const [scanning, setScanning] = useState(false);
-  const [scanError, setScanError] = useState("");
+  const [scanFeedback, setScanFeedback] = useState<{ type: "success" | "info" | "error"; text: string } | null>(null);
   const [assigning, setAssigning] = useState(false);
   const [assignSession, setAssignSession] = useState<number | null>(null);
   const [assignResult, setAssignResult] = useState<{
@@ -39,10 +39,14 @@ export default function AssignPage() {
 
   const list = useMutation({
     mutationFn: (target?: string) => api.listIssues(target ?? cur),
-    onSuccess: () => {
-      setPicked([]);
+    onSuccess: (result) => {
+      if (result.already_running) setPhase("后台已有扫描，正在等待结果…");
     },
-    onError: (e: Error) => message.error(e.message),
+    onError: (error: Error) => {
+      setScanning(false);
+      setPhase("");
+      setScanFeedback({ type: "error", text: `重新扫描失败：${error.message}` });
+    },
   });
 
   useEffect(() => {
@@ -52,18 +56,25 @@ export default function AssignPage() {
       api
         .scanProgress(cur)
         .then((p) => {
-          if (p.step === "DONE") {
+          if (p.status === "success" || p.status === "error") {
             setScanning(false);
+            setPhase("");
+            setScanFeedback({
+              type: p.status,
+              text: `${p.note || (p.status === "success" ? "扫描完成。" : "扫描失败。")}${typeof p.issue_count === "number" ? ` 当前 ${p.issue_count} 条告警。` : ""}${p.status === "success" ? " 重新扫描只更新告警；要运行自主 Agent，请勾选下方可修告警，点击「指派给 Agent」。" : ""}`,
+            });
             load.mutate(cur);
-          } else if (p.step.startsWith("失败：")) {
+          } else if (p.stale && !p.status) {
             setScanning(false);
-            setScanError(`重扫${p.step}`);
-            load.mutate(cur);
+            setScanFeedback({ type: "error", text: "扫描状态丢失，请刷新页面后重试。" });
           } else if (p.step && !p.stale) {
             setPhase(p.step);
           }
         })
-        .catch(() => {});
+        .catch((error: Error) => {
+          setScanning(false);
+          setScanFeedback({ type: "error", text: `读取扫描进度失败：${error.message}` });
+        });
     }, 2000);
     return () => clearInterval(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -251,12 +262,13 @@ export default function AssignPage() {
             style={{ width: 220 }}
             placeholder="先在接入配置里选仓库"
             value={cur || undefined}
+            disabled={scanning}
             onChange={(v) => {
               setRepo(v);
               setPicked([]);
               setScanning(false);
               setPhase("");
-              setScanError("");
+              setScanFeedback(null);
               setAssigning(false);
               setAssignSession(null);
               setAssignResult(null);
@@ -270,7 +282,7 @@ export default function AssignPage() {
             disabled={!cur}
             onClick={() => {
               setScanning(true);
-              setScanError("");
+              setScanFeedback(null);
               setPhase("正在准备重扫…");
               list.mutate(cur);
             }}
@@ -282,21 +294,19 @@ export default function AssignPage() {
               <Spin size="small" /> {phase || "正在准备重扫…"}
             </span>
           )}
+          {scanFeedback && (
+            <Alert
+              type={scanFeedback.type}
+              showIcon
+              message={scanFeedback.text}
+              style={{ maxWidth: 720 }}
+            />
+          )}
         </Space>
         {load.isPending && !shown && (
           <Alert style={{ marginTop: 12 }} type="info" showIcon message="正在读库里快照…" />
         )}
-        {scanError && (
-          <Alert
-            style={{ marginTop: 12 }}
-            type="error"
-            showIcon
-            message={scanError}
-            closable
-            onClose={() => setScanError("")}
-          />
-        )}
-        {shown?.note && <Alert style={{ marginTop: 12 }} type="success" showIcon message={shown.note} />}
+        {shown?.note && <Alert style={{ marginTop: 12 }} type="info" showIcon message={shown.note} />}
         {readOnly && <Alert style={{ marginTop: 12 }} type="info" showIcon message="这个公开仓库没有托管平台令牌：可以拉取、扫描和查看问题，不能指派修复。" />}
       </Card>
       <Card title={`告警列表（${visible.length} 条${hiddenCount > 0 ? `，已忽略 ${hiddenCount} 条` : ""}）`}>
@@ -337,6 +347,15 @@ export default function AssignPage() {
             指派给 Agent{picked.length > 0 ? `（${picked.length}）` : ""}
           </Button>
         )}
+        {picked.length > 0 && (shown?.issues ?? []).filter((row) => picked.includes(issueId(row)))
+          .every((row) => normalizeTier(row.tier) !== "llm") && (
+            <Alert
+              style={{ marginTop: 12 }}
+              type="info"
+              showIcon
+              message="所选告警可能由内置规则直接修复，因此不会产生模型工具调用。要验证自主工具调用，可选择标为「AI 修复」的告警。"
+            />
+          )}
         {assigning && (
           <span style={{ display: "inline-flex", alignItems: "center", gap: 8, marginLeft: 12, color: "#595959" }}>
             <Spin size="small" /> 正在跑，第 {assignSession ?? ""} 会话…

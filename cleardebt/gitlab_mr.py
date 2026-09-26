@@ -28,7 +28,9 @@ def render_description(state: dict) -> str:
     added = state.get("rescan_added") or []
     removed_text = "、".join(f"{row['rule']} {row['path']}" for row in removed) or "无"
     added_text = "、".join(f"{row['rule']} {row['path']}" for row in added) or "没有新告警"
-    if state.get("tests_passed"):
+    if state.get("tests_skipped"):
+        tests = "已跳过（仅经 Sonar 验证）"
+    elif state.get("tests_passed"):
         tests = "通过"
     else:
         tests = "没通过"

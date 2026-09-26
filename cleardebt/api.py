@@ -209,9 +209,8 @@ def list_issues(repo: str = "") -> dict:
 
 @app.post("/issues/assign")
 def assign_issues(body: dict = Body(...)) -> dict:
-    import threading
-
-    from cleardebt.assign import assign_to_agent, backlog_gate, create_session, load_controls
+    from cleardebt.agent_jobs import job_key, submit
+    from cleardebt.assign import backlog_gate, finish_session, reserve_session
 
     name = (body.get("repo") or "").strip()
     selections = body.get("issues") or []
@@ -222,25 +221,17 @@ def assign_issues(body: dict = Body(...)) -> dict:
     refused = backlog_gate(load_controls(), name)
     if refused:
         raise HTTPException(status_code=400, detail=refused)
-    if _assign_threads.get(name) is not None and _assign_threads[name].is_alive():
-        return {"started": True, "already_running": True, "repo": name}
-
-    session_id = create_session(source="manual", repo=name, issue_count=len(selections), status="running")
-
-    def _run() -> None:
-        from cleardebt.assign import finish_session
-
-        try:
-            assign_to_agent(name, selections, session_id=session_id)
-        except Exception as error:  # noqa: BLE001
-            try:
-                finish_session(session_id, status="failed", details={"error": str(error)})
-            except Exception:
-                pass
-
-    thread = threading.Thread(target=_run, name=f"assign-{name}", daemon=True)
-    _assign_threads[name] = thread
-    thread.start()
+    session_id, created = reserve_session(
+        source="manual", repo=name, issue_count=len(selections),
+        job_key=job_key("manual", name, selections),
+    )
+    if not created:
+        return {"started": True, "already_running": True, "repo": name, "session_id": session_id}
+    try:
+        submit("run_assign_session", name, selections, session_id, session_id=session_id)
+    except Exception as error:
+        finish_session(session_id, status="failed", details={"error": str(error)})
+        raise HTTPException(status_code=503, detail="任务队列不可用，请稍后重试。") from error
     return {"started": True, "already_running": False, "repo": name, "session_id": session_id}
 
 
@@ -259,6 +250,30 @@ def api_session_detail(session_id: int) -> dict:
         return get_session(session_id)
     except ValueError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
+
+
+@app.get("/api/sessions/{session_id}/events")
+def api_session_events(session_id: int) -> dict:
+    from cleardebt.agent_events import events_for_session
+    from cleardebt.assign import get_session
+
+    try:
+        session = get_session(session_id)
+    except ValueError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+    fingerprints = []
+    for decision in (session.get("details") or {}).get("decisions") or []:
+        fingerprint = str(decision.get("fingerprint") or "").strip()
+        if fingerprint and fingerprint not in fingerprints:
+            fingerprints.append(fingerprint)
+    return events_for_session(session_id, fingerprints)
+
+
+@app.post("/api/sessions/{session_id}/cancel")
+def api_cancel_session(session_id: int) -> dict:
+    from cleardebt.assign import cancel_session
+
+    return {"cancelled": cancel_session(session_id)}
 
 
 @app.get("/mrs/issues")
@@ -283,8 +298,9 @@ def mr_offer(body: dict = Body(...)) -> dict:
 
 @app.post("/mrs/remediate")
 def mr_remediate(body: dict = Body(...)) -> dict:
-    from cleardebt.assign import create_session, finish_session
-    from cleardebt.request_fix import remediate_merge_request, request_fix_gate
+    from cleardebt.agent_jobs import job_key, submit
+    from cleardebt.assign import finish_session, reserve_session
+    from cleardebt.request_fix import request_fix_gate
 
     name = (body.get("repo") or "").strip()
     try:
@@ -299,26 +315,17 @@ def mr_remediate(body: dict = Body(...)) -> dict:
     refused = request_fix_gate(load_controls(), name)
     if refused:
         raise HTTPException(status_code=400, detail=refused)
-    key = (name, iid)
-    with _mr_threads_lock:
-        existing = _mr_threads.get(key)
-        if existing is not None and existing.is_alive():
-            return {"started": True, "already_running": True, "repo": name, "mr_iid": iid}
-
-        session_id = create_session(source="request_fix", repo=name, issue_count=len(selections), status="running")
-
-        def _run() -> None:
-            try:
-                remediate_merge_request(name, iid, selections, session_id=session_id)
-            except Exception as error:  # noqa: BLE001
-                try:
-                    finish_session(session_id, status="failed", details={"error": str(error)})
-                except Exception:
-                    pass
-
-        thread = threading.Thread(target=_run, name=f"mr-fix-{name}-{iid}", daemon=True)
-        _mr_threads[key] = thread
-        thread.start()
+    session_id, created = reserve_session(
+        source="request_fix", repo=name, issue_count=len(selections),
+        job_key=job_key("request_fix", name, selections, mr_iid=iid),
+    )
+    if not created:
+        return {"started": True, "already_running": True, "repo": name, "mr_iid": iid, "session_id": session_id}
+    try:
+        submit("run_request_fix_session", name, iid, selections, session_id, session_id=session_id)
+    except Exception as error:
+        finish_session(session_id, status="failed", details={"error": str(error)})
+        raise HTTPException(status_code=503, detail="任务队列不可用，请稍后重试。") from error
     return {"started": True, "already_running": False, "repo": name, "mr_iid": iid, "session_id": session_id}
 
 
@@ -390,6 +397,7 @@ def api_unsuppress_issue(body: dict = Body(...)) -> dict:
 @app.get("/api/issues/snapshot")
 def api_issue_snapshot(repo: str = "") -> dict:
     from cleardebt.assign import read_backlog
+    from cleardebt.time_display import iso_beijing
 
     name = (repo or "").strip()
     try:
@@ -401,7 +409,7 @@ def api_issue_snapshot(repo: str = "") -> dict:
         "repo": name,
         "issues": issues,
         "scan_note": note,
-        "analysis_date": stamp,
+        "analysis_date": iso_beijing(stamp),
         "suppressed_count": hidden,
     }
 
@@ -600,23 +608,20 @@ def api_repairable_rules() -> dict:
 
 
 _scan_threads: dict[str, "threading.Thread"] = {}
-_assign_threads: dict[str, "threading.Thread"] = {}
-_mr_threads: dict[tuple[str, int], "threading.Thread"] = {}
-_mr_threads_lock = threading.Lock()
 
 
 @app.post("/api/issues/list")
 def api_list_issues(body: dict = Body(...)) -> dict:
     import threading
 
-    from cleardebt.scan_progress import read as read_progress
+    from cleardebt.scan_progress import complete as complete_progress, read as read_progress, report as report_progress
 
     name = (body.get("repo") or "").strip()
     existing = _scan_threads.get(name)
     if existing is not None and existing.is_alive():
         return {"repo": name, "started": True, "already_running": True}
     progress = read_progress(name)
-    if progress.get("step") and not progress.get("stale"):
+    if progress.get("status") == "running" and not progress.get("stale"):
         return {"repo": name, "started": True, "already_running": True}
     try:
         from cleardebt.assign import refresh_backlog
@@ -626,11 +631,14 @@ def api_list_issues(body: dict = Body(...)) -> dict:
     def _run() -> None:
         try:
             refresh_backlog(name)
-        except Exception:
-            pass
+        except Exception as error:
+            from cleardebt.assign import clean_error
+
+            complete_progress(name, ok=False, note=f"重新扫描失败：{clean_error(error)}")
 
     thread = threading.Thread(target=_run, name=f"scan-{name}", daemon=True)
     _scan_threads[name] = thread
+    report_progress(name, "正在准备重扫…")
     thread.start()
     return {"repo": name, "started": True, "already_running": False}
 
@@ -691,7 +699,7 @@ def api_latest_sheet() -> dict:
 
 @app.post("/issues/assign-form", response_class=HTMLResponse)
 def assign_issues_form(repo: str = Form(""), selected: list[str] = Form(default=[])) -> HTMLResponse:
-    from cleardebt.assign import assign_to_agent, list_backlog_issues, list_sessions
+    from cleardebt.assign import list_backlog_issues, list_sessions
 
     name = repo.strip()
     picks = []
@@ -701,8 +709,8 @@ def assign_issues_form(repo: str = Form(""), selected: list[str] = Form(default=
         rule, path = item.split("|", 1)
         picks.append({"rule": rule, "path": path})
     try:
-        result = assign_to_agent(name, picks)
-    except ValueError as error:
+        result = assign_issues({"repo": name, "issues": picks})
+    except HTTPException as error:
         try:
             issues = list_backlog_issues(name) if name else []
         except ValueError:
@@ -710,12 +718,12 @@ def assign_issues_form(repo: str = Form(""), selected: list[str] = Form(default=
         page = render_page(
             latest_sheet(),
             _form_settings(),
-            error=str(error),
+            error=str(error.detail),
             sessions=list_sessions(),
             issues=issues,
             assign_repo=name,
         )
-        return HTMLResponse(page, status_code=400)
+        return HTMLResponse(page, status_code=error.status_code)
     try:
         issues = list_backlog_issues(name)
     except ValueError:
@@ -727,7 +735,7 @@ def assign_issues_form(repo: str = Form(""), selected: list[str] = Form(default=
             sessions=list_sessions(),
             issues=issues,
             assign_repo=name,
-            assign_notice=_assign_notice(result),
+            assign_notice=f"会话 #{result['session_id']} 已排队；到 Agent 活动查看进度。",
         )
     )
 

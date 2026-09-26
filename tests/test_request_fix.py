@@ -18,6 +18,11 @@ READY = {
 
 
 class RequestFixTest(unittest.TestCase):
+    def setUp(self):
+        cancel = patch("cleardebt.request_fix.session_cancelled", return_value=False)
+        cancel.start()
+        self.addCleanup(cancel.stop)
+
     def test_mr_issue_list_uses_issue_level_triage(self):
         mr = {"repo": "toy-js", "mr_iid": 42}
         sonar_issue = {
@@ -37,44 +42,23 @@ class RequestFixTest(unittest.TestCase):
         self.assertEqual(row["tier"], "skip")
         self.assertFalse(row["eligible"])
 
-    def test_remediate_endpoint_returns_before_worker_finishes(self):
+    def test_remediate_endpoint_enqueues_and_deduplicates(self):
         client = TestClient(app)
-        entered = Event()
-        release = Event()
-
-        def slow_remediate(*args, **kwargs):
-            entered.set()
-            release.wait(timeout=10)
-
         with (
             patch("cleardebt.api.load_controls", return_value=READY),
             patch("cleardebt.request_fix.request_fix_gate", return_value=None),
-            patch("cleardebt.assign.create_session", return_value=91),
-            patch("cleardebt.request_fix.remediate_merge_request", side_effect=slow_remediate) as run,
+            patch("cleardebt.assign.reserve_session", side_effect=[(91, True), (91, False)]),
+            patch("cleardebt.agent_jobs.submit") as submit,
         ):
-            try:
-                response = client.post("/mrs/remediate", json={
-                    "repo": "toy-js", "mr_iid": 42,
-                    "issues": [{"rule": "javascript:S1128", "path": "src/a.js", "sonar_key": "issue-1"}],
-                })
-                self.assertEqual(response.status_code, 200)
-                self.assertEqual(response.json()["session_id"], 91)
-                self.assertTrue(entered.wait(timeout=2))
-                self.assertFalse(release.is_set())
-                duplicate = client.post("/mrs/remediate", json={
-                    "repo": "toy-js", "mr_iid": 42,
-                    "issues": [{"rule": "javascript:S1128", "path": "src/a.js", "sonar_key": "issue-1"}],
-                })
-                self.assertTrue(duplicate.json()["already_running"])
-                run.assert_called_once_with(
-                    "toy-js", 42,
-                    [{"rule": "javascript:S1128", "path": "src/a.js", "sonar_key": "issue-1"}],
-                    session_id=91,
-                )
-            finally:
-                release.set()
-                from cleardebt.api import _mr_threads
-                _mr_threads[("toy-js", 42)].join(timeout=2)
+            payload = {"repo": "toy-js", "mr_iid": 42,
+                       "issues": [{"rule": "javascript:S1128", "path": "src/a.js", "sonar_key": "issue-1"}]}
+            response = client.post("/mrs/remediate", json=payload)
+            duplicate = client.post("/mrs/remediate", json=payload)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["session_id"], 91)
+        self.assertTrue(duplicate.json()["already_running"])
+        submit.assert_called_once()
+        self.assertEqual(submit.call_args.args[:3], ("run_request_fix_session", "toy-js", 42))
 
     def test_gate_requires_request_fix_flag(self):
         self.assertIsNone(request_fix_gate(READY, "toy-js"))
@@ -138,6 +122,7 @@ class RequestFixTest(unittest.TestCase):
             git_branch="feature/login",
             pull_request="42",
             issue_key="issue-42",
+            session_id=9,
         )
         open_mr.assert_called_once()
         kwargs = open_mr.call_args.kwargs

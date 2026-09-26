@@ -15,7 +15,7 @@ if str(ROOT / "scripts") not in sys.path:
 
 import open_merge_request
 import run_issue
-from cleardebt.assign import _sonar_row, create_session, finish_session, resolve_selected_issues
+from cleardebt.assign import _sonar_row, create_session, finish_session, resolve_selected_issues, session_cancelled
 from cleardebt.controls import gate, gitlab_credentials, load_controls, save_report, unbound_reason
 from cleardebt.gitlab_mr import NotEligible
 from cleardebt.issue_graph import sonar_base_url
@@ -198,6 +198,7 @@ def remediate_merge_request(
                 ran = run_issue.execute(
                     item["rule"],
                     name,
+                    session_id=session_id,
                     **kwargs,
                 )
             except SystemExit as error:
@@ -218,11 +219,17 @@ def remediate_merge_request(
                 "reason": ran.get("reason"),
                 "fingerprint": ran.get("fingerprint"),
                 "fix_method": ran.get("fix_method") or "",
+                "agent_tool_count": ran.get("agent_tool_count") or 0,
+                "agent_patch_count": ran.get("agent_patch_count") or 0,
+                "agent_full_count": ran.get("agent_full_count") or 0,
+                "agent_usage_tokens": ran.get("agent_usage_tokens") or 0,
                 "action": "no_mr",
                 "target_branch": mr["source_branch"],
                 "parent_mr_iid": mr["mr_iid"],
             }
-            if ran.get("level") == "L1" and not settings.get("dry_run"):
+            if ran.get("level") == "L1" and session_cancelled(session_id):
+                decision["reason"] = "会话已取消，不开请求。"
+            elif ran.get("level") == "L1" and not settings.get("dry_run"):
                 try:
                     opened = open_merge_request.execute(
                         ran.get("rule") or item["rule"],

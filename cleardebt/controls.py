@@ -8,6 +8,7 @@ import urllib.parse
 from pathlib import Path
 
 import psycopg
+from cleardebt.time_display import format_beijing
 
 _ensure_lock = threading.Lock()
 _ensured = False
@@ -216,6 +217,7 @@ def list_bindings() -> list[dict]:
                 "project_path": item.get("project_path") or "",
                 "backlog_fix": item.get("backlog_fix", True),
                 "request_fix": item.get("request_fix", True),
+                "agent_mode": bool(item.get("agent_mode", False)),
                 "read_only": binding_read_only(item, tokens),
             }
         )
@@ -274,6 +276,7 @@ def upsert_binding(sonar_key: str, gitlab_url: str) -> dict:
         "project_path": path,
         "backlog_fix": current.get("backlog_fix", True),
         "request_fix": current.get("request_fix", True),
+        "agent_mode": bool(current.get("agent_mode", False)),
         "read_only": not bool(token),
         "automation": current.get("automation") or {},
     }
@@ -389,7 +392,7 @@ def gate(settings: dict, repo: str) -> str | None:
 
 
 def save_project_switches(updates: list[dict]) -> dict:
-    """Update per-project backlog_fix / request_fix / automation on existing bindings."""
+    """Update per-project repair switches on existing bindings."""
     _ensure()
     current = load_controls()
     # Prefer full stored bindings (with project_id) from DB.
@@ -404,6 +407,8 @@ def save_project_switches(updates: list[dict]) -> dict:
             row["backlog_fix"] = bool(item.get("backlog_fix"))
         if "request_fix" in item:
             row["request_fix"] = bool(item.get("request_fix"))
+        if "agent_mode" in item:
+            row["agent_mode"] = bool(item.get("agent_mode"))
         if "automation" in item:
             auto = item.get("automation")
             row["automation"] = auto if isinstance(auto, dict) else {}
@@ -465,6 +470,7 @@ def form_values() -> dict:
                 "provider": item.get("provider") or "",
                 "backlog_fix": item.get("backlog_fix", True),
                 "request_fix": item.get("request_fix", True),
+                "agent_mode": bool(item.get("agent_mode", False)),
                 "read_only": binding_read_only(item, hosting_tokens),
                 "automation": item.get("automation") or {},
             }
@@ -522,6 +528,7 @@ def load_controls() -> dict:
                 "provider": item.get("provider") or "",
                 "backlog_fix": item.get("backlog_fix", True),
                 "request_fix": item.get("request_fix", True),
+                "agent_mode": bool(item.get("agent_mode", False)),
                 "read_only": binding_read_only(item, hosting_tokens),
                 "automation": item.get("automation") or {},
             }
@@ -615,7 +622,7 @@ def latest_sheet() -> dict | None:
         ).fetchone()
     if row is None:
         return None
-    created = row[2].astimezone().strftime("%Y-%m-%d %H:%M") if row[2] is not None else ""
+    created = format_beijing(row[2])
     return {
         "repo": row[0],
         "dry_run": row[1],
@@ -754,6 +761,7 @@ def connect_integration(
                     "provider": "",
                     "backlog_fix": old.get("backlog_fix", True),
                     "request_fix": old.get("request_fix", True),
+                    "agent_mode": bool(old.get("agent_mode", False)),
                     "read_only": old.get("read_only", False),
                     "automation": old.get("automation") or {},
                 }
@@ -774,6 +782,7 @@ def connect_integration(
                 "provider": resolved["provider"],
                 "backlog_fix": old.get("backlog_fix", True),
                 "request_fix": old.get("request_fix", True),
+                "agent_mode": bool(old.get("agent_mode", False)),
                 "read_only": not bool(token),
                 "automation": old.get("automation") or {},
             }
@@ -920,11 +929,13 @@ def _project_path(gitlab_url: str) -> str:
     return "/".join(parts[:2])
 
 
-def _json(decisions: list[dict]):
+def _json(value: dict | list[dict]):
     from psycopg.types.json import Json
 
+    if isinstance(value, dict):
+        return Json(value)
     cleaned = []
-    for item in decisions:
+    for item in value:
         copy = dict(item)
         copy.pop("issues", None)
         cleaned.append(copy)

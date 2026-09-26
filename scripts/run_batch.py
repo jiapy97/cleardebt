@@ -84,7 +84,7 @@ def run_whitelist() -> dict:
     return {"started": True, "repos": repos}
 
 
-def run_controlled(repo: str) -> dict:
+def run_controlled(repo: str, *, session_id: int | None = None) -> dict:
     settings = load_controls()
     refused = backlog_gate(settings, repo)
     if refused:
@@ -114,7 +114,10 @@ def run_controlled(repo: str) -> dict:
         before = _mr_count()
         token = load_token(None)
         issues = _issues(token, repo)
-        results = [execute(issue["rule"], project=repo, path=issue["path"]) for issue in issues]
+        results = [
+            execute(issue["rule"], project=repo, path=issue["path"], **({"session_id": session_id} if session_id else {}))
+            for issue in issues
+        ]
         sheet = _settle(results, dry_run=settings["dry_run"], repo=repo)
     except SystemExit as error:
         reason = _exit_text(error)
@@ -338,7 +341,7 @@ def _opened_today() -> int:
             """
             SELECT COUNT(DISTINCT merge_request_iid)
             FROM issue_merge_requests
-            WHERE (created_at AT TIME ZONE 'UTC')::date = (now() AT TIME ZONE 'UTC')::date
+            WHERE (created_at AT TIME ZONE 'Asia/Shanghai')::date = (now() AT TIME ZONE 'Asia/Shanghai')::date
             """
         ).fetchone()
     return int(row[0])

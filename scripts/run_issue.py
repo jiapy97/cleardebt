@@ -6,7 +6,11 @@ from __future__ import annotations
 import json
 import hashlib
 import os
+import shutil
+import subprocess
 import sys
+import tempfile
+from contextlib import nullcontext
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -15,7 +19,8 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from langgraph.checkpoint.postgres import PostgresSaver
 
-from cleardebt.issue_graph import build_graph, next_action, sonar_base_url
+from cleardebt.issue_lock import issue_lock
+from cleardebt.issue_graph import _autonomous_enabled, build_graph, next_action, sonar_base_url
 from cleardebt.triage import same_route, tier_for_issue
 from list_issues import fetch_issues, fingerprint, issue_path, line_span, load_token
 import rescan_check
@@ -37,6 +42,7 @@ def execute(
     sca_package: str = "",
     sca_to_version: str = "",
     issue_key: str = "",
+    session_id: int | None = None,
 ) -> dict:
     project = (project or "").strip()
     if not project:
@@ -44,7 +50,13 @@ def execute(
     from cleardebt.controls import backlog_gate, load_controls
     from cleardebt.sca import is_sca_rule
 
-    refused = backlog_gate(load_controls(), project)
+    settings = load_controls()
+    if pull_request:
+        from cleardebt.request_fix import request_fix_gate
+
+        refused = request_fix_gate(settings, project)
+    else:
+        refused = backlog_gate(settings, project)
     if refused:
         raise SystemExit(refused)
     if is_sca_rule(rule):
@@ -68,27 +80,56 @@ def execute(
             branch=None if pull_request else git_branch,
         )
     issue["sonar_fingerprint"] = issue["fingerprint"]
-    issue["fingerprint"] = execution_fingerprint(
-        issue["fingerprint"],
-        project,
-        git_branch=git_branch,
-        pull_request=pull_request,
-    )
+    issue["agent_mode"] = not is_sca_rule(rule) and _autonomous_enabled({
+        "project": project,
+        "agent_mode": any(
+            item.get("sonar_key") == project and bool(item.get("agent_mode"))
+            for item in settings.get("bindings") or []
+        ),
+    })
     issue["git_branch"] = (git_branch or "").strip()
     issue["pull_request"] = (pull_request or "").strip()
-    with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
-        checkpointer.setup()
-        graph = build_graph(checkpointer)
-        config, snapshot, action = _checkpoint_for_issue(graph, issue)
-        work = ROOT / "var" / "work" / issue["fingerprint"]
-        if action == "start":
-            _prepare_work_dir(work, issue, git_branch=git_branch)
-            result = graph.invoke(_initial_state(issue, work), config)
-        elif action == "resume":
-            result = graph.invoke(None, config)
-        else:
-            result = snapshot.values
-        steps = _steps(graph, config)
+    issue["session_id"] = int(session_id or 0)
+    probe_parent = ROOT / "var" / "probes"
+    if issue["agent_mode"]:
+        probe_parent.mkdir(parents=True, exist_ok=True)
+    probe_context = tempfile.TemporaryDirectory(prefix="agent-", dir=probe_parent) if issue["agent_mode"] else nullcontext(None)
+    with probe_context as probe_root:
+        probe = Path(probe_root) / "repo" if probe_root else None
+        if probe:
+            _prepare_work_dir(probe, issue, git_branch=git_branch)
+        issue["fingerprint"] = execution_fingerprint(
+            issue["sonar_fingerprint"], project,
+            git_branch=git_branch, pull_request=pull_request,
+            agent_mode=bool(issue["agent_mode"]), base_commit=issue.get("base_commit") or "",
+        )
+        with issue_lock(issue["fingerprint"]):
+            with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
+                checkpointer.setup()
+                graph = build_graph(checkpointer)
+                config, snapshot, action = _checkpoint_for_issue(graph, issue)
+                config["recursion_limit"] = 2 * _agent_limit() + 15
+                work = ROOT / "var" / "work" / issue["fingerprint"]
+                if action == "start":
+                    if probe:
+                        work.parent.mkdir(parents=True, exist_ok=True)
+                        if work.exists():
+                            shutil.rmtree(work)
+                        shutil.move(str(probe), str(work))
+                    else:
+                        _prepare_work_dir(work, issue, git_branch=git_branch)
+                    result = graph.invoke(_initial_state(issue, work), config)
+                elif action == "resume":
+                    if issue["agent_mode"] and not work.exists():
+                        from cleardebt.agent_tools import replay_receipts
+
+                        work.parent.mkdir(parents=True, exist_ok=True)
+                        shutil.move(str(probe), str(work))
+                        replay_receipts({"work_dir": str(work), "path": issue["path"]})
+                    result = graph.invoke(None, config)
+                else:
+                    result = snapshot.values
+                steps = _steps(graph, config)
     payload = {
         "action": action,
         "fingerprint": result["fingerprint"],
@@ -105,6 +146,10 @@ def execute(
         "project": result.get("project") or project,
         "model_attempts": result.get("model_attempts"),
         "changed_files": result.get("changed_files") or [],
+        "agent_tool_count": result.get("agent_tool_count") or 0,
+        "agent_patch_count": result.get("agent_patch_count") or 0,
+        "agent_full_count": result.get("agent_full_count") or 0,
+        "agent_usage_tokens": result.get("agent_usage_tokens") or 0,
         "checkpoints": steps,
     }
     if payload.get("proposed_old") and payload.get("level") in {"L1", "L2", "L3"}:
@@ -135,6 +180,8 @@ def execution_fingerprint(
     *,
     git_branch: str | None = None,
     pull_request: str | None = None,
+    agent_mode: bool = False,
+    base_commit: str = "",
 ) -> str:
     """Identity for checkpoints/work/MRs, scoped to one repo and ref.
 
@@ -149,6 +196,10 @@ def execution_fingerprint(
     else:
         ref = "default"
     raw = f"{project.strip()}\n{ref}\n{issue_fingerprint}"
+    if agent_mode:
+        # A protocol change must not reuse a completed checkpoint that stopped
+        # before the model could call a tool under the previous adapter.
+        raw += f"\nagent:v4\n{base_commit}"
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
@@ -310,6 +361,10 @@ def _prepare_work_dir(work: Path, issue: dict, git_branch: str | None = None) ->
         kind = "依赖清单" if is_sca_rule(issue.get("rule") or "") else "源文件"
         where = f"分支 {git_branch}" if git_branch else "默认分支"
         raise SystemExit(f"{where} 上没有 {issue['path']}（{kind}）")
+    if (work / ".git").exists():
+        issue["base_commit"] = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=work, text=True, capture_output=True, check=True
+        ).stdout.strip()
 
 
 def _initial_state(issue: dict, work: Path) -> dict:
@@ -332,6 +387,9 @@ def _initial_state(issue: dict, work: Path) -> dict:
         "rescan_added": [],
         "uncovered_lines": [],
         "project": issue["project"],
+        "session_id": issue.get("session_id") or 0,
+        "base_commit": issue.get("base_commit") or "",
+        "agent_mode": bool(issue.get("agent_mode")),
         "git_branch": issue.get("git_branch") or "",
         "pull_request": issue.get("pull_request") or "",
         "sca_package": issue.get("sca_package") or "",
@@ -344,6 +402,13 @@ def _initial_state(issue: dict, work: Path) -> dict:
         "fix_attempt": 0,
         "history": [],
     }
+
+
+def _agent_limit() -> int:
+    try:
+        return max(1, int(os.environ.get("CLEARDEBT_AGENT_MAX_TOOLS", "20")))
+    except ValueError:
+        return 20
 
 
 def _steps(graph, config) -> list[dict]:

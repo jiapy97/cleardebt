@@ -1,3 +1,4 @@
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -7,11 +8,29 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
 from cleardebt.gitlab_mr import NotEligible
-from open_merge_request import _apply_verified_files, create_merge_request, project_access_level
+from open_merge_request import _apply_verified_files, create_merge_request, ensure_verified_base, project_access_level
 import open_merge_request
 
 
 class OpenMergeRequestProjectTest(unittest.TestCase):
+    def test_changed_target_branch_rejects_old_verified_patch(self):
+        import subprocess
+
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            subprocess.run(["git", "init", "-b", "main"], cwd=repo, check=True, capture_output=True)
+            subprocess.run(["git", "config", "user.email", "test@example.com"], cwd=repo, check=True)
+            subprocess.run(["git", "config", "user.name", "Test"], cwd=repo, check=True)
+            (repo / "a.js").write_text("const a = 1;\n")
+            subprocess.run(["git", "add", "a.js"], cwd=repo, check=True)
+            subprocess.run(["git", "commit", "-m", "base"], cwd=repo, check=True, capture_output=True)
+            base = subprocess.run(["git", "rev-parse", "HEAD"], cwd=repo, check=True, capture_output=True, text=True).stdout.strip()
+            ensure_verified_base(repo, {"base_commit": base})
+            (repo / "a.js").write_text("const a = 2;\n")
+            subprocess.run(["git", "commit", "-am", "new"], cwd=repo, check=True, capture_output=True)
+            with self.assertRaisesRegex(NotEligible, "已变化"):
+                ensure_verified_base(repo, {"base_commit": base})
+
     def test_applies_every_file_from_the_verified_patch_set(self):
         with tempfile.TemporaryDirectory() as directory:
             repo = Path(directory)
@@ -94,6 +113,20 @@ class OpenMergeRequestProjectTest(unittest.TestCase):
             )
         request = urlopen.call_args.args[0]
         self.assertTrue(request.full_url.startswith("https://git.example/api/v4/projects/4242/merge_requests"))
+
+    def test_run_git_reports_stderr_and_hides_the_token(self):
+        completed = subprocess.CompletedProcess(
+            args=["git"], returncode=128, stdout="", stderr="fatal: auth secret-token failed\n",
+        )
+        with patch("open_merge_request.subprocess.run", return_value=completed) as run:
+            with self.assertRaises(RuntimeError) as caught:
+                open_merge_request.run_git(Path("."), ["push", "origin", "cleardebt/s3516"], "secret-token")
+        text = str(caught.exception)
+        self.assertIn("auth *** failed", text)
+        self.assertNotIn("secret-token", text)
+        command = run.call_args.args[0]
+        self.assertEqual(command[:3], ["git", "-c", "credential.helper="])
+        self.assertIn("cleardebt/s3516", command)
 
 
 if __name__ == "__main__":

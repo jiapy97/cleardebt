@@ -12,6 +12,11 @@ READY = {"configured": True, "enabled": True, "whitelist": ["toy-js"], "dry_run"
 
 
 class AssignApiTest(unittest.TestCase):
+    def setUp(self):
+        cancel = patch("cleardebt.assign.session_cancelled", return_value=False)
+        cancel.start()
+        self.addCleanup(cancel.stop)
+
     def test_backlog_eligibility_uses_exact_list_membership(self):
         rows = [
             {"rule": "javascript:S1186", "path": "src/a.js", "sonar_type": "CODE_SMELL",
@@ -77,19 +82,12 @@ class AssignApiTest(unittest.TestCase):
         self.assertFalse(by_rule["javascript:S2077"]["eligible"])
         self.assertEqual(by_rule["javascript:S1128"]["path"], "src/a.js")
 
-    def test_assign_endpoint_starts_session_in_background(self):
+    def test_assign_endpoint_enqueues_a_persistent_session(self):
         client = TestClient(app)
-        import threading as _threading
-
-        started = _threading.Event()
-
-        def _fake_assign(repo, selections, session_id=None):
-            started.set()
-            return {"started": True, "session_id": session_id}
-
         with (
-            patch("cleardebt.assign.create_session", return_value=7),
-            patch("cleardebt.assign.assign_to_agent", side_effect=_fake_assign),
+            patch("cleardebt.api.load_controls", return_value=READY),
+            patch("cleardebt.assign.reserve_session", return_value=(7, True)),
+            patch("cleardebt.agent_jobs.submit") as submit,
         ):
             response = client.post(
                 "/issues/assign",
@@ -99,7 +97,8 @@ class AssignApiTest(unittest.TestCase):
         body = response.json()
         self.assertTrue(body["started"])
         self.assertEqual(body["session_id"], 7)
-        self.assertTrue(started.wait(timeout=10))
+        submit.assert_called_once()
+        self.assertEqual(submit.call_args.args[:2], ("run_assign_session", "toy-js"))
 
     def test_assign_worker_runs_path_aware_and_skips_ineligible(self):
         from cleardebt.assign import assign_to_agent
@@ -198,7 +197,7 @@ class AssignApiTest(unittest.TestCase):
                 {"rule": "sca:UPGRADE", "path": "package.json", "fingerprint": "risk-b", "sonar_key": "sca-release"},
             ], session_id=7)
         execute.assert_called_once_with(
-            "sca:UPGRADE", "toy-js", path="package.json",
+            "sca:UPGRADE", "toy-js", path="package.json", session_id=7,
             message="Upgrade beta to version 3.0.0", sca_package="beta", sca_to_version="3.0.0",
         )
 

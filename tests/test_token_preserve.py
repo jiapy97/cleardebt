@@ -25,6 +25,7 @@ class TokenPreserveTest(unittest.TestCase):
                     "provider": "gitlab",
                     "backlog_fix": True,
                     "request_fix": True,
+                    "agent_mode": True,
                     "automation": {},
                 }
             ],
@@ -64,6 +65,7 @@ class TokenPreserveTest(unittest.TestCase):
         self.assertEqual(kwargs["github_token"], "github-saved")
         self.assertEqual(kwargs["azure_token"], "azure-saved")
         self.assertEqual(kwargs["llm_token"], "llm-saved")
+        self.assertTrue(kwargs["bindings"][0]["agent_mode"])
 
 
 class SecretFormTest(unittest.TestCase):

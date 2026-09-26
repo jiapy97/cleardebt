@@ -1,4 +1,5 @@
 import asyncio
+import hashlib
 import sys
 import unittest
 from pathlib import Path
@@ -69,6 +70,15 @@ class RunOneProjectTest(unittest.TestCase):
                 pull_request="42",
             ),
         )
+        self.assertNotEqual(base, execution_fingerprint("same-sonar-fp", "alpha", agent_mode=True, base_commit="one"))
+        self.assertNotEqual(
+            execution_fingerprint("same-sonar-fp", "alpha", agent_mode=True, base_commit="one"),
+            execution_fingerprint("same-sonar-fp", "alpha", agent_mode=True, base_commit="two"),
+        )
+        old_protocol = hashlib.sha256(b"alpha\ndefault\nsame-sonar-fp\nagent:v1\none").hexdigest()
+        self.assertNotEqual(old_protocol, execution_fingerprint(
+            "same-sonar-fp", "alpha", agent_mode=True, base_commit="one",
+        ))
 
     def test_missing_or_unlisted_project_does_not_run(self):
         settings = {"configured": True, "enabled": True, "whitelist": ["alpha"]}

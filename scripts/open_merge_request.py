@@ -22,11 +22,26 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 from cleardebt.gitlab_mr import NotEligible, ensure_access, ensure_eligible, render_description
+from cleardebt.issue_lock import issue_lock
 from cleardebt.issue_graph import build_graph
 from run_issue import DB_URI, _find_issue, execution_fingerprint
 
 
 def execute(
+    rule: str | None = None,
+    project: str | None = None,
+    *,
+    path: str | None = None,
+    target_branch: str | None = None,
+    fingerprint: str | None = None,
+) -> dict:
+    if fingerprint:
+        with issue_lock(fingerprint):
+            return _execute_unlocked(rule, project, path=path, target_branch=target_branch, fingerprint=fingerprint)
+    return _execute_unlocked(rule, project, path=path, target_branch=target_branch, fingerprint=fingerprint)
+
+
+def _execute_unlocked(
     rule: str | None = None,
     project: str | None = None,
     *,
@@ -89,6 +104,7 @@ def execute(
         default = base
     else:
         default = checkout_default(repo, saved)
+    ensure_verified_base(repo, state)
     branch = "cleardebt/" + state["rule"].split(":")[-1].lower() + "-" + fingerprint[:8]
     git(repo, ["config", "user.name", "ClearDebt"])
     git(repo, ["config", "user.email", "cleardebt@localhost"])
@@ -143,6 +159,17 @@ def _apply_verified_files(repo: Path, changed: list[dict]) -> list[str]:
     return paths
 
 
+def ensure_verified_base(repo: Path, state: dict) -> None:
+    expected = (state.get("base_commit") or "").strip()
+    if not expected:
+        return
+    actual = subprocess.run(
+        ["git", "rev-parse", "HEAD"], cwd=repo, text=True, capture_output=True, check=True
+    ).stdout.strip()
+    if actual != expected:
+        raise NotEligible("目标分支在修复验证后已变化，请重新运行告警修复。")
+
+
 def main() -> int:
     if len(sys.argv) < 2 or not sys.argv[1].strip():
         print("要写上白名单里的项目。不传项目不会跑。")
@@ -186,7 +213,19 @@ def run_git(repo: Path, args: list[str], token: str, *, provider: str = "gitlab"
     env["CLEARDEBT_GIT_TOKEN"] = token
     env["GIT_ASKPASS"] = str(askpass)
     env["GIT_TERMINAL_PROMPT"] = "0"
-    subprocess.run(["git", *args], cwd=repo, env=env, check=True)
+    # An empty helper clears keychain credentials so the project token is used.
+    completed = subprocess.run(
+        ["git", "-c", "credential.helper=", *args],
+        cwd=repo,
+        env=env,
+        capture_output=True,
+        text=True,
+    )
+    if completed.returncode != 0:
+        detail = (completed.stderr or completed.stdout or "git 没有给出原因。").strip()
+        if token:
+            detail = detail.replace(token, "***")
+        raise RuntimeError(f"git {' '.join(args)} 失败：{detail[-500:]}")
 
 
 def create_merge_request(

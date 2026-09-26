@@ -19,6 +19,7 @@ from cleardebt.controls import backlog_gate, gate, load_controls, save_report
 from cleardebt.gitlab_mr import NotEligible
 from cleardebt.issue_graph import sonar_base_url
 from cleardebt.sca import fetch_dependency_risks, is_sca_rule
+from cleardebt.time_display import BEIJING, format_beijing, iso_beijing
 from cleardebt.triage import describe_message, issue_repairable, tier_for_issue
 from list_issues import fetch_issues, issue_path, load_token
 
@@ -108,8 +109,8 @@ def _is_recent(stamp: str | None, days: int = 7) -> bool:
     from datetime import datetime, timedelta
 
     try:
-        seen_at = datetime.strptime(stamp, "%Y-%m-%d %H:%M").astimezone()
-        now = datetime.now().astimezone()
+        seen_at = datetime.strptime(stamp, "%Y-%m-%d %H:%M").replace(tzinfo=BEIJING)
+        now = datetime.now(BEIJING)
     except ValueError:
         return False
     return now - seen_at < timedelta(days=days)
@@ -153,16 +154,19 @@ def refresh_backlog(repo: str) -> tuple[list[dict], str, str]:
     from cleardebt.baseline_scan import scan_baseline
 
     name = (repo or "").strip()
+    scan_failed = False
     try:
         scan = scan_baseline(name)
         stamp = scan.get("analysis_date") or ""
+        display_stamp = format_beijing(stamp)
         if scan.get("skipped"):
-            scan_note = f"上次分析是 {stamp}，10 分钟内扫过就不再重扫，下面是最新的告警。"
+            scan_note = f"上次分析是北京时间 {display_stamp or '未知'}，10 分钟内扫过就不再重扫，下面是最新的告警。"
         elif stamp:
-            scan_note = f"刚重扫过主分支（分析时间 {stamp}），下面是最新的告警。"
+            scan_note = f"刚重扫过主分支（北京时间 {display_stamp or '未知'}），下面是最新的告警。"
         else:
             scan_note = "刚重扫过主分支，下面是最新的告警。"
     except ValueError as error:
+        scan_failed = True
         scan_note = f"重扫没跑成（{error}），下面是上次分析的告警。"
         from cleardebt.scan_progress import report as report_progress
 
@@ -171,9 +175,9 @@ def refresh_backlog(repo: str) -> tuple[list[dict], str, str]:
     issues = list_backlog_issues(name)
     record_first_seen(name, issues)
     save_snapshot(name, stamp, issues)
-    from cleardebt.scan_progress import report as report_progress
+    from cleardebt.scan_progress import complete as complete_progress
 
-    report_progress(name, "DONE")
+    complete_progress(name, ok=not scan_failed, note=scan_note, issue_count=len(issues))
     return issues, scan_note, stamp
 
 
@@ -346,7 +350,7 @@ def first_seen_map(repo: str) -> dict[tuple[str, str, int], str]:
     out = {}
     for rule, path, line, seen in rows:
         try:
-            stamp = seen.astimezone().strftime("%Y-%m-%d %H:%M")
+            stamp = format_beijing(seen)
         except Exception:
             stamp = ""
         out[(rule, path, int(line or 0))] = stamp
@@ -406,8 +410,9 @@ def load_snapshot(repo: str) -> dict | None:
         ).fetchone()
     if row is None:
         return None
-    stamp = row[2].astimezone().strftime("%Y-%m-%d %H:%M") if row[2] else ""
-    note = f"库里快照（分析时间 {row[0]}，入库于 {stamp}）。点重新扫描才重扫入库。"
+    stamp = format_beijing(row[2])
+    analysis = format_beijing(row[0]) or "未知"
+    note = f"库里快照（北京时间：分析于 {analysis}，入库于 {stamp}）。点重新扫描才重扫入库。"
     return {"analysis_date": row[0] or "", "issues": row[1] or [], "note": note}
 
 
@@ -541,6 +546,10 @@ def assign_to_agent(
         def _run_one(index_item: tuple[int, dict]) -> dict:
             nonlocal done_count
             index, item = index_item
+            if session_cancelled(session_id):
+                return {"index": index, "item": item, "ran": {
+                    "rule": item["rule"], "path": item["path"], "level": "L3", "reason": "会话已取消。",
+                }}
             try:
                 kwargs = {
                     "path": item["path"],
@@ -553,6 +562,7 @@ def assign_to_agent(
                 ran = run_issue.execute(
                     item["rule"],
                     name,
+                    session_id=session_id,
                     **kwargs,
                 )
             except SystemExit as error:
@@ -583,9 +593,15 @@ def assign_to_agent(
                 "reason": ran.get("reason"),
                 "fingerprint": ran.get("fingerprint"),
                 "fix_method": ran.get("fix_method") or "",
+                "agent_tool_count": ran.get("agent_tool_count") or 0,
+                "agent_patch_count": ran.get("agent_patch_count") or 0,
+                "agent_full_count": ran.get("agent_full_count") or 0,
+                "agent_usage_tokens": ran.get("agent_usage_tokens") or 0,
                 "action": "no_mr",
             }
-            if ran.get("level") == "L1" and not settings.get("dry_run"):
+            if ran.get("level") == "L1" and session_cancelled(session_id):
+                decision["reason"] = "会话已取消，不开请求。"
+            elif ran.get("level") == "L1" and not settings.get("dry_run"):
                 try:
                     opened = open_merge_request.execute(
                         ran.get("rule") or item["rule"],
@@ -645,16 +661,16 @@ def assign_to_agent(
     }
 
 
-def create_session(*, source: str, repo: str, issue_count: int, status: str = "pending") -> int:
+def create_session(*, source: str, repo: str, issue_count: int, status: str = "pending", job_key: str = "") -> int:
     _ensure()
     with psycopg.connect(DB_URI) as conn:
         row = conn.execute(
             """
-            INSERT INTO agent_sessions (source, status, repo, issue_count, details)
-            VALUES (%s, %s, %s, %s, '{}'::jsonb)
+            INSERT INTO agent_sessions (source, status, repo, issue_count, details, job_key)
+            VALUES (%s, %s, %s, %s, '{}'::jsonb, %s)
             RETURNING id
             """,
-            (source, status, repo, issue_count),
+            (source, status, repo, issue_count, job_key or None),
         ).fetchone()
     return int(row[0])
 
@@ -671,7 +687,7 @@ def finish_session(
                 """
                 UPDATE agent_sessions
                 SET status = %s, details = %s, finished_at = now()
-                WHERE id = %s
+                WHERE id = %s AND status != 'cancelled'
                 """,
                 (status, Json(details), session_id),
             )
@@ -680,7 +696,7 @@ def finish_session(
                 """
                 UPDATE agent_sessions
                 SET status = %s, details = %s, issue_count = %s, finished_at = now()
-                WHERE id = %s
+                WHERE id = %s AND status != 'cancelled'
                 """,
                 (status, Json(details), issue_count, session_id),
             )
@@ -711,13 +727,13 @@ def get_session(session_id: int) -> dict:
             details = {}
     return {
         "id": row[0],
-        "created_at": row[1].isoformat() if row[1] else "",
+        "created_at": iso_beijing(row[1]),
         "source": row[2],
         "status": row[3],
         "repo": row[4],
         "issue_count": row[5],
         "details": details,
-        "finished_at": row[7].isoformat() if row[7] else "",
+        "finished_at": iso_beijing(row[7]),
     }
 
 
@@ -735,8 +751,8 @@ def list_sessions(limit: int = 20) -> list[dict]:
         ).fetchall()
     out = []
     for row in rows:
-        created = row[1].astimezone().strftime("%Y-%m-%d %H:%M") if row[1] else ""
-        finished = row[7].astimezone().strftime("%Y-%m-%d %H:%M") if row[7] else ""
+        created = format_beijing(row[1])
+        finished = format_beijing(row[7])
         out.append(
             {
                 "id": row[0],
@@ -768,3 +784,53 @@ def _ensure() -> None:
             )
             """
         )
+        conn.execute("ALTER TABLE agent_sessions ADD COLUMN IF NOT EXISTS job_key TEXT")
+        conn.execute(
+            "CREATE UNIQUE INDEX IF NOT EXISTS agent_sessions_active_job_idx ON agent_sessions(job_key) "
+            "WHERE job_key IS NOT NULL AND status IN ('pending', 'running')"
+        )
+
+
+def reserve_session(*, source: str, repo: str, issue_count: int, job_key: str) -> tuple[int, bool]:
+    """Atomically reserve a live job key, returning the existing session on duplicates."""
+    _ensure()
+    with psycopg.connect(DB_URI) as conn:
+        row = conn.execute(
+            """INSERT INTO agent_sessions(source, status, repo, issue_count, details, job_key)
+               VALUES (%s, 'pending', %s, %s, '{}'::jsonb, %s)
+               ON CONFLICT DO NOTHING RETURNING id""",
+            (source, repo, issue_count, job_key),
+        ).fetchone()
+        if row:
+            return int(row[0]), True
+        existing = conn.execute(
+            "SELECT id FROM agent_sessions WHERE job_key = %s AND status IN ('pending', 'running') ORDER BY id DESC LIMIT 1",
+            (job_key,),
+        ).fetchone()
+        if existing:
+            return int(existing[0]), False
+    raise RuntimeError("任务占用状态已变化，请重试")
+
+
+def mark_running(session_id: int) -> None:
+    _ensure()
+    with psycopg.connect(DB_URI) as conn:
+        conn.execute("UPDATE agent_sessions SET status = 'running' WHERE id = %s AND status = 'pending'", (session_id,))
+
+
+def session_cancelled(session_id: int) -> bool:
+    _ensure()
+    with psycopg.connect(DB_URI) as conn:
+        row = conn.execute("SELECT status FROM agent_sessions WHERE id = %s", (session_id,)).fetchone()
+    return bool(row and row[0] == "cancelled")
+
+
+def cancel_session(session_id: int) -> bool:
+    _ensure()
+    with psycopg.connect(DB_URI) as conn:
+        row = conn.execute(
+            "UPDATE agent_sessions SET status = 'cancelled', finished_at = now() "
+            "WHERE id = %s AND status IN ('pending', 'running') RETURNING id",
+            (session_id,),
+        ).fetchone()
+    return bool(row)

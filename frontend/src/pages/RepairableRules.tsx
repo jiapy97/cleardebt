@@ -39,7 +39,7 @@ export default function RepairableRulesPage() {
           <Statistic title={listMode ? "Agent 可修规则" : "Quick Fix 规则"} value={data?.rule_count ?? 0} suffix="条" />
         </Space>
         {data && <Typography.Text type="secondary" style={{ display: "block", marginTop: 12 }}>
-          查询时间：{new Date(data.checked_at).toLocaleString("zh-CN")}
+          查询时间（北京）：{new Date(data.checked_at).toLocaleString("zh-CN", { timeZone: "Asia/Shanghai", hour12: false })}
         </Typography.Text>}
       </Card>
       <Card

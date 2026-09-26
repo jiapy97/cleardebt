@@ -68,6 +68,10 @@ def _passing_tests(_state):
 
 
 class ModelLadderTest(unittest.TestCase):
+    def test_default_model_uses_current_deepseek_name(self):
+        with patch.dict(os.environ, {}, clear=True):
+            self.assertEqual(model_ladder(), ["deepseek-flash"])
+
     def test_models_env_builds_ladder(self):
         with patch.dict(
             os.environ,
