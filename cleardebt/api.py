@@ -576,10 +576,12 @@ def api_repairable_rules() -> dict:
         keys = rule_keys()
     except (ValueError, RuntimeError) as error:
         raise HTTPException(status_code=503, detail=str(error)) from error
-    try:
-        issues = fetch_open_issues(credentials["url"], credentials["token"])
-    except Exception as error:
-        raise HTTPException(status_code=502, detail=f"读取 Sonar 告警失败：{error}") from error
+    issues = None
+    if keys is None:
+        try:
+            issues = fetch_open_issues(credentials["url"], credentials["token"])
+        except Exception as error:
+            raise HTTPException(status_code=502, detail=f"读取 Sonar 告警失败：{error}") from error
     try:
         metadata = catalog()
     except Exception:

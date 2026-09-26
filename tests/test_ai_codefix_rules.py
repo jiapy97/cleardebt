@@ -48,6 +48,20 @@ class AiCodefixRulesTest(unittest.TestCase):
             self.assertTrue(issue_repairable({"rule": "javascript:S1128", "quick_fix": True}))
             self.assertFalse(issue_repairable({"rule": "javascript:S1128", "quick_fix": "true"}))
 
+    def test_bundled_snapshot_is_the_default_list(self):
+        with patch.dict("os.environ", {}, clear=True):
+            keys = rule_keys()
+        self.assertEqual(len(keys), 2635)
+        self.assertIn("javascript:S1186", keys)
+        self.assertNotIn("kotlin:S1186", keys)
+
+    def test_json_snapshot_is_validated(self):
+        path = Path(self._tmpdir.name) / "rules.json"
+        path.write_text('{"rules": [{"key": "java:S100"}, {"key": "bad"}]}', encoding="utf-8")
+        with patch.dict("os.environ", {"CLEARDEBT_AI_CODEFIX_RULES_FILE": str(path)}):
+            with self.assertRaisesRegex(ValueError, "第 2 条"):
+                rule_keys()
+
     def test_configured_list_overrides_sonar_quick_fix(self):
         self.assertFalse(issue_repairable({"rule": "javascript:S1186", "quick_fix": True}))
         self.assertTrue(issue_repairable({"rule": "javascript:S6582", "quick_fix": False}))

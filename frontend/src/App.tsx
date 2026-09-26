@@ -33,7 +33,7 @@ const menus = [
   { path: "activity", name: "Agent 活动", icon: <HistoryOutlined /> },
   { path: "sheet", name: "清算单", icon: <AuditOutlined /> },
   { path: "rules", name: "规则管理", icon: <UnorderedListOutlined /> },
-  { path: "repairable", name: "可修规则", icon: <CheckCircleOutlined /> },
+  { path: "repairable", name: "Agent可修规则清单", icon: <CheckCircleOutlined /> },
   { path: "setup", name: "接入配置", icon: <SettingOutlined /> },
 ];
 
@@ -44,7 +44,7 @@ const pageMeta: Record<string, { title: string; sub: string; node: React.ReactNo
   activity: { title: "Agent 活动", sub: "最近会话，每 10 秒自动刷新", node: <ActivityPage /> },
   sheet: { title: "清算单", sub: "最近一轮的决策与建议片段", node: <SheetPage /> },
   rules: { title: "规则管理", sub: "查看 Sonar 规则元数据，维护中文名", node: <RulesPage /> },
-  repairable: { title: "可修规则", sub: "查看当前 Sonar 告警可指派的规则与数量", node: <RepairableRulesPage /> },
+  repairable: { title: "Agent可修规则清单", sub: "Agent 可修复的 Sonar 规则清单", node: <RepairableRulesPage /> },
   setup: { title: "接入配置", sub: "地址、令牌和允许修改的仓库", node: <SetupPage /> },
 };
 

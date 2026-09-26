@@ -53,7 +53,10 @@ class LiveRulesTest(unittest.TestCase):
         self.assertEqual(tier_for("javascript:S107"), before)
 
     def test_sonar_metadata_does_not_grant_repair_eligibility(self):
-        with patch("cleardebt.rules.fetch_all", return_value=dict(FAKE)):
+        with (
+            patch.dict("os.environ", {"CLEARDEBT_AI_CODEFIX_RULES_FILE": ""}),
+            patch("cleardebt.rules.fetch_all", return_value=dict(FAKE)),
+        ):
             refresh()
             self.assertEqual(tier_for("javascript:S3649"), "C")
             self.assertEqual(tier_for("javascript:S9999"), "C")
@@ -66,7 +69,10 @@ class LiveRulesTest(unittest.TestCase):
             self.assertEqual(tier_for("javascript:S0000"), "C")
 
     def test_sonar_unreachable_keeps_pins_working(self):
-        with patch("cleardebt.rules.fetch_all", side_effect=ConnectionError("down")):
+        with (
+            patch.dict("os.environ", {"CLEARDEBT_AI_CODEFIX_RULES_FILE": ""}),
+            patch("cleardebt.rules.fetch_all", side_effect=ConnectionError("down")),
+        ):
             try:
                 refresh()
             except ConnectionError:

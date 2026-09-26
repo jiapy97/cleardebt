@@ -16,8 +16,8 @@ export default function RepairableRulesPage() {
   const rows = useMemo(() => {
     const wanted = search.trim().toLowerCase();
     return (data?.rules ?? [])
-      .filter((rule) => !wanted || `${rule.key} ${rule.name} ${rule.projects.join(" ")}`.toLowerCase().includes(wanted))
-      .sort((a, b) => b.issue_count - a.issue_count || a.key.localeCompare(b.key));
+      .filter((rule) => !wanted || `${rule.key} ${rule.name} ${rule.language}`.toLowerCase().includes(wanted))
+      .sort((a, b) => a.key.localeCompare(b.key));
   }, [data, search]);
   const listMode = data?.mode === "ai_codefix_list";
 
@@ -28,17 +28,15 @@ export default function RepairableRulesPage() {
         <Alert
           type="info"
           showIcon
-          message={listMode ? "来源：已配置的 Sonar AI CodeFix 清单" : "来源：当前 Sonar 扫描的 Quick Fix 标记"}
+          message={listMode ? "来源：Sonar AI CodeFix 适用规则清单" : "来源：当前 Sonar 扫描的 Quick Fix 标记"}
           description={listMode
-            ? "按完整规则键匹配。这里显示 Agent 已接入语言中的清单规则；命中告警数只统计当前打开的 Sonar 告警。"
-            : "这里汇总当前打开的告警中 Sonar 标记 quickFixAvailable=true 的规则。同一规则的其他告警仍需逐条看标记；这不是 Sonar AI CodeFix 的完整名单。"}
+            ? "Sonar 扫描命中这些规则的告警，都可以交给 Agent 修复。按完整规则键匹配，只列出 Agent 已接入的语言。"
+            : "这里列出当前告警中 Sonar 标记 quickFixAvailable=true 的规则。同一规则的其他告警仍需逐条看标记；这不是 Sonar AI CodeFix 的完整名单。"}
         />
       )}
       <Card>
         <Space size="large" wrap>
-          <Statistic title={listMode ? "清单内已接入规则" : "当前告警涉及的 Quick Fix 规则"} value={data?.rule_count ?? 0} suffix="条" />
-          <Statistic title="命中告警" value={data?.eligible_issue_count ?? 0} suffix="条" />
-          <Statistic title="打开的 Sonar 告警" value={data?.open_issue_count ?? 0} suffix="条" />
+          <Statistic title={listMode ? "Agent 可修规则" : "Quick Fix 规则"} value={data?.rule_count ?? 0} suffix="条" />
         </Space>
         {data && <Typography.Text type="secondary" style={{ display: "block", marginTop: 12 }}>
           查询时间：{new Date(data.checked_at).toLocaleString("zh-CN")}
@@ -47,7 +45,7 @@ export default function RepairableRulesPage() {
       <Card
         title="规则清单"
         extra={<Space>
-          <Input.Search allowClear placeholder="搜索规则、名称或项目" onChange={(event) => setSearch(event.target.value)} style={{ width: 240 }} />
+          <Input.Search allowClear placeholder="搜索规则、名称或语言" onChange={(event) => setSearch(event.target.value)} style={{ width: 240 }} />
           <Button loading={isFetching} onClick={() => refetch()}>从 Sonar 刷新</Button>
         </Space>}
       >
@@ -61,8 +59,6 @@ export default function RepairableRulesPage() {
             { title: "规则键", dataIndex: "key", key: "key", width: 210, render: (key: string) => <Typography.Text copyable>{key}</Typography.Text> },
             { title: "Sonar 规则名称", dataIndex: "name", key: "name", ellipsis: true, render: (name: string) => name || "—" },
             { title: "语言", dataIndex: "language", key: "language", width: 140, render: (value: string) => <Tag>{value}</Tag> },
-            { title: "命中告警", dataIndex: "issue_count", key: "issue_count", width: 110, sorter: (a, b) => a.issue_count - b.issue_count },
-            { title: "涉及项目", dataIndex: "projects", key: "projects", width: 250, ellipsis: true, render: (projects: string[]) => projects.length ? projects.join("、") : "—" },
           ]}
         />
       </Card>

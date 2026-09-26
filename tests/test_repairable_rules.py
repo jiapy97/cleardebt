@@ -16,22 +16,31 @@ ISSUES = [
 
 
 class RepairableRulesTest(unittest.TestCase):
-    def test_quick_fix_mode_counts_only_marked_supported_issues(self):
+    def test_quick_fix_mode_lists_only_marked_supported_rules(self):
         result = summarize(ISSUES, None, {"javascript:S6582": {"name": "Prefer optional chaining"}})
-        self.assertEqual((result["rule_count"], result["eligible_issue_count"], result["open_issue_count"]), (1, 1, 4))
-        self.assertEqual(result["rules"][0]["key"], "javascript:S6582")
-        self.assertEqual(result["rules"][0]["projects"], ["alpha"])
-        self.assertEqual(result["rules"][0]["name"], "Prefer optional chaining")
+        self.assertEqual(result["mode"], "sonar_quick_fix")
+        self.assertEqual(result["rules"], [{"key": "javascript:S6582", "language": "javascript", "name": "Prefer optional chaining"}])
 
-    def test_ai_codefix_list_is_exact_and_includes_rules_without_open_issues(self):
+    def test_ai_codefix_list_is_exact_and_needs_no_issues(self):
         keys = frozenset({"javascript:S1128", "typescript:S6582", "kotlin:S1128"})
-        result = summarize(ISSUES, keys, {})
+        result = summarize(None, keys, {})
         self.assertEqual(result["mode"], "ai_codefix_list")
-        self.assertEqual(result["eligible_issue_count"], 1)
         self.assertEqual([row["key"] for row in result["rules"]], ["javascript:S1128", "typescript:S6582"])
-        self.assertEqual(result["rules"][1]["issue_count"], 0)
+        self.assertNotIn("issue_count", result["rules"][0])
 
-    def test_api_returns_the_current_sonar_aggregation(self):
+    def test_api_lists_rules_without_reading_issues(self):
+        with (
+            patch("cleardebt.controls.sonar_credentials", return_value={"url": "http://sonar", "token": "secret"}),
+            patch("cleardebt.ai_codefix_rules.rule_keys", return_value=frozenset({"javascript:S1128"})),
+            patch("cleardebt.repairable_rules.fetch_open_issues") as fetch,
+            patch("cleardebt.rules.catalog", return_value={}),
+        ):
+            response = TestClient(app).get("/api/repairable-rules")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()["rule_count"], 1)
+        fetch.assert_not_called()
+
+    def test_api_reads_issues_only_for_quick_fix_mode(self):
         with (
             patch("cleardebt.controls.sonar_credentials", return_value={"url": "http://sonar", "token": "secret"}),
             patch("cleardebt.ai_codefix_rules.rule_keys", return_value=None),
@@ -39,7 +48,6 @@ class RepairableRulesTest(unittest.TestCase):
             patch("cleardebt.rules.catalog", return_value={}),
         ):
             response = TestClient(app).get("/api/repairable-rules")
-        self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["rule_count"], 1)
         fetch.assert_called_once_with("http://sonar", "secret")
 

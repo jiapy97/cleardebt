@@ -18,6 +18,7 @@ class PublicFixListsTest(unittest.TestCase):
             "ruff": (479, "ruff_rule_code"),
             "biome": (202, "biome_language_rule"),
             "eslint_core": (38, "eslint_rule_name"),
+            "sonar_ai_codefix": (2635, "sonar_rule_key"),
         }
         for source, (count, kind) in expected.items():
             with self.subTest(source=source):
@@ -38,6 +39,10 @@ class PublicFixListsTest(unittest.TestCase):
         self.assertIn("curly", eslint)
         self.assertNotIn("no-unused-vars", eslint)  # suggestions alone are not autofix
         self.assertEqual(biome["js/noUnusedVariables"]["fix_safety"], "unsafe")
+        sonar = [row["key"] for row in catalog("sonar_ai_codefix")["rules"]]
+        self.assertIn("java:S100", sonar)
+        self.assertIn("javascript:S1186", sonar)
+        self.assertEqual(sum(key.startswith("jssecurity:") for key in sonar), 7)
 
 
 if __name__ == "__main__":

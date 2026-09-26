@@ -34,51 +34,30 @@ def fetch_open_issues(host: str, token: str) -> list[dict]:
         page += 1
 
 
-def summarize(issues: list[dict], rule_keys: frozenset[str] | None, metadata: dict[str, dict]) -> dict:
-    """Aggregate exact rule keys without turning issue Quick Fix into a rule whitelist."""
+def summarize(issues: list[dict] | None, rule_keys: frozenset[str] | None, metadata: dict[str, dict]) -> dict:
+    """List the rules the agent can repair, keyed by exact rule key.
+
+    With a configured AI CodeFix list the list alone decides; otherwise the rules
+    come from open issues Sonar marks quickFixAvailable=true.
+    """
     list_mode = rule_keys is not None
-    rows: dict[str, dict] = {}
-
-    def row_for(key: str) -> dict:
-        if key not in rows:
-            rows[key] = {
-                "key": key,
-                "language": language_of(key),
-                "name": (metadata.get(key) or {}).get("name") or "",
-                "issue_count": 0,
-                "projects": set(),
-            }
-        return rows[key]
-
     if list_mode:
-        for key in rule_keys:
-            if language_supported(key):
-                row_for(key)
-
-    eligible_issues = 0
-    for issue in issues:
-        key = (issue.get("rule") or "").strip()
-        if not language_supported(key):
-            continue
-        eligible = key in rule_keys if list_mode else issue.get("quickFixAvailable") is True
-        if not eligible:
-            continue
-        row = row_for(key)
-        row["issue_count"] += 1
-        project = (issue.get("project") or "").strip()
-        if project:
-            row["projects"].add(project)
-        eligible_issues += 1
-
-    ordered = []
-    for key in sorted(rows):
-        row = rows[key]
-        ordered.append({**row, "projects": sorted(row["projects"])})
+        keys = {key for key in rule_keys if language_supported(key)}
+    else:
+        keys = {
+            key
+            for issue in issues or []
+            if (key := (issue.get("rule") or "").strip())
+            and language_supported(key)
+            and issue.get("quickFixAvailable") is True
+        }
+    ordered = [
+        {"key": key, "language": language_of(key), "name": (metadata.get(key) or {}).get("name") or ""}
+        for key in sorted(keys)
+    ]
     return {
         "mode": "ai_codefix_list" if list_mode else "sonar_quick_fix",
         "rule_count": len(ordered),
-        "open_issue_count": len(issues),
-        "eligible_issue_count": eligible_issues,
         "checked_at": datetime.now(timezone.utc).isoformat(),
         "rules": ordered,
     }

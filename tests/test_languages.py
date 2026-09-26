@@ -35,10 +35,11 @@ class LanguagesTest(unittest.TestCase):
         self.assertEqual(problem_surface("javascript:S1313"), "security")
         self.assertEqual(problem_surface("javascript:S2068"), "secrets")
         self.assertTrue(is_secret_rule("secrets:S6290"))
-        self.assertFalse(llm_repairable("javascript:S2068"))
-        self.assertFalse(llm_repairable("secrets:S6290"))
-        self.assertFalse(llm_repairable("javascript:S2077"))
-        self.assertEqual(tier_for("javascript:S2077"), "C")
+        with patch.dict("os.environ", {"CLEARDEBT_AI_CODEFIX_RULES_FILE": ""}):
+            self.assertFalse(llm_repairable("javascript:S2068"))
+            self.assertFalse(llm_repairable("secrets:S6290"))
+            self.assertFalse(llm_repairable("javascript:S2077"))
+            self.assertEqual(tier_for("javascript:S2077"), "C")
 
     def test_test_paths_cover_four_languages(self):
         self.assertTrue(is_test_path("src/pricing.test.js"))

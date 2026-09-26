@@ -1,0 +1,7920 @@
+{
+  "retrieved_on": "2026-09-26",
+  "note": "Official Sonar AI CodeFix eligibility. Deduplicated from the documentation list. Not a guarantee that an issue can be repaired.",
+  "source": "sonar_ai_codefix",
+  "fix_kind": "llm_eligibility",
+  "key_kind": "sonar_rule_key",
+  "license": null,
+  "source_url": "https://docs.sonarsource.com/sonarqube-server/2026.1/quality-standards-administration/managing-rules/rules-for-ai-codefix",
+  "also_listed_at": [
+    "https://docs.sonarsource.com/sonarqube-server/quality-standards-administration/managing-rules/rules-for-ai-codefix",
+    "https://docs.sonarsource.com/sonarqube-cloud/standards/managing-rules/rules-for-ai-codefix"
+  ],
+  "rules": [
+    {
+      "key": "Web:S1134"
+    },
+    {
+      "key": "Web:S1135"
+    },
+    {
+      "key": "Web:S1827"
+    },
+    {
+      "key": "Web:S1829"
+    },
+    {
+      "key": "Web:S4084"
+    },
+    {
+      "key": "Web:S4645"
+    },
+    {
+      "key": "Web:S5148"
+    },
+    {
+      "key": "Web:S5247"
+    },
+    {
+      "key": "Web:S5254"
+    },
+    {
+      "key": "Web:S5255"
+    },
+    {
+      "key": "Web:S5256"
+    },
+    {
+      "key": "Web:S5257"
+    },
+    {
+      "key": "Web:S5258"
+    },
+    {
+      "key": "Web:S5260"
+    },
+    {
+      "key": "Web:S5264"
+    },
+    {
+      "key": "Web:S5725"
+    },
+    {
+      "key": "Web:S6793"
+    },
+    {
+      "key": "Web:S6807"
+    },
+    {
+      "key": "Web:S6811"
+    },
+    {
+      "key": "Web:S6819"
+    },
+    {
+      "key": "Web:S6821"
+    },
+    {
+      "key": "Web:S6822"
+    },
+    {
+      "key": "Web:S6823"
+    },
+    {
+      "key": "Web:S6824"
+    },
+    {
+      "key": "Web:S6825"
+    },
+    {
+      "key": "Web:S6827"
+    },
+    {
+      "key": "Web:S6840"
+    },
+    {
+      "key": "Web:S6841"
+    },
+    {
+      "key": "Web:S6842"
+    },
+    {
+      "key": "Web:S6843"
+    },
+    {
+      "key": "Web:S6844"
+    },
+    {
+      "key": "Web:S6845"
+    },
+    {
+      "key": "Web:S6846"
+    },
+    {
+      "key": "Web:S6847"
+    },
+    {
+      "key": "Web:S6848"
+    },
+    {
+      "key": "Web:S6850"
+    },
+    {
+      "key": "Web:S6851"
+    },
+    {
+      "key": "Web:S6852"
+    },
+    {
+      "key": "Web:S6853"
+    },
+    {
+      "key": "Web:S7926"
+    },
+    {
+      "key": "Web:S7927"
+    },
+    {
+      "key": "Web:S7929"
+    },
+    {
+      "key": "Web:S7930"
+    },
+    {
+      "key": "cpp:S117"
+    },
+    {
+      "key": "cpp:S125"
+    },
+    {
+      "key": "cpp:S134"
+    },
+    {
+      "key": "cpp:S811"
+    },
+    {
+      "key": "cpp:S818"
+    },
+    {
+      "key": "cpp:S831"
+    },
+    {
+      "key": "cpp:S834"
+    },
+    {
+      "key": "cpp:S835"
+    },
+    {
+      "key": "cpp:S836"
+    },
+    {
+      "key": "cpp:S864"
+    },
+    {
+      "key": "cpp:S868"
+    },
+    {
+      "key": "cpp:S871"
+    },
+    {
+      "key": "cpp:S872"
+    },
+    {
+      "key": "cpp:S878"
+    },
+    {
+      "key": "cpp:S905"
+    },
+    {
+      "key": "cpp:S959"
+    },
+    {
+      "key": "cpp:S963"
+    },
+    {
+      "key": "cpp:S966"
+    },
+    {
+      "key": "cpp:S982"
+    },
+    {
+      "key": "cpp:S991"
+    },
+    {
+      "key": "cpp:S994"
+    },
+    {
+      "key": "cpp:S995"
+    },
+    {
+      "key": "cpp:S998"
+    },
+    {
+      "key": "cpp:S1048"
+    },
+    {
+      "key": "cpp:S1051"
+    },
+    {
+      "key": "cpp:S1052"
+    },
+    {
+      "key": "cpp:S1065"
+    },
+    {
+      "key": "cpp:S1066"
+    },
+    {
+      "key": "cpp:S1079"
+    },
+    {
+      "key": "cpp:S1110"
+    },
+    {
+      "key": "cpp:S1117"
+    },
+    {
+      "key": "cpp:S1121"
+    },
+    {
+      "key": "cpp:S1131"
+    },
+    {
+      "key": "cpp:S1155"
+    },
+    {
+      "key": "cpp:S1172"
+    },
+    {
+      "key": "cpp:S1188"
+    },
+    {
+      "key": "cpp:S1199"
+    },
+    {
+      "key": "cpp:S1235"
+    },
+    {
+      "key": "cpp:S1238"
+    },
+    {
+      "key": "cpp:S1264"
+    },
+    {
+      "key": "cpp:S1270"
+    },
+    {
+      "key": "cpp:S1271"
+    },
+    {
+      "key": "cpp:S1301"
+    },
+    {
+      "key": "cpp:S1481"
+    },
+    {
+      "key": "cpp:S1669"
+    },
+    {
+      "key": "cpp:S1705"
+    },
+    {
+      "key": "cpp:S1751"
+    },
+    {
+      "key": "cpp:S1764"
+    },
+    {
+      "key": "cpp:S1768"
+    },
+    {
+      "key": "cpp:S1772"
+    },
+    {
+      "key": "cpp:S1854"
+    },
+    {
+      "key": "cpp:S1905"
+    },
+    {
+      "key": "cpp:S1912"
+    },
+    {
+      "key": "cpp:S1915"
+    },
+    {
+      "key": "cpp:S1916"
+    },
+    {
+      "key": "cpp:S2259"
+    },
+    {
+      "key": "cpp:S2275"
+    },
+    {
+      "key": "cpp:S2305"
+    },
+    {
+      "key": "cpp:S2343"
+    },
+    {
+      "key": "cpp:S2681"
+    },
+    {
+      "key": "cpp:S2807"
+    },
+    {
+      "key": "cpp:S3229"
+    },
+    {
+      "key": "cpp:S3358"
+    },
+    {
+      "key": "cpp:S3458"
+    },
+    {
+      "key": "cpp:S3490"
+    },
+    {
+      "key": "cpp:S3539"
+    },
+    {
+      "key": "cpp:S3542"
+    },
+    {
+      "key": "cpp:S3549"
+    },
+    {
+      "key": "cpp:S3574"
+    },
+    {
+      "key": "cpp:S3659"
+    },
+    {
+      "key": "cpp:S3806"
+    },
+    {
+      "key": "cpp:S3923"
+    },
+    {
+      "key": "cpp:S3972"
+    },
+    {
+      "key": "cpp:S3973"
+    },
+    {
+      "key": "cpp:S4334"
+    },
+    {
+      "key": "cpp:S4962"
+    },
+    {
+      "key": "cpp:S5028"
+    },
+    {
+      "key": "cpp:S5271"
+    },
+    {
+      "key": "cpp:S5303"
+    },
+    {
+      "key": "cpp:S5319"
+    },
+    {
+      "key": "cpp:S5350"
+    },
+    {
+      "key": "cpp:S5416"
+    },
+    {
+      "key": "cpp:S5523"
+    },
+    {
+      "key": "cpp:S5536"
+    },
+    {
+      "key": "cpp:S5566"
+    },
+    {
+      "key": "cpp:S5817"
+    },
+    {
+      "key": "cpp:S5820"
+    },
+    {
+      "key": "cpp:S5825"
+    },
+    {
+      "key": "cpp:S5827"
+    },
+    {
+      "key": "cpp:S5946"
+    },
+    {
+      "key": "cpp:S5951"
+    },
+    {
+      "key": "cpp:S5997"
+    },
+    {
+      "key": "cpp:S6005"
+    },
+    {
+      "key": "cpp:S6024"
+    },
+    {
+      "key": "cpp:S6045"
+    },
+    {
+      "key": "cpp:S6164"
+    },
+    {
+      "key": "cpp:S6171"
+    },
+    {
+      "key": "cpp:S6178"
+    },
+    {
+      "key": "cpp:S6180"
+    },
+    {
+      "key": "cpp:S6185"
+    },
+    {
+      "key": "cpp:S6186"
+    },
+    {
+      "key": "cpp:S6195"
+    },
+    {
+      "key": "cpp:S6197"
+    },
+    {
+      "key": "cpp:S6226"
+    },
+    {
+      "key": "cpp:S6229"
+    },
+    {
+      "key": "cpp:S6230"
+    },
+    {
+      "key": "cpp:S6234"
+    },
+    {
+      "key": "cpp:S6391"
+    },
+    {
+      "key": "cpp:S7034"
+    },
+    {
+      "key": "cpp:S7116"
+    },
+    {
+      "key": "csharpsquid:S100"
+    },
+    {
+      "key": "csharpsquid:S101"
+    },
+    {
+      "key": "csharpsquid:S104"
+    },
+    {
+      "key": "csharpsquid:S105"
+    },
+    {
+      "key": "csharpsquid:S106"
+    },
+    {
+      "key": "csharpsquid:S107"
+    },
+    {
+      "key": "csharpsquid:S110"
+    },
+    {
+      "key": "csharpsquid:S112"
+    },
+    {
+      "key": "csharpsquid:S121"
+    },
+    {
+      "key": "csharpsquid:S125"
+    },
+    {
+      "key": "csharpsquid:S126"
+    },
+    {
+      "key": "csharpsquid:S131"
+    },
+    {
+      "key": "csharpsquid:S818"
+    },
+    {
+      "key": "csharpsquid:S881"
+    },
+    {
+      "key": "csharpsquid:S927"
+    },
+    {
+      "key": "csharpsquid:S1006"
+    },
+    {
+      "key": "csharpsquid:S1048"
+    },
+    {
+      "key": "csharpsquid:S1066"
+    },
+    {
+      "key": "csharpsquid:S1075"
+    },
+    {
+      "key": "csharpsquid:S1110"
+    },
+    {
+      "key": "csharpsquid:S1116"
+    },
+    {
+      "key": "csharpsquid:S1117"
+    },
+    {
+      "key": "csharpsquid:S1118"
+    },
+    {
+      "key": "csharpsquid:S1121"
+    },
+    {
+      "key": "csharpsquid:S1123"
+    },
+    {
+      "key": "csharpsquid:S1125"
+    },
+    {
+      "key": "csharpsquid:S1128"
+    },
+    {
+      "key": "csharpsquid:S1133"
+    },
+    {
+      "key": "csharpsquid:S1134"
+    },
+    {
+      "key": "csharpsquid:S1135"
+    },
+    {
+      "key": "csharpsquid:S1144"
+    },
+    {
+      "key": "csharpsquid:S1147"
+    },
+    {
+      "key": "csharpsquid:S1155"
+    },
+    {
+      "key": "csharpsquid:S1163"
+    },
+    {
+      "key": "csharpsquid:S1168"
+    },
+    {
+      "key": "csharpsquid:S1172"
+    },
+    {
+      "key": "csharpsquid:S1185"
+    },
+    {
+      "key": "csharpsquid:S1186"
+    },
+    {
+      "key": "csharpsquid:S1199"
+    },
+    {
+      "key": "csharpsquid:S1200"
+    },
+    {
+      "key": "csharpsquid:S1206"
+    },
+    {
+      "key": "csharpsquid:S1215"
+    },
+    {
+      "key": "csharpsquid:S1226"
+    },
+    {
+      "key": "csharpsquid:S1227"
+    },
+    {
+      "key": "csharpsquid:S1244"
+    },
+    {
+      "key": "csharpsquid:S1264"
+    },
+    {
+      "key": "csharpsquid:S1301"
+    },
+    {
+      "key": "csharpsquid:S1312"
+    },
+    {
+      "key": "csharpsquid:S1313"
+    },
+    {
+      "key": "csharpsquid:S1450"
+    },
+    {
+      "key": "csharpsquid:S1451"
+    },
+    {
+      "key": "csharpsquid:S1479"
+    },
+    {
+      "key": "csharpsquid:S1481"
+    },
+    {
+      "key": "csharpsquid:S1607"
+    },
+    {
+      "key": "csharpsquid:S1643"
+    },
+    {
+      "key": "csharpsquid:S1656"
+    },
+    {
+      "key": "csharpsquid:S1659"
+    },
+    {
+      "key": "csharpsquid:S1694"
+    },
+    {
+      "key": "csharpsquid:S1696"
+    },
+    {
+      "key": "csharpsquid:S1698"
+    },
+    {
+      "key": "csharpsquid:S1699"
+    },
+    {
+      "key": "csharpsquid:S1751"
+    },
+    {
+      "key": "csharpsquid:S1764"
+    },
+    {
+      "key": "csharpsquid:S1821"
+    },
+    {
+      "key": "csharpsquid:S1848"
+    },
+    {
+      "key": "csharpsquid:S1854"
+    },
+    {
+      "key": "csharpsquid:S1858"
+    },
+    {
+      "key": "csharpsquid:S1862"
+    },
+    {
+      "key": "csharpsquid:S1871"
+    },
+    {
+      "key": "csharpsquid:S1905"
+    },
+    {
+      "key": "csharpsquid:S1939"
+    },
+    {
+      "key": "csharpsquid:S1940"
+    },
+    {
+      "key": "csharpsquid:S1944"
+    },
+    {
+      "key": "csharpsquid:S2053"
+    },
+    {
+      "key": "csharpsquid:S2068"
+    },
+    {
+      "key": "csharpsquid:S2076"
+    },
+    {
+      "key": "csharpsquid:S2077"
+    },
+    {
+      "key": "csharpsquid:S2078"
+    },
+    {
+      "key": "csharpsquid:S2083"
+    },
+    {
+      "key": "csharpsquid:S2091"
+    },
+    {
+      "key": "csharpsquid:S2092"
+    },
+    {
+      "key": "csharpsquid:S2114"
+    },
+    {
+      "key": "csharpsquid:S2115"
+    },
+    {
+      "key": "csharpsquid:S2123"
+    },
+    {
+      "key": "csharpsquid:S2139"
+    },
+    {
+      "key": "csharpsquid:S2156"
+    },
+    {
+      "key": "csharpsquid:S2166"
+    },
+    {
+      "key": "csharpsquid:S2178"
+    },
+    {
+      "key": "csharpsquid:S2183"
+    },
+    {
+      "key": "csharpsquid:S2184"
+    },
+    {
+      "key": "csharpsquid:S2187"
+    },
+    {
+      "key": "csharpsquid:S2190"
+    },
+    {
+      "key": "csharpsquid:S2198"
+    },
+    {
+      "key": "csharpsquid:S2219"
+    },
+    {
+      "key": "csharpsquid:S2221"
+    },
+    {
+      "key": "csharpsquid:S2222"
+    },
+    {
+      "key": "csharpsquid:S2223"
+    },
+    {
+      "key": "csharpsquid:S2225"
+    },
+    {
+      "key": "csharpsquid:S2234"
+    },
+    {
+      "key": "csharpsquid:S2245"
+    },
+    {
+      "key": "csharpsquid:S2251"
+    },
+    {
+      "key": "csharpsquid:S2252"
+    },
+    {
+      "key": "csharpsquid:S2257"
+    },
+    {
+      "key": "csharpsquid:S2259"
+    },
+    {
+      "key": "csharpsquid:S2275"
+    },
+    {
+      "key": "csharpsquid:S2290"
+    },
+    {
+      "key": "csharpsquid:S2291"
+    },
+    {
+      "key": "csharpsquid:S2292"
+    },
+    {
+      "key": "csharpsquid:S2302"
+    },
+    {
+      "key": "csharpsquid:S2306"
+    },
+    {
+      "key": "csharpsquid:S2325"
+    },
+    {
+      "key": "csharpsquid:S2326"
+    },
+    {
+      "key": "csharpsquid:S2327"
+    },
+    {
+      "key": "csharpsquid:S2328"
+    },
+    {
+      "key": "csharpsquid:S2330"
+    },
+    {
+      "key": "csharpsquid:S2333"
+    },
+    {
+      "key": "csharpsquid:S2342"
+    },
+    {
+      "key": "csharpsquid:S2344"
+    },
+    {
+      "key": "csharpsquid:S2345"
+    },
+    {
+      "key": "csharpsquid:S2346"
+    },
+    {
+      "key": "csharpsquid:S2368"
+    },
+    {
+      "key": "csharpsquid:S2372"
+    },
+    {
+      "key": "csharpsquid:S2376"
+    },
+    {
+      "key": "csharpsquid:S2386"
+    },
+    {
+      "key": "csharpsquid:S2387"
+    },
+    {
+      "key": "csharpsquid:S2437"
+    },
+    {
+      "key": "csharpsquid:S2445"
+    },
+    {
+      "key": "csharpsquid:S2479"
+    },
+    {
+      "key": "csharpsquid:S2551"
+    },
+    {
+      "key": "csharpsquid:S2583"
+    },
+    {
+      "key": "csharpsquid:S2612"
+    },
+    {
+      "key": "csharpsquid:S2629"
+    },
+    {
+      "key": "csharpsquid:S2631"
+    },
+    {
+      "key": "csharpsquid:S2674"
+    },
+    {
+      "key": "csharpsquid:S2681"
+    },
+    {
+      "key": "csharpsquid:S2688"
+    },
+    {
+      "key": "csharpsquid:S2692"
+    },
+    {
+      "key": "csharpsquid:S2696"
+    },
+    {
+      "key": "csharpsquid:S2699"
+    },
+    {
+      "key": "csharpsquid:S2701"
+    },
+    {
+      "key": "csharpsquid:S2737"
+    },
+    {
+      "key": "csharpsquid:S2755"
+    },
+    {
+      "key": "csharpsquid:S2757"
+    },
+    {
+      "key": "csharpsquid:S2760"
+    },
+    {
+      "key": "csharpsquid:S2761"
+    },
+    {
+      "key": "csharpsquid:S2857"
+    },
+    {
+      "key": "csharpsquid:S2925"
+    },
+    {
+      "key": "csharpsquid:S2930"
+    },
+    {
+      "key": "csharpsquid:S2933"
+    },
+    {
+      "key": "csharpsquid:S2934"
+    },
+    {
+      "key": "csharpsquid:S2952"
+    },
+    {
+      "key": "csharpsquid:S2953"
+    },
+    {
+      "key": "csharpsquid:S2970"
+    },
+    {
+      "key": "csharpsquid:S2971"
+    },
+    {
+      "key": "csharpsquid:S2995"
+    },
+    {
+      "key": "csharpsquid:S2996"
+    },
+    {
+      "key": "csharpsquid:S2997"
+    },
+    {
+      "key": "csharpsquid:S3005"
+    },
+    {
+      "key": "csharpsquid:S3010"
+    },
+    {
+      "key": "csharpsquid:S3011"
+    },
+    {
+      "key": "csharpsquid:S3052"
+    },
+    {
+      "key": "csharpsquid:S3059"
+    },
+    {
+      "key": "csharpsquid:S3060"
+    },
+    {
+      "key": "csharpsquid:S3063"
+    },
+    {
+      "key": "csharpsquid:S3168"
+    },
+    {
+      "key": "csharpsquid:S3169"
+    },
+    {
+      "key": "csharpsquid:S3172"
+    },
+    {
+      "key": "csharpsquid:S3215"
+    },
+    {
+      "key": "csharpsquid:S3216"
+    },
+    {
+      "key": "csharpsquid:S3217"
+    },
+    {
+      "key": "csharpsquid:S3218"
+    },
+    {
+      "key": "csharpsquid:S3220"
+    },
+    {
+      "key": "csharpsquid:S3234"
+    },
+    {
+      "key": "csharpsquid:S3235"
+    },
+    {
+      "key": "csharpsquid:S3236"
+    },
+    {
+      "key": "csharpsquid:S3237"
+    },
+    {
+      "key": "csharpsquid:S3241"
+    },
+    {
+      "key": "csharpsquid:S3242"
+    },
+    {
+      "key": "csharpsquid:S3244"
+    },
+    {
+      "key": "csharpsquid:S3246"
+    },
+    {
+      "key": "csharpsquid:S3247"
+    },
+    {
+      "key": "csharpsquid:S3249"
+    },
+    {
+      "key": "csharpsquid:S3251"
+    },
+    {
+      "key": "csharpsquid:S3253"
+    },
+    {
+      "key": "csharpsquid:S3254"
+    },
+    {
+      "key": "csharpsquid:S3256"
+    },
+    {
+      "key": "csharpsquid:S3257"
+    },
+    {
+      "key": "csharpsquid:S3260"
+    },
+    {
+      "key": "csharpsquid:S3261"
+    },
+    {
+      "key": "csharpsquid:S3262"
+    },
+    {
+      "key": "csharpsquid:S3263"
+    },
+    {
+      "key": "csharpsquid:S3264"
+    },
+    {
+      "key": "csharpsquid:S3265"
+    },
+    {
+      "key": "csharpsquid:S3267"
+    },
+    {
+      "key": "csharpsquid:S3329"
+    },
+    {
+      "key": "csharpsquid:S3330"
+    },
+    {
+      "key": "csharpsquid:S3343"
+    },
+    {
+      "key": "csharpsquid:S3346"
+    },
+    {
+      "key": "csharpsquid:S3353"
+    },
+    {
+      "key": "csharpsquid:S3358"
+    },
+    {
+      "key": "csharpsquid:S3363"
+    },
+    {
+      "key": "csharpsquid:S3366"
+    },
+    {
+      "key": "csharpsquid:S3376"
+    },
+    {
+      "key": "csharpsquid:S3397"
+    },
+    {
+      "key": "csharpsquid:S3398"
+    },
+    {
+      "key": "csharpsquid:S3400"
+    },
+    {
+      "key": "csharpsquid:S3415"
+    },
+    {
+      "key": "csharpsquid:S3416"
+    },
+    {
+      "key": "csharpsquid:S3427"
+    },
+    {
+      "key": "csharpsquid:S3431"
+    },
+    {
+      "key": "csharpsquid:S3433"
+    },
+    {
+      "key": "csharpsquid:S3440"
+    },
+    {
+      "key": "csharpsquid:S3441"
+    },
+    {
+      "key": "csharpsquid:S3442"
+    },
+    {
+      "key": "csharpsquid:S3443"
+    },
+    {
+      "key": "csharpsquid:S3444"
+    },
+    {
+      "key": "csharpsquid:S3445"
+    },
+    {
+      "key": "csharpsquid:S3447"
+    },
+    {
+      "key": "csharpsquid:S3450"
+    },
+    {
+      "key": "csharpsquid:S3453"
+    },
+    {
+      "key": "csharpsquid:S3456"
+    },
+    {
+      "key": "csharpsquid:S3457"
+    },
+    {
+      "key": "csharpsquid:S3458"
+    },
+    {
+      "key": "csharpsquid:S3459"
+    },
+    {
+      "key": "csharpsquid:S3466"
+    },
+    {
+      "key": "csharpsquid:S3532"
+    },
+    {
+      "key": "csharpsquid:S3597"
+    },
+    {
+      "key": "csharpsquid:S3598"
+    },
+    {
+      "key": "csharpsquid:S3603"
+    },
+    {
+      "key": "csharpsquid:S3604"
+    },
+    {
+      "key": "csharpsquid:S3610"
+    },
+    {
+      "key": "csharpsquid:S3626"
+    },
+    {
+      "key": "csharpsquid:S3649"
+    },
+    {
+      "key": "csharpsquid:S3655"
+    },
+    {
+      "key": "csharpsquid:S3717"
+    },
+    {
+      "key": "csharpsquid:S3869"
+    },
+    {
+      "key": "csharpsquid:S3871"
+    },
+    {
+      "key": "csharpsquid:S3872"
+    },
+    {
+      "key": "csharpsquid:S3874"
+    },
+    {
+      "key": "csharpsquid:S3875"
+    },
+    {
+      "key": "csharpsquid:S3876"
+    },
+    {
+      "key": "csharpsquid:S3877"
+    },
+    {
+      "key": "csharpsquid:S3878"
+    },
+    {
+      "key": "csharpsquid:S3880"
+    },
+    {
+      "key": "csharpsquid:S3881"
+    },
+    {
+      "key": "csharpsquid:S3885"
+    },
+    {
+      "key": "csharpsquid:S3889"
+    },
+    {
+      "key": "csharpsquid:S3897"
+    },
+    {
+      "key": "csharpsquid:S3902"
+    },
+    {
+      "key": "csharpsquid:S3903"
+    },
+    {
+      "key": "csharpsquid:S3904"
+    },
+    {
+      "key": "csharpsquid:S3906"
+    },
+    {
+      "key": "csharpsquid:S3908"
+    },
+    {
+      "key": "csharpsquid:S3909"
+    },
+    {
+      "key": "csharpsquid:S3923"
+    },
+    {
+      "key": "csharpsquid:S3925"
+    },
+    {
+      "key": "csharpsquid:S3926"
+    },
+    {
+      "key": "csharpsquid:S3927"
+    },
+    {
+      "key": "csharpsquid:S3928"
+    },
+    {
+      "key": "csharpsquid:S3937"
+    },
+    {
+      "key": "csharpsquid:S3949"
+    },
+    {
+      "key": "csharpsquid:S3956"
+    },
+    {
+      "key": "csharpsquid:S3962"
+    },
+    {
+      "key": "csharpsquid:S3963"
+    },
+    {
+      "key": "csharpsquid:S3966"
+    },
+    {
+      "key": "csharpsquid:S3971"
+    },
+    {
+      "key": "csharpsquid:S3972"
+    },
+    {
+      "key": "csharpsquid:S3973"
+    },
+    {
+      "key": "csharpsquid:S3981"
+    },
+    {
+      "key": "csharpsquid:S3984"
+    },
+    {
+      "key": "csharpsquid:S3990"
+    },
+    {
+      "key": "csharpsquid:S3992"
+    },
+    {
+      "key": "csharpsquid:S3993"
+    },
+    {
+      "key": "csharpsquid:S3994"
+    },
+    {
+      "key": "csharpsquid:S3995"
+    },
+    {
+      "key": "csharpsquid:S3996"
+    },
+    {
+      "key": "csharpsquid:S3997"
+    },
+    {
+      "key": "csharpsquid:S3998"
+    },
+    {
+      "key": "csharpsquid:S4000"
+    },
+    {
+      "key": "csharpsquid:S4002"
+    },
+    {
+      "key": "csharpsquid:S4004"
+    },
+    {
+      "key": "csharpsquid:S4005"
+    },
+    {
+      "key": "csharpsquid:S4015"
+    },
+    {
+      "key": "csharpsquid:S4016"
+    },
+    {
+      "key": "csharpsquid:S4018"
+    },
+    {
+      "key": "csharpsquid:S4019"
+    },
+    {
+      "key": "csharpsquid:S4022"
+    },
+    {
+      "key": "csharpsquid:S4023"
+    },
+    {
+      "key": "csharpsquid:S4025"
+    },
+    {
+      "key": "csharpsquid:S4026"
+    },
+    {
+      "key": "csharpsquid:S4027"
+    },
+    {
+      "key": "csharpsquid:S4035"
+    },
+    {
+      "key": "csharpsquid:S4036"
+    },
+    {
+      "key": "csharpsquid:S4039"
+    },
+    {
+      "key": "csharpsquid:S4040"
+    },
+    {
+      "key": "csharpsquid:S4041"
+    },
+    {
+      "key": "csharpsquid:S4047"
+    },
+    {
+      "key": "csharpsquid:S4049"
+    },
+    {
+      "key": "csharpsquid:S4050"
+    },
+    {
+      "key": "csharpsquid:S4052"
+    },
+    {
+      "key": "csharpsquid:S4056"
+    },
+    {
+      "key": "csharpsquid:S4057"
+    },
+    {
+      "key": "csharpsquid:S4058"
+    },
+    {
+      "key": "csharpsquid:S4059"
+    },
+    {
+      "key": "csharpsquid:S4060"
+    },
+    {
+      "key": "csharpsquid:S4070"
+    },
+    {
+      "key": "csharpsquid:S4136"
+    },
+    {
+      "key": "csharpsquid:S4143"
+    },
+    {
+      "key": "csharpsquid:S4144"
+    },
+    {
+      "key": "csharpsquid:S4158"
+    },
+    {
+      "key": "csharpsquid:S4159"
+    },
+    {
+      "key": "csharpsquid:S4200"
+    },
+    {
+      "key": "csharpsquid:S4201"
+    },
+    {
+      "key": "csharpsquid:S4210"
+    },
+    {
+      "key": "csharpsquid:S4211"
+    },
+    {
+      "key": "csharpsquid:S4214"
+    },
+    {
+      "key": "csharpsquid:S4220"
+    },
+    {
+      "key": "csharpsquid:S4225"
+    },
+    {
+      "key": "csharpsquid:S4226"
+    },
+    {
+      "key": "csharpsquid:S4260"
+    },
+    {
+      "key": "csharpsquid:S4261"
+    },
+    {
+      "key": "csharpsquid:S4275"
+    },
+    {
+      "key": "csharpsquid:S4277"
+    },
+    {
+      "key": "csharpsquid:S4347"
+    },
+    {
+      "key": "csharpsquid:S4423"
+    },
+    {
+      "key": "csharpsquid:S4426"
+    },
+    {
+      "key": "csharpsquid:S4428"
+    },
+    {
+      "key": "csharpsquid:S4433"
+    },
+    {
+      "key": "csharpsquid:S4456"
+    },
+    {
+      "key": "csharpsquid:S4457"
+    },
+    {
+      "key": "csharpsquid:S4462"
+    },
+    {
+      "key": "csharpsquid:S4487"
+    },
+    {
+      "key": "csharpsquid:S4502"
+    },
+    {
+      "key": "csharpsquid:S4507"
+    },
+    {
+      "key": "csharpsquid:S4524"
+    },
+    {
+      "key": "csharpsquid:S4545"
+    },
+    {
+      "key": "csharpsquid:S4581"
+    },
+    {
+      "key": "csharpsquid:S4583"
+    },
+    {
+      "key": "csharpsquid:S4586"
+    },
+    {
+      "key": "csharpsquid:S4635"
+    },
+    {
+      "key": "csharpsquid:S4663"
+    },
+    {
+      "key": "csharpsquid:S4790"
+    },
+    {
+      "key": "csharpsquid:S4792"
+    },
+    {
+      "key": "csharpsquid:S4830"
+    },
+    {
+      "key": "csharpsquid:S5034"
+    },
+    {
+      "key": "csharpsquid:S5042"
+    },
+    {
+      "key": "csharpsquid:S5122"
+    },
+    {
+      "key": "csharpsquid:S5131"
+    },
+    {
+      "key": "csharpsquid:S5135"
+    },
+    {
+      "key": "csharpsquid:S5144"
+    },
+    {
+      "key": "csharpsquid:S5145"
+    },
+    {
+      "key": "csharpsquid:S5146"
+    },
+    {
+      "key": "csharpsquid:S5147"
+    },
+    {
+      "key": "csharpsquid:S5332"
+    },
+    {
+      "key": "csharpsquid:S5334"
+    },
+    {
+      "key": "csharpsquid:S5344"
+    },
+    {
+      "key": "csharpsquid:S5443"
+    },
+    {
+      "key": "csharpsquid:S5445"
+    },
+    {
+      "key": "csharpsquid:S5542"
+    },
+    {
+      "key": "csharpsquid:S5547"
+    },
+    {
+      "key": "csharpsquid:S5659"
+    },
+    {
+      "key": "csharpsquid:S5693"
+    },
+    {
+      "key": "csharpsquid:S5753"
+    },
+    {
+      "key": "csharpsquid:S5766"
+    },
+    {
+      "key": "csharpsquid:S5773"
+    },
+    {
+      "key": "csharpsquid:S5856"
+    },
+    {
+      "key": "csharpsquid:S5883"
+    },
+    {
+      "key": "csharpsquid:S6096"
+    },
+    {
+      "key": "csharpsquid:S6173"
+    },
+    {
+      "key": "csharpsquid:S6350"
+    },
+    {
+      "key": "csharpsquid:S6354"
+    },
+    {
+      "key": "csharpsquid:S6377"
+    },
+    {
+      "key": "csharpsquid:S6399"
+    },
+    {
+      "key": "csharpsquid:S6418"
+    },
+    {
+      "key": "csharpsquid:S6419"
+    },
+    {
+      "key": "csharpsquid:S6420"
+    },
+    {
+      "key": "csharpsquid:S6421"
+    },
+    {
+      "key": "csharpsquid:S6422"
+    },
+    {
+      "key": "csharpsquid:S6423"
+    },
+    {
+      "key": "csharpsquid:S6444"
+    },
+    {
+      "key": "csharpsquid:S6507"
+    },
+    {
+      "key": "csharpsquid:S6513"
+    },
+    {
+      "key": "csharpsquid:S6547"
+    },
+    {
+      "key": "csharpsquid:S6549"
+    },
+    {
+      "key": "csharpsquid:S6561"
+    },
+    {
+      "key": "csharpsquid:S6563"
+    },
+    {
+      "key": "csharpsquid:S6575"
+    },
+    {
+      "key": "csharpsquid:S6580"
+    },
+    {
+      "key": "csharpsquid:S6585"
+    },
+    {
+      "key": "csharpsquid:S6588"
+    },
+    {
+      "key": "csharpsquid:S6602"
+    },
+    {
+      "key": "csharpsquid:S6603"
+    },
+    {
+      "key": "csharpsquid:S6605"
+    },
+    {
+      "key": "csharpsquid:S6607"
+    },
+    {
+      "key": "csharpsquid:S6608"
+    },
+    {
+      "key": "csharpsquid:S6609"
+    },
+    {
+      "key": "csharpsquid:S6610"
+    },
+    {
+      "key": "csharpsquid:S6612"
+    },
+    {
+      "key": "csharpsquid:S6613"
+    },
+    {
+      "key": "csharpsquid:S6617"
+    },
+    {
+      "key": "csharpsquid:S6618"
+    },
+    {
+      "key": "csharpsquid:S6639"
+    },
+    {
+      "key": "csharpsquid:S6640"
+    },
+    {
+      "key": "csharpsquid:S6641"
+    },
+    {
+      "key": "csharpsquid:S6664"
+    },
+    {
+      "key": "csharpsquid:S6667"
+    },
+    {
+      "key": "csharpsquid:S6668"
+    },
+    {
+      "key": "csharpsquid:S6669"
+    },
+    {
+      "key": "csharpsquid:S6670"
+    },
+    {
+      "key": "csharpsquid:S6672"
+    },
+    {
+      "key": "csharpsquid:S6673"
+    },
+    {
+      "key": "csharpsquid:S6674"
+    },
+    {
+      "key": "csharpsquid:S6675"
+    },
+    {
+      "key": "csharpsquid:S6677"
+    },
+    {
+      "key": "csharpsquid:S6678"
+    },
+    {
+      "key": "csharpsquid:S6680"
+    },
+    {
+      "key": "csharpsquid:S6776"
+    },
+    {
+      "key": "csharpsquid:S6781"
+    },
+    {
+      "key": "csharpsquid:S6797"
+    },
+    {
+      "key": "csharpsquid:S6798"
+    },
+    {
+      "key": "csharpsquid:S6800"
+    },
+    {
+      "key": "csharpsquid:S6802"
+    },
+    {
+      "key": "csharpsquid:S6803"
+    },
+    {
+      "key": "csharpsquid:S6931"
+    },
+    {
+      "key": "csharpsquid:S6932"
+    },
+    {
+      "key": "csharpsquid:S6934"
+    },
+    {
+      "key": "csharpsquid:S6960"
+    },
+    {
+      "key": "csharpsquid:S6961"
+    },
+    {
+      "key": "csharpsquid:S6962"
+    },
+    {
+      "key": "csharpsquid:S6964"
+    },
+    {
+      "key": "csharpsquid:S6965"
+    },
+    {
+      "key": "csharpsquid:S6966"
+    },
+    {
+      "key": "csharpsquid:S6967"
+    },
+    {
+      "key": "csharpsquid:S6968"
+    },
+    {
+      "key": "csharpsquid:S7027"
+    },
+    {
+      "key": "csharpsquid:S7039"
+    },
+    {
+      "key": "csharpsquid:S7044"
+    },
+    {
+      "key": "csharpsquid:S7091"
+    },
+    {
+      "key": "csharpsquid:S7130"
+    },
+    {
+      "key": "csharpsquid:S7131"
+    },
+    {
+      "key": "csharpsquid:S7133"
+    },
+    {
+      "key": "csharpsquid:S7714"
+    },
+    {
+      "key": "csharpsquid:S7788"
+    },
+    {
+      "key": "css:S125"
+    },
+    {
+      "key": "css:S1116"
+    },
+    {
+      "key": "css:S1128"
+    },
+    {
+      "key": "css:S4647"
+    },
+    {
+      "key": "css:S4648"
+    },
+    {
+      "key": "css:S4649"
+    },
+    {
+      "key": "css:S4650"
+    },
+    {
+      "key": "css:S4651"
+    },
+    {
+      "key": "css:S4652"
+    },
+    {
+      "key": "css:S4653"
+    },
+    {
+      "key": "css:S4654"
+    },
+    {
+      "key": "css:S4655"
+    },
+    {
+      "key": "css:S4656"
+    },
+    {
+      "key": "css:S4657"
+    },
+    {
+      "key": "css:S4658"
+    },
+    {
+      "key": "css:S4659"
+    },
+    {
+      "key": "css:S4660"
+    },
+    {
+      "key": "css:S4661"
+    },
+    {
+      "key": "css:S4662"
+    },
+    {
+      "key": "css:S4663"
+    },
+    {
+      "key": "css:S4664"
+    },
+    {
+      "key": "css:S4666"
+    },
+    {
+      "key": "css:S4667"
+    },
+    {
+      "key": "css:S4668"
+    },
+    {
+      "key": "css:S4670"
+    },
+    {
+      "key": "css:S5362"
+    },
+    {
+      "key": "css:S7923"
+    },
+    {
+      "key": "css:S7924"
+    },
+    {
+      "key": "css:S7925"
+    },
+    {
+      "key": "java:S100"
+    },
+    {
+      "key": "java:S101"
+    },
+    {
+      "key": "java:S104"
+    },
+    {
+      "key": "java:S105"
+    },
+    {
+      "key": "java:S108"
+    },
+    {
+      "key": "java:S110"
+    },
+    {
+      "key": "java:S112"
+    },
+    {
+      "key": "java:S113"
+    },
+    {
+      "key": "java:S114"
+    },
+    {
+      "key": "java:S115"
+    },
+    {
+      "key": "java:S116"
+    },
+    {
+      "key": "java:S117"
+    },
+    {
+      "key": "java:S118"
+    },
+    {
+      "key": "java:S119"
+    },
+    {
+      "key": "java:S120"
+    },
+    {
+      "key": "java:S125"
+    },
+    {
+      "key": "java:S128"
+    },
+    {
+      "key": "java:S131"
+    },
+    {
+      "key": "java:S135"
+    },
+    {
+      "key": "java:S818"
+    },
+    {
+      "key": "java:S881"
+    },
+    {
+      "key": "java:S899"
+    },
+    {
+      "key": "java:S923"
+    },
+    {
+      "key": "java:S1065"
+    },
+    {
+      "key": "java:S1068"
+    },
+    {
+      "key": "java:S1075"
+    },
+    {
+      "key": "java:S1104"
+    },
+    {
+      "key": "java:S1110"
+    },
+    {
+      "key": "java:S1111"
+    },
+    {
+      "key": "java:S1113"
+    },
+    {
+      "key": "java:S1116"
+    },
+    {
+      "key": "java:S1117"
+    },
+    {
+      "key": "java:S1118"
+    },
+    {
+      "key": "java:S1119"
+    },
+    {
+      "key": "java:S1121"
+    },
+    {
+      "key": "java:S1123"
+    },
+    {
+      "key": "java:S1124"
+    },
+    {
+      "key": "java:S1125"
+    },
+    {
+      "key": "java:S1126"
+    },
+    {
+      "key": "java:S1128"
+    },
+    {
+      "key": "java:S1130"
+    },
+    {
+      "key": "java:S1132"
+    },
+    {
+      "key": "java:S1133"
+    },
+    {
+      "key": "java:S1134"
+    },
+    {
+      "key": "java:S1135"
+    },
+    {
+      "key": "java:S1143"
+    },
+    {
+      "key": "java:S1144"
+    },
+    {
+      "key": "java:S1147"
+    },
+    {
+      "key": "java:S1149"
+    },
+    {
+      "key": "java:S1150"
+    },
+    {
+      "key": "java:S1153"
+    },
+    {
+      "key": "java:S1155"
+    },
+    {
+      "key": "java:S1157"
+    },
+    {
+      "key": "java:S1158"
+    },
+    {
+      "key": "java:S1160"
+    },
+    {
+      "key": "java:S1162"
+    },
+    {
+      "key": "java:S1163"
+    },
+    {
+      "key": "java:S1165"
+    },
+    {
+      "key": "java:S1166"
+    },
+    {
+      "key": "java:S1168"
+    },
+    {
+      "key": "java:S1170"
+    },
+    {
+      "key": "java:S1171"
+    },
+    {
+      "key": "java:S1172"
+    },
+    {
+      "key": "java:S1174"
+    },
+    {
+      "key": "java:S1175"
+    },
+    {
+      "key": "java:S1176"
+    },
+    {
+      "key": "java:S1181"
+    },
+    {
+      "key": "java:S1182"
+    },
+    {
+      "key": "java:S1185"
+    },
+    {
+      "key": "java:S1186"
+    },
+    {
+      "key": "java:S1190"
+    },
+    {
+      "key": "java:S1191"
+    },
+    {
+      "key": "java:S1192"
+    },
+    {
+      "key": "java:S1193"
+    },
+    {
+      "key": "java:S1194"
+    },
+    {
+      "key": "java:S1195"
+    },
+    {
+      "key": "java:S1197"
+    },
+    {
+      "key": "java:S1200"
+    },
+    {
+      "key": "java:S1201"
+    },
+    {
+      "key": "java:S1206"
+    },
+    {
+      "key": "java:S1210"
+    },
+    {
+      "key": "java:S1215"
+    },
+    {
+      "key": "java:S1217"
+    },
+    {
+      "key": "java:S1219"
+    },
+    {
+      "key": "java:S1220"
+    },
+    {
+      "key": "java:S1221"
+    },
+    {
+      "key": "java:S1223"
+    },
+    {
+      "key": "java:S1228"
+    },
+    {
+      "key": "java:S1244"
+    },
+    {
+      "key": "java:S1264"
+    },
+    {
+      "key": "java:S1301"
+    },
+    {
+      "key": "java:S1310"
+    },
+    {
+      "key": "java:S1313"
+    },
+    {
+      "key": "java:S1314"
+    },
+    {
+      "key": "java:S1315"
+    },
+    {
+      "key": "java:S1317"
+    },
+    {
+      "key": "java:S1319"
+    },
+    {
+      "key": "java:S1444"
+    },
+    {
+      "key": "java:S1449"
+    },
+    {
+      "key": "java:S1450"
+    },
+    {
+      "key": "java:S1451"
+    },
+    {
+      "key": "java:S1452"
+    },
+    {
+      "key": "java:S1479"
+    },
+    {
+      "key": "java:S1481"
+    },
+    {
+      "key": "java:S1488"
+    },
+    {
+      "key": "java:S1596"
+    },
+    {
+      "key": "java:S1598"
+    },
+    {
+      "key": "java:S1602"
+    },
+    {
+      "key": "java:S1604"
+    },
+    {
+      "key": "java:S1607"
+    },
+    {
+      "key": "java:S1611"
+    },
+    {
+      "key": "java:S1612"
+    },
+    {
+      "key": "java:S1640"
+    },
+    {
+      "key": "java:S1641"
+    },
+    {
+      "key": "java:S1643"
+    },
+    {
+      "key": "java:S1656"
+    },
+    {
+      "key": "java:S1659"
+    },
+    {
+      "key": "java:S1695"
+    },
+    {
+      "key": "java:S1698"
+    },
+    {
+      "key": "java:S1700"
+    },
+    {
+      "key": "java:S1710"
+    },
+    {
+      "key": "java:S1711"
+    },
+    {
+      "key": "java:S1764"
+    },
+    {
+      "key": "java:S1821"
+    },
+    {
+      "key": "java:S1845"
+    },
+    {
+      "key": "java:S1849"
+    },
+    {
+      "key": "java:S1854"
+    },
+    {
+      "key": "java:S1858"
+    },
+    {
+      "key": "java:S1860"
+    },
+    {
+      "key": "java:S1871"
+    },
+    {
+      "key": "java:S1872"
+    },
+    {
+      "key": "java:S1874"
+    },
+    {
+      "key": "java:S1905"
+    },
+    {
+      "key": "java:S1939"
+    },
+    {
+      "key": "java:S1940"
+    },
+    {
+      "key": "java:S1942"
+    },
+    {
+      "key": "java:S1943"
+    },
+    {
+      "key": "java:S1948"
+    },
+    {
+      "key": "java:S1989"
+    },
+    {
+      "key": "java:S1994"
+    },
+    {
+      "key": "java:S1996"
+    },
+    {
+      "key": "java:S2039"
+    },
+    {
+      "key": "java:S2047"
+    },
+    {
+      "key": "java:S2053"
+    },
+    {
+      "key": "java:S2055"
+    },
+    {
+      "key": "java:S2059"
+    },
+    {
+      "key": "java:S2060"
+    },
+    {
+      "key": "java:S2061"
+    },
+    {
+      "key": "java:S2062"
+    },
+    {
+      "key": "java:S2065"
+    },
+    {
+      "key": "java:S2066"
+    },
+    {
+      "key": "java:S2068"
+    },
+    {
+      "key": "java:S2076"
+    },
+    {
+      "key": "java:S2077"
+    },
+    {
+      "key": "java:S2078"
+    },
+    {
+      "key": "java:S2083"
+    },
+    {
+      "key": "java:S2091"
+    },
+    {
+      "key": "java:S2092"
+    },
+    {
+      "key": "java:S2094"
+    },
+    {
+      "key": "java:S2096"
+    },
+    {
+      "key": "java:S2109"
+    },
+    {
+      "key": "java:S2110"
+    },
+    {
+      "key": "java:S2111"
+    },
+    {
+      "key": "java:S2112"
+    },
+    {
+      "key": "java:S2114"
+    },
+    {
+      "key": "java:S2115"
+    },
+    {
+      "key": "java:S2118"
+    },
+    {
+      "key": "java:S2121"
+    },
+    {
+      "key": "java:S2122"
+    },
+    {
+      "key": "java:S2123"
+    },
+    {
+      "key": "java:S2127"
+    },
+    {
+      "key": "java:S2129"
+    },
+    {
+      "key": "java:S2130"
+    },
+    {
+      "key": "java:S2131"
+    },
+    {
+      "key": "java:S2133"
+    },
+    {
+      "key": "java:S2134"
+    },
+    {
+      "key": "java:S2139"
+    },
+    {
+      "key": "java:S2140"
+    },
+    {
+      "key": "java:S2141"
+    },
+    {
+      "key": "java:S2143"
+    },
+    {
+      "key": "java:S2148"
+    },
+    {
+      "key": "java:S2153"
+    },
+    {
+      "key": "java:S2154"
+    },
+    {
+      "key": "java:S2156"
+    },
+    {
+      "key": "java:S2157"
+    },
+    {
+      "key": "java:S2159"
+    },
+    {
+      "key": "java:S2160"
+    },
+    {
+      "key": "java:S2162"
+    },
+    {
+      "key": "java:S2164"
+    },
+    {
+      "key": "java:S2166"
+    },
+    {
+      "key": "java:S2167"
+    },
+    {
+      "key": "java:S2168"
+    },
+    {
+      "key": "java:S2175"
+    },
+    {
+      "key": "java:S2176"
+    },
+    {
+      "key": "java:S2177"
+    },
+    {
+      "key": "java:S2178"
+    },
+    {
+      "key": "java:S2183"
+    },
+    {
+      "key": "java:S2184"
+    },
+    {
+      "key": "java:S2185"
+    },
+    {
+      "key": "java:S2186"
+    },
+    {
+      "key": "java:S2187"
+    },
+    {
+      "key": "java:S2188"
+    },
+    {
+      "key": "java:S2189"
+    },
+    {
+      "key": "java:S2190"
+    },
+    {
+      "key": "java:S2197"
+    },
+    {
+      "key": "java:S2200"
+    },
+    {
+      "key": "java:S2201"
+    },
+    {
+      "key": "java:S2203"
+    },
+    {
+      "key": "java:S2204"
+    },
+    {
+      "key": "java:S2208"
+    },
+    {
+      "key": "java:S2209"
+    },
+    {
+      "key": "java:S2211"
+    },
+    {
+      "key": "java:S2221"
+    },
+    {
+      "key": "java:S2222"
+    },
+    {
+      "key": "java:S2225"
+    },
+    {
+      "key": "java:S2226"
+    },
+    {
+      "key": "java:S2229"
+    },
+    {
+      "key": "java:S2230"
+    },
+    {
+      "key": "java:S2232"
+    },
+    {
+      "key": "java:S2235"
+    },
+    {
+      "key": "java:S2236"
+    },
+    {
+      "key": "java:S2245"
+    },
+    {
+      "key": "java:S2250"
+    },
+    {
+      "key": "java:S2251"
+    },
+    {
+      "key": "java:S2252"
+    },
+    {
+      "key": "java:S2254"
+    },
+    {
+      "key": "java:S2257"
+    },
+    {
+      "key": "java:S2259"
+    },
+    {
+      "key": "java:S2260"
+    },
+    {
+      "key": "java:S2273"
+    },
+    {
+      "key": "java:S2274"
+    },
+    {
+      "key": "java:S2275"
+    },
+    {
+      "key": "java:S2276"
+    },
+    {
+      "key": "java:S2293"
+    },
+    {
+      "key": "java:S2308"
+    },
+    {
+      "key": "java:S2309"
+    },
+    {
+      "key": "java:S2325"
+    },
+    {
+      "key": "java:S2326"
+    },
+    {
+      "key": "java:S2333"
+    },
+    {
+      "key": "java:S2384"
+    },
+    {
+      "key": "java:S2386"
+    },
+    {
+      "key": "java:S2388"
+    },
+    {
+      "key": "java:S2390"
+    },
+    {
+      "key": "java:S2437"
+    },
+    {
+      "key": "java:S2438"
+    },
+    {
+      "key": "java:S2440"
+    },
+    {
+      "key": "java:S2441"
+    },
+    {
+      "key": "java:S2442"
+    },
+    {
+      "key": "java:S2444"
+    },
+    {
+      "key": "java:S2445"
+    },
+    {
+      "key": "java:S2446"
+    },
+    {
+      "key": "java:S2447"
+    },
+    {
+      "key": "java:S2479"
+    },
+    {
+      "key": "java:S2589"
+    },
+    {
+      "key": "java:S2612"
+    },
+    {
+      "key": "java:S2629"
+    },
+    {
+      "key": "java:S2631"
+    },
+    {
+      "key": "java:S2637"
+    },
+    {
+      "key": "java:S2638"
+    },
+    {
+      "key": "java:S2639"
+    },
+    {
+      "key": "java:S2647"
+    },
+    {
+      "key": "java:S2658"
+    },
+    {
+      "key": "java:S2675"
+    },
+    {
+      "key": "java:S2676"
+    },
+    {
+      "key": "java:S2681"
+    },
+    {
+      "key": "java:S2689"
+    },
+    {
+      "key": "java:S2692"
+    },
+    {
+      "key": "java:S2693"
+    },
+    {
+      "key": "java:S2694"
+    },
+    {
+      "key": "java:S2695"
+    },
+    {
+      "key": "java:S2698"
+    },
+    {
+      "key": "java:S2699"
+    },
+    {
+      "key": "java:S2701"
+    },
+    {
+      "key": "java:S2718"
+    },
+    {
+      "key": "java:S2755"
+    },
+    {
+      "key": "java:S2757"
+    },
+    {
+      "key": "java:S2761"
+    },
+    {
+      "key": "java:S2786"
+    },
+    {
+      "key": "java:S2789"
+    },
+    {
+      "key": "java:S2864"
+    },
+    {
+      "key": "java:S2885"
+    },
+    {
+      "key": "java:S2886"
+    },
+    {
+      "key": "java:S2924"
+    },
+    {
+      "key": "java:S2925"
+    },
+    {
+      "key": "java:S2959"
+    },
+    {
+      "key": "java:S2970"
+    },
+    {
+      "key": "java:S2973"
+    },
+    {
+      "key": "java:S2974"
+    },
+    {
+      "key": "java:S3008"
+    },
+    {
+      "key": "java:S3012"
+    },
+    {
+      "key": "java:S3014"
+    },
+    {
+      "key": "java:S3020"
+    },
+    {
+      "key": "java:S3024"
+    },
+    {
+      "key": "java:S3030"
+    },
+    {
+      "key": "java:S3032"
+    },
+    {
+      "key": "java:S3033"
+    },
+    {
+      "key": "java:S3034"
+    },
+    {
+      "key": "java:S3038"
+    },
+    {
+      "key": "java:S3039"
+    },
+    {
+      "key": "java:S3046"
+    },
+    {
+      "key": "java:S3052"
+    },
+    {
+      "key": "java:S3063"
+    },
+    {
+      "key": "java:S3064"
+    },
+    {
+      "key": "java:S3065"
+    },
+    {
+      "key": "java:S3066"
+    },
+    {
+      "key": "java:S3067"
+    },
+    {
+      "key": "java:S3077"
+    },
+    {
+      "key": "java:S3078"
+    },
+    {
+      "key": "java:S3242"
+    },
+    {
+      "key": "java:S3254"
+    },
+    {
+      "key": "java:S3305"
+    },
+    {
+      "key": "java:S3306"
+    },
+    {
+      "key": "java:S3329"
+    },
+    {
+      "key": "java:S3330"
+    },
+    {
+      "key": "java:S3346"
+    },
+    {
+      "key": "java:S3358"
+    },
+    {
+      "key": "java:S3400"
+    },
+    {
+      "key": "java:S3414"
+    },
+    {
+      "key": "java:S3415"
+    },
+    {
+      "key": "java:S3416"
+    },
+    {
+      "key": "java:S3437"
+    },
+    {
+      "key": "java:S3457"
+    },
+    {
+      "key": "java:S3518"
+    },
+    {
+      "key": "java:S3551"
+    },
+    {
+      "key": "java:S3553"
+    },
+    {
+      "key": "java:S3577"
+    },
+    {
+      "key": "java:S3578"
+    },
+    {
+      "key": "java:S3626"
+    },
+    {
+      "key": "java:S3631"
+    },
+    {
+      "key": "java:S3649"
+    },
+    {
+      "key": "java:S3655"
+    },
+    {
+      "key": "java:S3658"
+    },
+    {
+      "key": "java:S3725"
+    },
+    {
+      "key": "java:S3740"
+    },
+    {
+      "key": "java:S3749"
+    },
+    {
+      "key": "java:S3750"
+    },
+    {
+      "key": "java:S3751"
+    },
+    {
+      "key": "java:S3752"
+    },
+    {
+      "key": "java:S3753"
+    },
+    {
+      "key": "java:S3776"
+    },
+    {
+      "key": "java:S3864"
+    },
+    {
+      "key": "java:S3878"
+    },
+    {
+      "key": "java:S3923"
+    },
+    {
+      "key": "java:S3937"
+    },
+    {
+      "key": "java:S3958"
+    },
+    {
+      "key": "java:S3959"
+    },
+    {
+      "key": "java:S3973"
+    },
+    {
+      "key": "java:S3981"
+    },
+    {
+      "key": "java:S3984"
+    },
+    {
+      "key": "java:S3985"
+    },
+    {
+      "key": "java:S3986"
+    },
+    {
+      "key": "java:S4030"
+    },
+    {
+      "key": "java:S4032"
+    },
+    {
+      "key": "java:S4034"
+    },
+    {
+      "key": "java:S4036"
+    },
+    {
+      "key": "java:S4042"
+    },
+    {
+      "key": "java:S4065"
+    },
+    {
+      "key": "java:S4087"
+    },
+    {
+      "key": "java:S4143"
+    },
+    {
+      "key": "java:S4144"
+    },
+    {
+      "key": "java:S4165"
+    },
+    {
+      "key": "java:S4174"
+    },
+    {
+      "key": "java:S4201"
+    },
+    {
+      "key": "java:S4266"
+    },
+    {
+      "key": "java:S4274"
+    },
+    {
+      "key": "java:S4275"
+    },
+    {
+      "key": "java:S4288"
+    },
+    {
+      "key": "java:S4347"
+    },
+    {
+      "key": "java:S4348"
+    },
+    {
+      "key": "java:S4349"
+    },
+    {
+      "key": "java:S4351"
+    },
+    {
+      "key": "java:S4423"
+    },
+    {
+      "key": "java:S4425"
+    },
+    {
+      "key": "java:S4426"
+    },
+    {
+      "key": "java:S4433"
+    },
+    {
+      "key": "java:S4434"
+    },
+    {
+      "key": "java:S4449"
+    },
+    {
+      "key": "java:S4454"
+    },
+    {
+      "key": "java:S4488"
+    },
+    {
+      "key": "java:S4502"
+    },
+    {
+      "key": "java:S4507"
+    },
+    {
+      "key": "java:S4512"
+    },
+    {
+      "key": "java:S4517"
+    },
+    {
+      "key": "java:S4524"
+    },
+    {
+      "key": "java:S4544"
+    },
+    {
+      "key": "java:S4551"
+    },
+    {
+      "key": "java:S4601"
+    },
+    {
+      "key": "java:S4602"
+    },
+    {
+      "key": "java:S4604"
+    },
+    {
+      "key": "java:S4605"
+    },
+    {
+      "key": "java:S4635"
+    },
+    {
+      "key": "java:S4682"
+    },
+    {
+      "key": "java:S4684"
+    },
+    {
+      "key": "java:S4738"
+    },
+    {
+      "key": "java:S4790"
+    },
+    {
+      "key": "java:S4792"
+    },
+    {
+      "key": "java:S4830"
+    },
+    {
+      "key": "java:S4838"
+    },
+    {
+      "key": "java:S4925"
+    },
+    {
+      "key": "java:S4929"
+    },
+    {
+      "key": "java:S4968"
+    },
+    {
+      "key": "java:S4970"
+    },
+    {
+      "key": "java:S4973"
+    },
+    {
+      "key": "java:S4977"
+    },
+    {
+      "key": "java:S5042"
+    },
+    {
+      "key": "java:S5122"
+    },
+    {
+      "key": "java:S5128"
+    },
+    {
+      "key": "java:S5131"
+    },
+    {
+      "key": "java:S5135"
+    },
+    {
+      "key": "java:S5144"
+    },
+    {
+      "key": "java:S5145"
+    },
+    {
+      "key": "java:S5146"
+    },
+    {
+      "key": "java:S5147"
+    },
+    {
+      "key": "java:S5164"
+    },
+    {
+      "key": "java:S5167"
+    },
+    {
+      "key": "java:S5194"
+    },
+    {
+      "key": "java:S5247"
+    },
+    {
+      "key": "java:S5301"
+    },
+    {
+      "key": "java:S5320"
+    },
+    {
+      "key": "java:S5322"
+    },
+    {
+      "key": "java:S5324"
+    },
+    {
+      "key": "java:S5329"
+    },
+    {
+      "key": "java:S5332"
+    },
+    {
+      "key": "java:S5334"
+    },
+    {
+      "key": "java:S5344"
+    },
+    {
+      "key": "java:S5361"
+    },
+    {
+      "key": "java:S5411"
+    },
+    {
+      "key": "java:S5413"
+    },
+    {
+      "key": "java:S5443"
+    },
+    {
+      "key": "java:S5445"
+    },
+    {
+      "key": "java:S5496"
+    },
+    {
+      "key": "java:S5527"
+    },
+    {
+      "key": "java:S5542"
+    },
+    {
+      "key": "java:S5547"
+    },
+    {
+      "key": "java:S5659"
+    },
+    {
+      "key": "java:S5663"
+    },
+    {
+      "key": "java:S5664"
+    },
+    {
+      "key": "java:S5665"
+    },
+    {
+      "key": "java:S5669"
+    },
+    {
+      "key": "java:S5689"
+    },
+    {
+      "key": "java:S5693"
+    },
+    {
+      "key": "java:S5738"
+    },
+    {
+      "key": "java:S5776"
+    },
+    {
+      "key": "java:S5777"
+    },
+    {
+      "key": "java:S5778"
+    },
+    {
+      "key": "java:S5779"
+    },
+    {
+      "key": "java:S5783"
+    },
+    {
+      "key": "java:S5785"
+    },
+    {
+      "key": "java:S5786"
+    },
+    {
+      "key": "java:S5790"
+    },
+    {
+      "key": "java:S5793"
+    },
+    {
+      "key": "java:S5803"
+    },
+    {
+      "key": "java:S5804"
+    },
+    {
+      "key": "java:S5808"
+    },
+    {
+      "key": "java:S5810"
+    },
+    {
+      "key": "java:S5826"
+    },
+    {
+      "key": "java:S5833"
+    },
+    {
+      "key": "java:S5838"
+    },
+    {
+      "key": "java:S5841"
+    },
+    {
+      "key": "java:S5842"
+    },
+    {
+      "key": "java:S5843"
+    },
+    {
+      "key": "java:S5845"
+    },
+    {
+      "key": "java:S5850"
+    },
+    {
+      "key": "java:S5852"
+    },
+    {
+      "key": "java:S5853"
+    },
+    {
+      "key": "java:S5854"
+    },
+    {
+      "key": "java:S5855"
+    },
+    {
+      "key": "java:S5856"
+    },
+    {
+      "key": "java:S5857"
+    },
+    {
+      "key": "java:S5860"
+    },
+    {
+      "key": "java:S5863"
+    },
+    {
+      "key": "java:S5866"
+    },
+    {
+      "key": "java:S5867"
+    },
+    {
+      "key": "java:S5868"
+    },
+    {
+      "key": "java:S5869"
+    },
+    {
+      "key": "java:S5876"
+    },
+    {
+      "key": "java:S5883"
+    },
+    {
+      "key": "java:S5958"
+    },
+    {
+      "key": "java:S5960"
+    },
+    {
+      "key": "java:S5961"
+    },
+    {
+      "key": "java:S5967"
+    },
+    {
+      "key": "java:S5969"
+    },
+    {
+      "key": "java:S5970"
+    },
+    {
+      "key": "java:S5976"
+    },
+    {
+      "key": "java:S5977"
+    },
+    {
+      "key": "java:S5979"
+    },
+    {
+      "key": "java:S5993"
+    },
+    {
+      "key": "java:S5994"
+    },
+    {
+      "key": "java:S5996"
+    },
+    {
+      "key": "java:S5998"
+    },
+    {
+      "key": "java:S6001"
+    },
+    {
+      "key": "java:S6002"
+    },
+    {
+      "key": "java:S6019"
+    },
+    {
+      "key": "java:S6035"
+    },
+    {
+      "key": "java:S6068"
+    },
+    {
+      "key": "java:S6073"
+    },
+    {
+      "key": "java:S6096"
+    },
+    {
+      "key": "java:S6103"
+    },
+    {
+      "key": "java:S6104"
+    },
+    {
+      "key": "java:S6126"
+    },
+    {
+      "key": "java:S6173"
+    },
+    {
+      "key": "java:S6201"
+    },
+    {
+      "key": "java:S6202"
+    },
+    {
+      "key": "java:S6203"
+    },
+    {
+      "key": "java:S6204"
+    },
+    {
+      "key": "java:S6205"
+    },
+    {
+      "key": "java:S6206"
+    },
+    {
+      "key": "java:S6207"
+    },
+    {
+      "key": "java:S6208"
+    },
+    {
+      "key": "java:S6209"
+    },
+    {
+      "key": "java:S6211"
+    },
+    {
+      "key": "java:S6212"
+    },
+    {
+      "key": "java:S6213"
+    },
+    {
+      "key": "java:S6217"
+    },
+    {
+      "key": "java:S6218"
+    },
+    {
+      "key": "java:S6219"
+    },
+    {
+      "key": "java:S6241"
+    },
+    {
+      "key": "java:S6242"
+    },
+    {
+      "key": "java:S6243"
+    },
+    {
+      "key": "java:S6244"
+    },
+    {
+      "key": "java:S6262"
+    },
+    {
+      "key": "java:S6263"
+    },
+    {
+      "key": "java:S6287"
+    },
+    {
+      "key": "java:S6288"
+    },
+    {
+      "key": "java:S6291"
+    },
+    {
+      "key": "java:S6293"
+    },
+    {
+      "key": "java:S6300"
+    },
+    {
+      "key": "java:S6301"
+    },
+    {
+      "key": "java:S6320"
+    },
+    {
+      "key": "java:S6322"
+    },
+    {
+      "key": "java:S6326"
+    },
+    {
+      "key": "java:S6331"
+    },
+    {
+      "key": "java:S6350"
+    },
+    {
+      "key": "java:S6353"
+    },
+    {
+      "key": "java:S6355"
+    },
+    {
+      "key": "java:S6362"
+    },
+    {
+      "key": "java:S6363"
+    },
+    {
+      "key": "java:S6373"
+    },
+    {
+      "key": "java:S6374"
+    },
+    {
+      "key": "java:S6376"
+    },
+    {
+      "key": "java:S6377"
+    },
+    {
+      "key": "java:S6384"
+    },
+    {
+      "key": "java:S6390"
+    },
+    {
+      "key": "java:S6395"
+    },
+    {
+      "key": "java:S6396"
+    },
+    {
+      "key": "java:S6397"
+    },
+    {
+      "key": "java:S6398"
+    },
+    {
+      "key": "java:S6399"
+    },
+    {
+      "key": "java:S6416"
+    },
+    {
+      "key": "java:S6417"
+    },
+    {
+      "key": "java:S6418"
+    },
+    {
+      "key": "java:S6432"
+    },
+    {
+      "key": "java:S6437"
+    },
+    {
+      "key": "java:S6466"
+    },
+    {
+      "key": "java:S6485"
+    },
+    {
+      "key": "java:S6539"
+    },
+    {
+      "key": "java:S6547"
+    },
+    {
+      "key": "java:S6548"
+    },
+    {
+      "key": "java:S6549"
+    },
+    {
+      "key": "java:S6555"
+    },
+    {
+      "key": "java:S6646"
+    },
+    {
+      "key": "java:S6649"
+    },
+    {
+      "key": "java:S6651"
+    },
+    {
+      "key": "java:S6665"
+    },
+    {
+      "key": "java:S6707"
+    },
+    {
+      "key": "java:S6780"
+    },
+    {
+      "key": "java:S6804"
+    },
+    {
+      "key": "java:S6806"
+    },
+    {
+      "key": "java:S6809"
+    },
+    {
+      "key": "java:S6810"
+    },
+    {
+      "key": "java:S6813"
+    },
+    {
+      "key": "java:S6814"
+    },
+    {
+      "key": "java:S6816"
+    },
+    {
+      "key": "java:S6817"
+    },
+    {
+      "key": "java:S6818"
+    },
+    {
+      "key": "java:S6829"
+    },
+    {
+      "key": "java:S6830"
+    },
+    {
+      "key": "java:S6831"
+    },
+    {
+      "key": "java:S6832"
+    },
+    {
+      "key": "java:S6833"
+    },
+    {
+      "key": "java:S6837"
+    },
+    {
+      "key": "java:S6838"
+    },
+    {
+      "key": "java:S6856"
+    },
+    {
+      "key": "java:S6857"
+    },
+    {
+      "key": "java:S6862"
+    },
+    {
+      "key": "java:S6863"
+    },
+    {
+      "key": "java:S6876"
+    },
+    {
+      "key": "java:S6877"
+    },
+    {
+      "key": "java:S6878"
+    },
+    {
+      "key": "java:S6880"
+    },
+    {
+      "key": "java:S6881"
+    },
+    {
+      "key": "java:S6885"
+    },
+    {
+      "key": "java:S6889"
+    },
+    {
+      "key": "java:S6904"
+    },
+    {
+      "key": "java:S6905"
+    },
+    {
+      "key": "java:S6906"
+    },
+    {
+      "key": "java:S6909"
+    },
+    {
+      "key": "java:S6912"
+    },
+    {
+      "key": "java:S6914"
+    },
+    {
+      "key": "java:S6916"
+    },
+    {
+      "key": "java:S6976"
+    },
+    {
+      "key": "java:S7027"
+    },
+    {
+      "key": "java:S7044"
+    },
+    {
+      "key": "java:S7091"
+    },
+    {
+      "key": "java:S7158"
+    },
+    {
+      "key": "java:S7177"
+    },
+    {
+      "key": "java:S7178"
+    },
+    {
+      "key": "java:S7179"
+    },
+    {
+      "key": "java:S7180"
+    },
+    {
+      "key": "java:S7184"
+    },
+    {
+      "key": "java:S7186"
+    },
+    {
+      "key": "java:S7409"
+    },
+    {
+      "key": "java:S7435"
+    },
+    {
+      "key": "java:S7466"
+    },
+    {
+      "key": "java:S7467"
+    },
+    {
+      "key": "java:S7474"
+    },
+    {
+      "key": "java:S7475"
+    },
+    {
+      "key": "java:S7476"
+    },
+    {
+      "key": "java:S7518"
+    },
+    {
+      "key": "java:S7606"
+    },
+    {
+      "key": "java:S7788"
+    },
+    {
+      "key": "java:S7789"
+    },
+    {
+      "key": "java:S8134"
+    },
+    {
+      "key": "javascript:S100"
+    },
+    {
+      "key": "javascript:S101"
+    },
+    {
+      "key": "javascript:S104"
+    },
+    {
+      "key": "javascript:S106"
+    },
+    {
+      "key": "javascript:S108"
+    },
+    {
+      "key": "javascript:S109"
+    },
+    {
+      "key": "javascript:S113"
+    },
+    {
+      "key": "javascript:S117"
+    },
+    {
+      "key": "javascript:S121"
+    },
+    {
+      "key": "javascript:S125"
+    },
+    {
+      "key": "javascript:S126"
+    },
+    {
+      "key": "javascript:S128"
+    },
+    {
+      "key": "javascript:S131"
+    },
+    {
+      "key": "javascript:S138"
+    },
+    {
+      "key": "javascript:S139"
+    },
+    {
+      "key": "javascript:S878"
+    },
+    {
+      "key": "javascript:S881"
+    },
+    {
+      "key": "javascript:S888"
+    },
+    {
+      "key": "javascript:S905"
+    },
+    {
+      "key": "javascript:S909"
+    },
+    {
+      "key": "javascript:S930"
+    },
+    {
+      "key": "javascript:S1066"
+    },
+    {
+      "key": "javascript:S1068"
+    },
+    {
+      "key": "javascript:S1077"
+    },
+    {
+      "key": "javascript:S1082"
+    },
+    {
+      "key": "javascript:S1090"
+    },
+    {
+      "key": "javascript:S1105"
+    },
+    {
+      "key": "javascript:S1110"
+    },
+    {
+      "key": "javascript:S1116"
+    },
+    {
+      "key": "javascript:S1117"
+    },
+    {
+      "key": "javascript:S1119"
+    },
+    {
+      "key": "javascript:S1121"
+    },
+    {
+      "key": "javascript:S1125"
+    },
+    {
+      "key": "javascript:S1126"
+    },
+    {
+      "key": "javascript:S1128"
+    },
+    {
+      "key": "javascript:S1131"
+    },
+    {
+      "key": "javascript:S1134"
+    },
+    {
+      "key": "javascript:S1135"
+    },
+    {
+      "key": "javascript:S1154"
+    },
+    {
+      "key": "javascript:S1172"
+    },
+    {
+      "key": "javascript:S1186"
+    },
+    {
+      "key": "javascript:S1199"
+    },
+    {
+      "key": "javascript:S1219"
+    },
+    {
+      "key": "javascript:S1226"
+    },
+    {
+      "key": "javascript:S1264"
+    },
+    {
+      "key": "javascript:S1291"
+    },
+    {
+      "key": "javascript:S1301"
+    },
+    {
+      "key": "javascript:S1313"
+    },
+    {
+      "key": "javascript:S1314"
+    },
+    {
+      "key": "javascript:S1321"
+    },
+    {
+      "key": "javascript:S1438"
+    },
+    {
+      "key": "javascript:S1439"
+    },
+    {
+      "key": "javascript:S1440"
+    },
+    {
+      "key": "javascript:S1441"
+    },
+    {
+      "key": "javascript:S1442"
+    },
+    {
+      "key": "javascript:S1451"
+    },
+    {
+      "key": "javascript:S1472"
+    },
+    {
+      "key": "javascript:S1479"
+    },
+    {
+      "key": "javascript:S1481"
+    },
+    {
+      "key": "javascript:S1488"
+    },
+    {
+      "key": "javascript:S1515"
+    },
+    {
+      "key": "javascript:S1516"
+    },
+    {
+      "key": "javascript:S1523"
+    },
+    {
+      "key": "javascript:S1525"
+    },
+    {
+      "key": "javascript:S1526"
+    },
+    {
+      "key": "javascript:S1527"
+    },
+    {
+      "key": "javascript:S1529"
+    },
+    {
+      "key": "javascript:S1530"
+    },
+    {
+      "key": "javascript:S1533"
+    },
+    {
+      "key": "javascript:S1534"
+    },
+    {
+      "key": "javascript:S1535"
+    },
+    {
+      "key": "javascript:S1536"
+    },
+    {
+      "key": "javascript:S1539"
+    },
+    {
+      "key": "javascript:S1607"
+    },
+    {
+      "key": "javascript:S1656"
+    },
+    {
+      "key": "javascript:S1751"
+    },
+    {
+      "key": "javascript:S1763"
+    },
+    {
+      "key": "javascript:S1764"
+    },
+    {
+      "key": "javascript:S1788"
+    },
+    {
+      "key": "javascript:S1821"
+    },
+    {
+      "key": "javascript:S1848"
+    },
+    {
+      "key": "javascript:S1854"
+    },
+    {
+      "key": "javascript:S1862"
+    },
+    {
+      "key": "javascript:S1871"
+    },
+    {
+      "key": "javascript:S1874"
+    },
+    {
+      "key": "javascript:S1940"
+    },
+    {
+      "key": "javascript:S1994"
+    },
+    {
+      "key": "javascript:S2068"
+    },
+    {
+      "key": "javascript:S2076"
+    },
+    {
+      "key": "javascript:S2077"
+    },
+    {
+      "key": "javascript:S2083"
+    },
+    {
+      "key": "javascript:S2092"
+    },
+    {
+      "key": "javascript:S2094"
+    },
+    {
+      "key": "javascript:S2123"
+    },
+    {
+      "key": "javascript:S2137"
+    },
+    {
+      "key": "javascript:S2138"
+    },
+    {
+      "key": "javascript:S2187"
+    },
+    {
+      "key": "javascript:S2201"
+    },
+    {
+      "key": "javascript:S2208"
+    },
+    {
+      "key": "javascript:S2234"
+    },
+    {
+      "key": "javascript:S2245"
+    },
+    {
+      "key": "javascript:S2251"
+    },
+    {
+      "key": "javascript:S2255"
+    },
+    {
+      "key": "javascript:S2259"
+    },
+    {
+      "key": "javascript:S2260"
+    },
+    {
+      "key": "javascript:S2310"
+    },
+    {
+      "key": "javascript:S2376"
+    },
+    {
+      "key": "javascript:S2424"
+    },
+    {
+      "key": "javascript:S2427"
+    },
+    {
+      "key": "javascript:S2428"
+    },
+    {
+      "key": "javascript:S2430"
+    },
+    {
+      "key": "javascript:S2432"
+    },
+    {
+      "key": "javascript:S2486"
+    },
+    {
+      "key": "javascript:S2589"
+    },
+    {
+      "key": "javascript:S2598"
+    },
+    {
+      "key": "javascript:S2612"
+    },
+    {
+      "key": "javascript:S2631"
+    },
+    {
+      "key": "javascript:S2639"
+    },
+    {
+      "key": "javascript:S2681"
+    },
+    {
+      "key": "javascript:S2685"
+    },
+    {
+      "key": "javascript:S2688"
+    },
+    {
+      "key": "javascript:S2692"
+    },
+    {
+      "key": "javascript:S2699"
+    },
+    {
+      "key": "javascript:S2703"
+    },
+    {
+      "key": "javascript:S2737"
+    },
+    {
+      "key": "javascript:S2755"
+    },
+    {
+      "key": "javascript:S2757"
+    },
+    {
+      "key": "javascript:S2814"
+    },
+    {
+      "key": "javascript:S2819"
+    },
+    {
+      "key": "javascript:S2870"
+    },
+    {
+      "key": "javascript:S2871"
+    },
+    {
+      "key": "javascript:S2970"
+    },
+    {
+      "key": "javascript:S2990"
+    },
+    {
+      "key": "javascript:S2999"
+    },
+    {
+      "key": "javascript:S3001"
+    },
+    {
+      "key": "javascript:S3003"
+    },
+    {
+      "key": "javascript:S3317"
+    },
+    {
+      "key": "javascript:S3330"
+    },
+    {
+      "key": "javascript:S3353"
+    },
+    {
+      "key": "javascript:S3358"
+    },
+    {
+      "key": "javascript:S3402"
+    },
+    {
+      "key": "javascript:S3403"
+    },
+    {
+      "key": "javascript:S3415"
+    },
+    {
+      "key": "javascript:S3499"
+    },
+    {
+      "key": "javascript:S3500"
+    },
+    {
+      "key": "javascript:S3504"
+    },
+    {
+      "key": "javascript:S3512"
+    },
+    {
+      "key": "javascript:S3513"
+    },
+    {
+      "key": "javascript:S3514"
+    },
+    {
+      "key": "javascript:S3516"
+    },
+    {
+      "key": "javascript:S3523"
+    },
+    {
+      "key": "javascript:S3524"
+    },
+    {
+      "key": "javascript:S3531"
+    },
+    {
+      "key": "javascript:S3579"
+    },
+    {
+      "key": "javascript:S3616"
+    },
+    {
+      "key": "javascript:S3626"
+    },
+    {
+      "key": "javascript:S3649"
+    },
+    {
+      "key": "javascript:S3686"
+    },
+    {
+      "key": "javascript:S3696"
+    },
+    {
+      "key": "javascript:S3699"
+    },
+    {
+      "key": "javascript:S3735"
+    },
+    {
+      "key": "javascript:S3757"
+    },
+    {
+      "key": "javascript:S3760"
+    },
+    {
+      "key": "javascript:S3782"
+    },
+    {
+      "key": "javascript:S3785"
+    },
+    {
+      "key": "javascript:S3786"
+    },
+    {
+      "key": "javascript:S3798"
+    },
+    {
+      "key": "javascript:S3799"
+    },
+    {
+      "key": "javascript:S3800"
+    },
+    {
+      "key": "javascript:S3801"
+    },
+    {
+      "key": "javascript:S3812"
+    },
+    {
+      "key": "javascript:S3834"
+    },
+    {
+      "key": "javascript:S3854"
+    },
+    {
+      "key": "javascript:S3863"
+    },
+    {
+      "key": "javascript:S3923"
+    },
+    {
+      "key": "javascript:S3972"
+    },
+    {
+      "key": "javascript:S3973"
+    },
+    {
+      "key": "javascript:S3981"
+    },
+    {
+      "key": "javascript:S3984"
+    },
+    {
+      "key": "javascript:S4030"
+    },
+    {
+      "key": "javascript:S4036"
+    },
+    {
+      "key": "javascript:S4084"
+    },
+    {
+      "key": "javascript:S4123"
+    },
+    {
+      "key": "javascript:S4125"
+    },
+    {
+      "key": "javascript:S4138"
+    },
+    {
+      "key": "javascript:S4139"
+    },
+    {
+      "key": "javascript:S4140"
+    },
+    {
+      "key": "javascript:S4143"
+    },
+    {
+      "key": "javascript:S4144"
+    },
+    {
+      "key": "javascript:S4158"
+    },
+    {
+      "key": "javascript:S4165"
+    },
+    {
+      "key": "javascript:S4275"
+    },
+    {
+      "key": "javascript:S4326"
+    },
+    {
+      "key": "javascript:S4423"
+    },
+    {
+      "key": "javascript:S4426"
+    },
+    {
+      "key": "javascript:S4502"
+    },
+    {
+      "key": "javascript:S4507"
+    },
+    {
+      "key": "javascript:S4524"
+    },
+    {
+      "key": "javascript:S4619"
+    },
+    {
+      "key": "javascript:S4624"
+    },
+    {
+      "key": "javascript:S4634"
+    },
+    {
+      "key": "javascript:S4721"
+    },
+    {
+      "key": "javascript:S4784"
+    },
+    {
+      "key": "javascript:S4787"
+    },
+    {
+      "key": "javascript:S4790"
+    },
+    {
+      "key": "javascript:S4817"
+    },
+    {
+      "key": "javascript:S4822"
+    },
+    {
+      "key": "javascript:S4823"
+    },
+    {
+      "key": "javascript:S4829"
+    },
+    {
+      "key": "javascript:S4830"
+    },
+    {
+      "key": "javascript:S5042"
+    },
+    {
+      "key": "javascript:S5122"
+    },
+    {
+      "key": "javascript:S5131"
+    },
+    {
+      "key": "javascript:S5144"
+    },
+    {
+      "key": "javascript:S5146"
+    },
+    {
+      "key": "javascript:S5147"
+    },
+    {
+      "key": "javascript:S5148"
+    },
+    {
+      "key": "javascript:S5247"
+    },
+    {
+      "key": "javascript:S5254"
+    },
+    {
+      "key": "javascript:S5256"
+    },
+    {
+      "key": "javascript:S5257"
+    },
+    {
+      "key": "javascript:S5264"
+    },
+    {
+      "key": "javascript:S5332"
+    },
+    {
+      "key": "javascript:S5334"
+    },
+    {
+      "key": "javascript:S5443"
+    },
+    {
+      "key": "javascript:S5527"
+    },
+    {
+      "key": "javascript:S5542"
+    },
+    {
+      "key": "javascript:S5547"
+    },
+    {
+      "key": "javascript:S5604"
+    },
+    {
+      "key": "javascript:S5659"
+    },
+    {
+      "key": "javascript:S5689"
+    },
+    {
+      "key": "javascript:S5691"
+    },
+    {
+      "key": "javascript:S5693"
+    },
+    {
+      "key": "javascript:S5696"
+    },
+    {
+      "key": "javascript:S5725"
+    },
+    {
+      "key": "javascript:S5728"
+    },
+    {
+      "key": "javascript:S5730"
+    },
+    {
+      "key": "javascript:S5732"
+    },
+    {
+      "key": "javascript:S5734"
+    },
+    {
+      "key": "javascript:S5736"
+    },
+    {
+      "key": "javascript:S5739"
+    },
+    {
+      "key": "javascript:S5742"
+    },
+    {
+      "key": "javascript:S5743"
+    },
+    {
+      "key": "javascript:S5757"
+    },
+    {
+      "key": "javascript:S5759"
+    },
+    {
+      "key": "javascript:S5842"
+    },
+    {
+      "key": "javascript:S5843"
+    },
+    {
+      "key": "javascript:S5850"
+    },
+    {
+      "key": "javascript:S5852"
+    },
+    {
+      "key": "javascript:S5856"
+    },
+    {
+      "key": "javascript:S5860"
+    },
+    {
+      "key": "javascript:S5863"
+    },
+    {
+      "key": "javascript:S5868"
+    },
+    {
+      "key": "javascript:S5869"
+    },
+    {
+      "key": "javascript:S5876"
+    },
+    {
+      "key": "javascript:S5883"
+    },
+    {
+      "key": "javascript:S5958"
+    },
+    {
+      "key": "javascript:S5973"
+    },
+    {
+      "key": "javascript:S6019"
+    },
+    {
+      "key": "javascript:S6035"
+    },
+    {
+      "key": "javascript:S6079"
+    },
+    {
+      "key": "javascript:S6092"
+    },
+    {
+      "key": "javascript:S6096"
+    },
+    {
+      "key": "javascript:S6105"
+    },
+    {
+      "key": "javascript:S6245"
+    },
+    {
+      "key": "javascript:S6249"
+    },
+    {
+      "key": "javascript:S6252"
+    },
+    {
+      "key": "javascript:S6265"
+    },
+    {
+      "key": "javascript:S6268"
+    },
+    {
+      "key": "javascript:S6270"
+    },
+    {
+      "key": "javascript:S6281"
+    },
+    {
+      "key": "javascript:S6287"
+    },
+    {
+      "key": "javascript:S6299"
+    },
+    {
+      "key": "javascript:S6303"
+    },
+    {
+      "key": "javascript:S6323"
+    },
+    {
+      "key": "javascript:S6324"
+    },
+    {
+      "key": "javascript:S6325"
+    },
+    {
+      "key": "javascript:S6326"
+    },
+    {
+      "key": "javascript:S6327"
+    },
+    {
+      "key": "javascript:S6328"
+    },
+    {
+      "key": "javascript:S6329"
+    },
+    {
+      "key": "javascript:S6330"
+    },
+    {
+      "key": "javascript:S6331"
+    },
+    {
+      "key": "javascript:S6333"
+    },
+    {
+      "key": "javascript:S6350"
+    },
+    {
+      "key": "javascript:S6351"
+    },
+    {
+      "key": "javascript:S6353"
+    },
+    {
+      "key": "javascript:S6397"
+    },
+    {
+      "key": "javascript:S6418"
+    },
+    {
+      "key": "javascript:S6426"
+    },
+    {
+      "key": "javascript:S6435"
+    },
+    {
+      "key": "javascript:S6437"
+    },
+    {
+      "key": "javascript:S6438"
+    },
+    {
+      "key": "javascript:S6439"
+    },
+    {
+      "key": "javascript:S6440"
+    },
+    {
+      "key": "javascript:S6441"
+    },
+    {
+      "key": "javascript:S6442"
+    },
+    {
+      "key": "javascript:S6443"
+    },
+    {
+      "key": "javascript:S6477"
+    },
+    {
+      "key": "javascript:S6478"
+    },
+    {
+      "key": "javascript:S6479"
+    },
+    {
+      "key": "javascript:S6480"
+    },
+    {
+      "key": "javascript:S6481"
+    },
+    {
+      "key": "javascript:S6486"
+    },
+    {
+      "key": "javascript:S6509"
+    },
+    {
+      "key": "javascript:S6522"
+    },
+    {
+      "key": "javascript:S6523"
+    },
+    {
+      "key": "javascript:S6534"
+    },
+    {
+      "key": "javascript:S6535"
+    },
+    {
+      "key": "javascript:S6544"
+    },
+    {
+      "key": "javascript:S6557"
+    },
+    {
+      "key": "javascript:S6582"
+    },
+    {
+      "key": "javascript:S6594"
+    },
+    {
+      "key": "javascript:S6627"
+    },
+    {
+      "key": "javascript:S6635"
+    },
+    {
+      "key": "javascript:S6637"
+    },
+    {
+      "key": "javascript:S6638"
+    },
+    {
+      "key": "javascript:S6643"
+    },
+    {
+      "key": "javascript:S6644"
+    },
+    {
+      "key": "javascript:S6645"
+    },
+    {
+      "key": "javascript:S6647"
+    },
+    {
+      "key": "javascript:S6650"
+    },
+    {
+      "key": "javascript:S6653"
+    },
+    {
+      "key": "javascript:S6654"
+    },
+    {
+      "key": "javascript:S6657"
+    },
+    {
+      "key": "javascript:S6660"
+    },
+    {
+      "key": "javascript:S6661"
+    },
+    {
+      "key": "javascript:S6666"
+    },
+    {
+      "key": "javascript:S6671"
+    },
+    {
+      "key": "javascript:S6676"
+    },
+    {
+      "key": "javascript:S6679"
+    },
+    {
+      "key": "javascript:S6746"
+    },
+    {
+      "key": "javascript:S6747"
+    },
+    {
+      "key": "javascript:S6748"
+    },
+    {
+      "key": "javascript:S6749"
+    },
+    {
+      "key": "javascript:S6750"
+    },
+    {
+      "key": "javascript:S6754"
+    },
+    {
+      "key": "javascript:S6756"
+    },
+    {
+      "key": "javascript:S6757"
+    },
+    {
+      "key": "javascript:S6761"
+    },
+    {
+      "key": "javascript:S6763"
+    },
+    {
+      "key": "javascript:S6766"
+    },
+    {
+      "key": "javascript:S6767"
+    },
+    {
+      "key": "javascript:S6770"
+    },
+    {
+      "key": "javascript:S6772"
+    },
+    {
+      "key": "javascript:S6774"
+    },
+    {
+      "key": "javascript:S6775"
+    },
+    {
+      "key": "javascript:S6788"
+    },
+    {
+      "key": "javascript:S6789"
+    },
+    {
+      "key": "javascript:S6790"
+    },
+    {
+      "key": "javascript:S6791"
+    },
+    {
+      "key": "javascript:S6793"
+    },
+    {
+      "key": "javascript:S6807"
+    },
+    {
+      "key": "javascript:S6811"
+    },
+    {
+      "key": "javascript:S6819"
+    },
+    {
+      "key": "javascript:S6821"
+    },
+    {
+      "key": "javascript:S6822"
+    },
+    {
+      "key": "javascript:S6823"
+    },
+    {
+      "key": "javascript:S6824"
+    },
+    {
+      "key": "javascript:S6825"
+    },
+    {
+      "key": "javascript:S6827"
+    },
+    {
+      "key": "javascript:S6836"
+    },
+    {
+      "key": "javascript:S6840"
+    },
+    {
+      "key": "javascript:S6841"
+    },
+    {
+      "key": "javascript:S6842"
+    },
+    {
+      "key": "javascript:S6843"
+    },
+    {
+      "key": "javascript:S6844"
+    },
+    {
+      "key": "javascript:S6845"
+    },
+    {
+      "key": "javascript:S6846"
+    },
+    {
+      "key": "javascript:S6847"
+    },
+    {
+      "key": "javascript:S6848"
+    },
+    {
+      "key": "javascript:S6849"
+    },
+    {
+      "key": "javascript:S6850"
+    },
+    {
+      "key": "javascript:S6851"
+    },
+    {
+      "key": "javascript:S6852"
+    },
+    {
+      "key": "javascript:S6853"
+    },
+    {
+      "key": "javascript:S6854"
+    },
+    {
+      "key": "javascript:S6855"
+    },
+    {
+      "key": "javascript:S6859"
+    },
+    {
+      "key": "javascript:S6861"
+    },
+    {
+      "key": "javascript:S6957"
+    },
+    {
+      "key": "javascript:S6958"
+    },
+    {
+      "key": "javascript:S6959"
+    },
+    {
+      "key": "javascript:S7044"
+    },
+    {
+      "key": "javascript:S7059"
+    },
+    {
+      "key": "javascript:S7060"
+    },
+    {
+      "key": "javascript:S7197"
+    },
+    {
+      "key": "javascript:S7718"
+    },
+    {
+      "key": "javascript:S7719"
+    },
+    {
+      "key": "javascript:S7720"
+    },
+    {
+      "key": "javascript:S7721"
+    },
+    {
+      "key": "javascript:S7722"
+    },
+    {
+      "key": "javascript:S7723"
+    },
+    {
+      "key": "javascript:S7724"
+    },
+    {
+      "key": "javascript:S7725"
+    },
+    {
+      "key": "javascript:S7726"
+    },
+    {
+      "key": "javascript:S7727"
+    },
+    {
+      "key": "javascript:S7728"
+    },
+    {
+      "key": "javascript:S7729"
+    },
+    {
+      "key": "javascript:S7730"
+    },
+    {
+      "key": "javascript:S7731"
+    },
+    {
+      "key": "javascript:S7732"
+    },
+    {
+      "key": "javascript:S7733"
+    },
+    {
+      "key": "javascript:S7734"
+    },
+    {
+      "key": "javascript:S7735"
+    },
+    {
+      "key": "javascript:S7736"
+    },
+    {
+      "key": "javascript:S7737"
+    },
+    {
+      "key": "javascript:S7738"
+    },
+    {
+      "key": "javascript:S7739"
+    },
+    {
+      "key": "javascript:S7740"
+    },
+    {
+      "key": "javascript:S7741"
+    },
+    {
+      "key": "javascript:S7742"
+    },
+    {
+      "key": "javascript:S7743"
+    },
+    {
+      "key": "javascript:S7744"
+    },
+    {
+      "key": "javascript:S7745"
+    },
+    {
+      "key": "javascript:S7746"
+    },
+    {
+      "key": "javascript:S7747"
+    },
+    {
+      "key": "javascript:S7748"
+    },
+    {
+      "key": "javascript:S7749"
+    },
+    {
+      "key": "javascript:S7750"
+    },
+    {
+      "key": "javascript:S7751"
+    },
+    {
+      "key": "javascript:S7752"
+    },
+    {
+      "key": "javascript:S7753"
+    },
+    {
+      "key": "javascript:S7754"
+    },
+    {
+      "key": "javascript:S7755"
+    },
+    {
+      "key": "javascript:S7756"
+    },
+    {
+      "key": "javascript:S7757"
+    },
+    {
+      "key": "javascript:S7758"
+    },
+    {
+      "key": "javascript:S7759"
+    },
+    {
+      "key": "javascript:S7760"
+    },
+    {
+      "key": "javascript:S7761"
+    },
+    {
+      "key": "javascript:S7762"
+    },
+    {
+      "key": "javascript:S7763"
+    },
+    {
+      "key": "javascript:S7764"
+    },
+    {
+      "key": "javascript:S7765"
+    },
+    {
+      "key": "javascript:S7766"
+    },
+    {
+      "key": "javascript:S7767"
+    },
+    {
+      "key": "javascript:S7768"
+    },
+    {
+      "key": "javascript:S7769"
+    },
+    {
+      "key": "javascript:S7770"
+    },
+    {
+      "key": "javascript:S7771"
+    },
+    {
+      "key": "javascript:S7772"
+    },
+    {
+      "key": "javascript:S7773"
+    },
+    {
+      "key": "javascript:S7774"
+    },
+    {
+      "key": "javascript:S7775"
+    },
+    {
+      "key": "javascript:S7776"
+    },
+    {
+      "key": "javascript:S7777"
+    },
+    {
+      "key": "javascript:S7778"
+    },
+    {
+      "key": "javascript:S7780"
+    },
+    {
+      "key": "javascript:S7781"
+    },
+    {
+      "key": "javascript:S7783"
+    },
+    {
+      "key": "javascript:S7784"
+    },
+    {
+      "key": "javascript:S7785"
+    },
+    {
+      "key": "javascript:S7786"
+    },
+    {
+      "key": "javascript:S7787"
+    },
+    {
+      "key": "javascript:S7788"
+    },
+    {
+      "key": "javascript:S7790"
+    },
+    {
+      "key": "javascript:S8348"
+    },
+    {
+      "key": "javasecurity:S2076"
+    },
+    {
+      "key": "javasecurity:S2078"
+    },
+    {
+      "key": "javasecurity:S2083"
+    },
+    {
+      "key": "javasecurity:S2091"
+    },
+    {
+      "key": "javasecurity:S2631"
+    },
+    {
+      "key": "javasecurity:S3649"
+    },
+    {
+      "key": "javasecurity:S5131"
+    },
+    {
+      "key": "javasecurity:S5145"
+    },
+    {
+      "key": "javasecurity:S5146"
+    },
+    {
+      "key": "javasecurity:S5167"
+    },
+    {
+      "key": "javasecurity:S5883"
+    },
+    {
+      "key": "javasecurity:S6173"
+    },
+    {
+      "key": "javasecurity:S6547"
+    },
+    {
+      "key": "javasecurity:S6549"
+    },
+    {
+      "key": "jssecurity:S2083"
+    },
+    {
+      "key": "jssecurity:S2631"
+    },
+    {
+      "key": "jssecurity:S3649"
+    },
+    {
+      "key": "jssecurity:S5131"
+    },
+    {
+      "key": "jssecurity:S5146"
+    },
+    {
+      "key": "jssecurity:S5696"
+    },
+    {
+      "key": "jssecurity:S6096"
+    },
+    {
+      "key": "python:S100"
+    },
+    {
+      "key": "python:S101"
+    },
+    {
+      "key": "python:S104"
+    },
+    {
+      "key": "python:S105"
+    },
+    {
+      "key": "python:S106"
+    },
+    {
+      "key": "python:S107"
+    },
+    {
+      "key": "python:S108"
+    },
+    {
+      "key": "python:S110"
+    },
+    {
+      "key": "python:S112"
+    },
+    {
+      "key": "python:S113"
+    },
+    {
+      "key": "python:S116"
+    },
+    {
+      "key": "python:S117"
+    },
+    {
+      "key": "python:S125"
+    },
+    {
+      "key": "python:S139"
+    },
+    {
+      "key": "python:S308"
+    },
+    {
+      "key": "python:S311"
+    },
+    {
+      "key": "python:S324"
+    },
+    {
+      "key": "python:S603"
+    },
+    {
+      "key": "python:S604"
+    },
+    {
+      "key": "python:S608"
+    },
+    {
+      "key": "python:S905"
+    },
+    {
+      "key": "python:S930"
+    },
+    {
+      "key": "python:S935"
+    },
+    {
+      "key": "python:S1045"
+    },
+    {
+      "key": "python:S1066"
+    },
+    {
+      "key": "python:S1110"
+    },
+    {
+      "key": "python:S1128"
+    },
+    {
+      "key": "python:S1131"
+    },
+    {
+      "key": "python:S1134"
+    },
+    {
+      "key": "python:S1135"
+    },
+    {
+      "key": "python:S1142"
+    },
+    {
+      "key": "python:S1143"
+    },
+    {
+      "key": "python:S1144"
+    },
+    {
+      "key": "python:S1172"
+    },
+    {
+      "key": "python:S1186"
+    },
+    {
+      "key": "python:S1192"
+    },
+    {
+      "key": "python:S1244"
+    },
+    {
+      "key": "python:S1309"
+    },
+    {
+      "key": "python:S1313"
+    },
+    {
+      "key": "python:S1451"
+    },
+    {
+      "key": "python:S1481"
+    },
+    {
+      "key": "python:S1515"
+    },
+    {
+      "key": "python:S1523"
+    },
+    {
+      "key": "python:S1542"
+    },
+    {
+      "key": "python:S1578"
+    },
+    {
+      "key": "python:S1607"
+    },
+    {
+      "key": "python:S1656"
+    },
+    {
+      "key": "python:S1700"
+    },
+    {
+      "key": "python:S1707"
+    },
+    {
+      "key": "python:S1716"
+    },
+    {
+      "key": "python:S1717"
+    },
+    {
+      "key": "python:S1720"
+    },
+    {
+      "key": "python:S1721"
+    },
+    {
+      "key": "python:S1722"
+    },
+    {
+      "key": "python:S1751"
+    },
+    {
+      "key": "python:S1764"
+    },
+    {
+      "key": "python:S1845"
+    },
+    {
+      "key": "python:S1854"
+    },
+    {
+      "key": "python:S1862"
+    },
+    {
+      "key": "python:S1871"
+    },
+    {
+      "key": "python:S1940"
+    },
+    {
+      "key": "python:S2053"
+    },
+    {
+      "key": "python:S2068"
+    },
+    {
+      "key": "python:S2076"
+    },
+    {
+      "key": "python:S2077"
+    },
+    {
+      "key": "python:S2078"
+    },
+    {
+      "key": "python:S2083"
+    },
+    {
+      "key": "python:S2091"
+    },
+    {
+      "key": "python:S2092"
+    },
+    {
+      "key": "python:S2115"
+    },
+    {
+      "key": "python:S2159"
+    },
+    {
+      "key": "python:S2190"
+    },
+    {
+      "key": "python:S2201"
+    },
+    {
+      "key": "python:S2208"
+    },
+    {
+      "key": "python:S2245"
+    },
+    {
+      "key": "python:S2257"
+    },
+    {
+      "key": "python:S2259"
+    },
+    {
+      "key": "python:S2275"
+    },
+    {
+      "key": "python:S2583"
+    },
+    {
+      "key": "python:S2589"
+    },
+    {
+      "key": "python:S2612"
+    },
+    {
+      "key": "python:S2631"
+    },
+    {
+      "key": "python:S2710"
+    },
+    {
+      "key": "python:S2711"
+    },
+    {
+      "key": "python:S2712"
+    },
+    {
+      "key": "python:S2733"
+    },
+    {
+      "key": "python:S2734"
+    },
+    {
+      "key": "python:S2737"
+    },
+    {
+      "key": "python:S2755"
+    },
+    {
+      "key": "python:S2757"
+    },
+    {
+      "key": "python:S2761"
+    },
+    {
+      "key": "python:S2772"
+    },
+    {
+      "key": "python:S2823"
+    },
+    {
+      "key": "python:S2836"
+    },
+    {
+      "key": "python:S2876"
+    },
+    {
+      "key": "python:S3329"
+    },
+    {
+      "key": "python:S3330"
+    },
+    {
+      "key": "python:S3358"
+    },
+    {
+      "key": "python:S3403"
+    },
+    {
+      "key": "python:S3457"
+    },
+    {
+      "key": "python:S3518"
+    },
+    {
+      "key": "python:S3626"
+    },
+    {
+      "key": "python:S3649"
+    },
+    {
+      "key": "python:S3699"
+    },
+    {
+      "key": "python:S3752"
+    },
+    {
+      "key": "python:S3801"
+    },
+    {
+      "key": "python:S3827"
+    },
+    {
+      "key": "python:S3862"
+    },
+    {
+      "key": "python:S3923"
+    },
+    {
+      "key": "python:S3981"
+    },
+    {
+      "key": "python:S3984"
+    },
+    {
+      "key": "python:S3985"
+    },
+    {
+      "key": "python:S4143"
+    },
+    {
+      "key": "python:S4144"
+    },
+    {
+      "key": "python:S4423"
+    },
+    {
+      "key": "python:S4426"
+    },
+    {
+      "key": "python:S4433"
+    },
+    {
+      "key": "python:S4487"
+    },
+    {
+      "key": "python:S4502"
+    },
+    {
+      "key": "python:S4507"
+    },
+    {
+      "key": "python:S4721"
+    },
+    {
+      "key": "python:S4784"
+    },
+    {
+      "key": "python:S4787"
+    },
+    {
+      "key": "python:S4790"
+    },
+    {
+      "key": "python:S4792"
+    },
+    {
+      "key": "python:S4823"
+    },
+    {
+      "key": "python:S4828"
+    },
+    {
+      "key": "python:S4829"
+    },
+    {
+      "key": "python:S4830"
+    },
+    {
+      "key": "python:S5042"
+    },
+    {
+      "key": "python:S5122"
+    },
+    {
+      "key": "python:S5131"
+    },
+    {
+      "key": "python:S5135"
+    },
+    {
+      "key": "python:S5144"
+    },
+    {
+      "key": "python:S5145"
+    },
+    {
+      "key": "python:S5146"
+    },
+    {
+      "key": "python:S5147"
+    },
+    {
+      "key": "python:S5167"
+    },
+    {
+      "key": "python:S5247"
+    },
+    {
+      "key": "python:S5300"
+    },
+    {
+      "key": "python:S5332"
+    },
+    {
+      "key": "python:S5334"
+    },
+    {
+      "key": "python:S5344"
+    },
+    {
+      "key": "python:S5361"
+    },
+    {
+      "key": "python:S5439"
+    },
+    {
+      "key": "python:S5443"
+    },
+    {
+      "key": "python:S5445"
+    },
+    {
+      "key": "python:S5496"
+    },
+    {
+      "key": "python:S5527"
+    },
+    {
+      "key": "python:S5542"
+    },
+    {
+      "key": "python:S5547"
+    },
+    {
+      "key": "python:S5549"
+    },
+    {
+      "key": "python:S5603"
+    },
+    {
+      "key": "python:S5607"
+    },
+    {
+      "key": "python:S5632"
+    },
+    {
+      "key": "python:S5633"
+    },
+    {
+      "key": "python:S5642"
+    },
+    {
+      "key": "python:S5644"
+    },
+    {
+      "key": "python:S5659"
+    },
+    {
+      "key": "python:S5685"
+    },
+    {
+      "key": "python:S5704"
+    },
+    {
+      "key": "python:S5706"
+    },
+    {
+      "key": "python:S5707"
+    },
+    {
+      "key": "python:S5708"
+    },
+    {
+      "key": "python:S5709"
+    },
+    {
+      "key": "python:S5712"
+    },
+    {
+      "key": "python:S5713"
+    },
+    {
+      "key": "python:S5714"
+    },
+    {
+      "key": "python:S5717"
+    },
+    {
+      "key": "python:S5722"
+    },
+    {
+      "key": "python:S5724"
+    },
+    {
+      "key": "python:S5727"
+    },
+    {
+      "key": "python:S5747"
+    },
+    {
+      "key": "python:S5754"
+    },
+    {
+      "key": "python:S5756"
+    },
+    {
+      "key": "python:S5780"
+    },
+    {
+      "key": "python:S5781"
+    },
+    {
+      "key": "python:S5795"
+    },
+    {
+      "key": "python:S5796"
+    },
+    {
+      "key": "python:S5797"
+    },
+    {
+      "key": "python:S5799"
+    },
+    {
+      "key": "python:S5806"
+    },
+    {
+      "key": "python:S5807"
+    },
+    {
+      "key": "python:S5828"
+    },
+    {
+      "key": "python:S5842"
+    },
+    {
+      "key": "python:S5843"
+    },
+    {
+      "key": "python:S5845"
+    },
+    {
+      "key": "python:S5850"
+    },
+    {
+      "key": "python:S5852"
+    },
+    {
+      "key": "python:S5855"
+    },
+    {
+      "key": "python:S5856"
+    },
+    {
+      "key": "python:S5857"
+    },
+    {
+      "key": "python:S5860"
+    },
+    {
+      "key": "python:S5868"
+    },
+    {
+      "key": "python:S5869"
+    },
+    {
+      "key": "python:S5890"
+    },
+    {
+      "key": "python:S5899"
+    },
+    {
+      "key": "python:S5905"
+    },
+    {
+      "key": "python:S5906"
+    },
+    {
+      "key": "python:S5914"
+    },
+    {
+      "key": "python:S5915"
+    },
+    {
+      "key": "python:S5918"
+    },
+    {
+      "key": "python:S5953"
+    },
+    {
+      "key": "python:S5994"
+    },
+    {
+      "key": "python:S5996"
+    },
+    {
+      "key": "python:S6002"
+    },
+    {
+      "key": "python:S6019"
+    },
+    {
+      "key": "python:S6035"
+    },
+    {
+      "key": "python:S6243"
+    },
+    {
+      "key": "python:S6245"
+    },
+    {
+      "key": "python:S6246"
+    },
+    {
+      "key": "python:S6249"
+    },
+    {
+      "key": "python:S6252"
+    },
+    {
+      "key": "python:S6262"
+    },
+    {
+      "key": "python:S6265"
+    },
+    {
+      "key": "python:S6270"
+    },
+    {
+      "key": "python:S6275"
+    },
+    {
+      "key": "python:S6281"
+    },
+    {
+      "key": "python:S6287"
+    },
+    {
+      "key": "python:S6302"
+    },
+    {
+      "key": "python:S6303"
+    },
+    {
+      "key": "python:S6304"
+    },
+    {
+      "key": "python:S6308"
+    },
+    {
+      "key": "python:S6317"
+    },
+    {
+      "key": "python:S6319"
+    },
+    {
+      "key": "python:S6321"
+    },
+    {
+      "key": "python:S6323"
+    },
+    {
+      "key": "python:S6326"
+    },
+    {
+      "key": "python:S6327"
+    },
+    {
+      "key": "python:S6328"
+    },
+    {
+      "key": "python:S6329"
+    },
+    {
+      "key": "python:S6331"
+    },
+    {
+      "key": "python:S6332"
+    },
+    {
+      "key": "python:S6333"
+    },
+    {
+      "key": "python:S6350"
+    },
+    {
+      "key": "python:S6353"
+    },
+    {
+      "key": "python:S6395"
+    },
+    {
+      "key": "python:S6396"
+    },
+    {
+      "key": "python:S6397"
+    },
+    {
+      "key": "python:S6417"
+    },
+    {
+      "key": "python:S6418"
+    },
+    {
+      "key": "python:S6437"
+    },
+    {
+      "key": "python:S6463"
+    },
+    {
+      "key": "python:S6464"
+    },
+    {
+      "key": "python:S6465"
+    },
+    {
+      "key": "python:S6466"
+    },
+    {
+      "key": "python:S6468"
+    },
+    {
+      "key": "python:S6537"
+    },
+    {
+      "key": "python:S6538"
+    },
+    {
+      "key": "python:S6542"
+    },
+    {
+      "key": "python:S6543"
+    },
+    {
+      "key": "python:S6545"
+    },
+    {
+      "key": "python:S6546"
+    },
+    {
+      "key": "python:S6552"
+    },
+    {
+      "key": "python:S6553"
+    },
+    {
+      "key": "python:S6554"
+    },
+    {
+      "key": "python:S6556"
+    },
+    {
+      "key": "python:S6559"
+    },
+    {
+      "key": "python:S6560"
+    },
+    {
+      "key": "python:S6639"
+    },
+    {
+      "key": "python:S6659"
+    },
+    {
+      "key": "python:S6660"
+    },
+    {
+      "key": "python:S6662"
+    },
+    {
+      "key": "python:S6663"
+    },
+    {
+      "key": "python:S6680"
+    },
+    {
+      "key": "python:S6709"
+    },
+    {
+      "key": "python:S6711"
+    },
+    {
+      "key": "python:S6714"
+    },
+    {
+      "key": "python:S6725"
+    },
+    {
+      "key": "python:S6727"
+    },
+    {
+      "key": "python:S6729"
+    },
+    {
+      "key": "python:S6730"
+    },
+    {
+      "key": "python:S6734"
+    },
+    {
+      "key": "python:S6735"
+    },
+    {
+      "key": "python:S6740"
+    },
+    {
+      "key": "python:S6741"
+    },
+    {
+      "key": "python:S6742"
+    },
+    {
+      "key": "python:S6776"
+    },
+    {
+      "key": "python:S6779"
+    },
+    {
+      "key": "python:S6781"
+    },
+    {
+      "key": "python:S6786"
+    },
+    {
+      "key": "python:S6792"
+    },
+    {
+      "key": "python:S6794"
+    },
+    {
+      "key": "python:S6795"
+    },
+    {
+      "key": "python:S6796"
+    },
+    {
+      "key": "python:S6839"
+    },
+    {
+      "key": "python:S6882"
+    },
+    {
+      "key": "python:S6886"
+    },
+    {
+      "key": "python:S6887"
+    },
+    {
+      "key": "python:S6890"
+    },
+    {
+      "key": "python:S6894"
+    },
+    {
+      "key": "python:S6899"
+    },
+    {
+      "key": "python:S6903"
+    },
+    {
+      "key": "python:S6911"
+    },
+    {
+      "key": "python:S6928"
+    },
+    {
+      "key": "python:S6929"
+    },
+    {
+      "key": "python:S6969"
+    },
+    {
+      "key": "python:S6972"
+    },
+    {
+      "key": "python:S6973"
+    },
+    {
+      "key": "python:S6974"
+    },
+    {
+      "key": "python:S6978"
+    },
+    {
+      "key": "python:S6979"
+    },
+    {
+      "key": "python:S6982"
+    },
+    {
+      "key": "python:S6983"
+    },
+    {
+      "key": "python:S6985"
+    },
+    {
+      "key": "python:S7044"
+    },
+    {
+      "key": "python:S7181"
+    },
+    {
+      "key": "python:S7182"
+    },
+    {
+      "key": "python:S7189"
+    },
+    {
+      "key": "python:S7191"
+    },
+    {
+      "key": "python:S7192"
+    },
+    {
+      "key": "python:S7193"
+    },
+    {
+      "key": "python:S7195"
+    },
+    {
+      "key": "python:S7196"
+    },
+    {
+      "key": "python:S7197"
+    },
+    {
+      "key": "python:S7468"
+    },
+    {
+      "key": "python:S7471"
+    },
+    {
+      "key": "python:S7483"
+    },
+    {
+      "key": "python:S7484"
+    },
+    {
+      "key": "python:S7487"
+    },
+    {
+      "key": "python:S7488"
+    },
+    {
+      "key": "python:S7490"
+    },
+    {
+      "key": "python:S7491"
+    },
+    {
+      "key": "python:S7492"
+    },
+    {
+      "key": "python:S7493"
+    },
+    {
+      "key": "python:S7494"
+    },
+    {
+      "key": "python:S7496"
+    },
+    {
+      "key": "python:S7497"
+    },
+    {
+      "key": "python:S7498"
+    },
+    {
+      "key": "python:S7499"
+    },
+    {
+      "key": "python:S7500"
+    },
+    {
+      "key": "python:S7501"
+    },
+    {
+      "key": "python:S7502"
+    },
+    {
+      "key": "python:S7503"
+    },
+    {
+      "key": "python:S7504"
+    },
+    {
+      "key": "python:S7505"
+    },
+    {
+      "key": "python:S7506"
+    },
+    {
+      "key": "python:S7507"
+    },
+    {
+      "key": "python:S7508"
+    },
+    {
+      "key": "python:S7510"
+    },
+    {
+      "key": "python:S7511"
+    },
+    {
+      "key": "python:S7512"
+    },
+    {
+      "key": "python:S7513"
+    },
+    {
+      "key": "python:S7514"
+    },
+    {
+      "key": "python:S7515"
+    },
+    {
+      "key": "python:S7516"
+    },
+    {
+      "key": "python:S7517"
+    },
+    {
+      "key": "python:S7518"
+    },
+    {
+      "key": "python:S7519"
+    },
+    {
+      "key": "python:S7608"
+    },
+    {
+      "key": "python:S7609"
+    },
+    {
+      "key": "python:S7613"
+    },
+    {
+      "key": "python:S7614"
+    },
+    {
+      "key": "python:S7616"
+    },
+    {
+      "key": "python:S7617"
+    },
+    {
+      "key": "python:S7618"
+    },
+    {
+      "key": "python:S7619"
+    },
+    {
+      "key": "python:S7620"
+    },
+    {
+      "key": "python:S7621"
+    },
+    {
+      "key": "python:S7622"
+    },
+    {
+      "key": "python:S7625"
+    },
+    {
+      "key": "python:S7632"
+    },
+    {
+      "key": "python:S7675"
+    },
+    {
+      "key": "python:S7693"
+    },
+    {
+      "key": "python:S7698"
+    },
+    {
+      "key": "python:S7702"
+    },
+    {
+      "key": "python:S7704"
+    },
+    {
+      "key": "python:S7708"
+    },
+    {
+      "key": "python:S7713"
+    },
+    {
+      "key": "python:S7931"
+    },
+    {
+      "key": "pythonsecurity:S2076"
+    },
+    {
+      "key": "pythonsecurity:S2078"
+    },
+    {
+      "key": "pythonsecurity:S2083"
+    },
+    {
+      "key": "pythonsecurity:S3649"
+    },
+    {
+      "key": "pythonsecurity:S5131"
+    },
+    {
+      "key": "pythonsecurity:S5144"
+    },
+    {
+      "key": "pythonsecurity:S5145"
+    },
+    {
+      "key": "pythonsecurity:S5146"
+    },
+    {
+      "key": "pythonsecurity:S5167"
+    },
+    {
+      "key": "pythonsecurity:S5334"
+    },
+    {
+      "key": "roslyn.sonaranalyzer.security.cs:S2076"
+    },
+    {
+      "key": "roslyn.sonaranalyzer.security.cs:S2078"
+    },
+    {
+      "key": "roslyn.sonaranalyzer.security.cs:S2091"
+    },
+    {
+      "key": "roslyn.sonaranalyzer.security.cs:S3649"
+    },
+    {
+      "key": "roslyn.sonaranalyzer.security.cs:S5131"
+    },
+    {
+      "key": "roslyn.sonaranalyzer.security.cs:S5145"
+    },
+    {
+      "key": "roslyn.sonaranalyzer.security.cs:S5146"
+    },
+    {
+      "key": "roslyn.sonaranalyzer.security.cs:S5334"
+    },
+    {
+      "key": "roslyn.sonaranalyzer.security.cs:S6096"
+    },
+    {
+      "key": "roslyn.sonaranalyzer.security.cs:S6173"
+    },
+    {
+      "key": "roslyn.sonaranalyzer.security.cs:S6639"
+    },
+    {
+      "key": "roslyn.sonaranalyzer.security.cs:S6641"
+    },
+    {
+      "key": "tssecurity:S2083"
+    },
+    {
+      "key": "tssecurity:S2631"
+    },
+    {
+      "key": "tssecurity:S3649"
+    },
+    {
+      "key": "tssecurity:S5131"
+    },
+    {
+      "key": "tssecurity:S5146"
+    },
+    {
+      "key": "tssecurity:S5696"
+    },
+    {
+      "key": "tssecurity:S6096"
+    },
+    {
+      "key": "typescript:S100"
+    },
+    {
+      "key": "typescript:S101"
+    },
+    {
+      "key": "typescript:S103"
+    },
+    {
+      "key": "typescript:S104"
+    },
+    {
+      "key": "typescript:S105"
+    },
+    {
+      "key": "typescript:S106"
+    },
+    {
+      "key": "typescript:S107"
+    },
+    {
+      "key": "typescript:S108"
+    },
+    {
+      "key": "typescript:S109"
+    },
+    {
+      "key": "typescript:S113"
+    },
+    {
+      "key": "typescript:S117"
+    },
+    {
+      "key": "typescript:S121"
+    },
+    {
+      "key": "typescript:S122"
+    },
+    {
+      "key": "typescript:S125"
+    },
+    {
+      "key": "typescript:S126"
+    },
+    {
+      "key": "typescript:S128"
+    },
+    {
+      "key": "typescript:S131"
+    },
+    {
+      "key": "typescript:S134"
+    },
+    {
+      "key": "typescript:S135"
+    },
+    {
+      "key": "typescript:S138"
+    },
+    {
+      "key": "typescript:S139"
+    },
+    {
+      "key": "typescript:S878"
+    },
+    {
+      "key": "typescript:S881"
+    },
+    {
+      "key": "typescript:S888"
+    },
+    {
+      "key": "typescript:S905"
+    },
+    {
+      "key": "typescript:S909"
+    },
+    {
+      "key": "typescript:S1066"
+    },
+    {
+      "key": "typescript:S1067"
+    },
+    {
+      "key": "typescript:S1068"
+    },
+    {
+      "key": "typescript:S1077"
+    },
+    {
+      "key": "typescript:S1082"
+    },
+    {
+      "key": "typescript:S1090"
+    },
+    {
+      "key": "typescript:S1105"
+    },
+    {
+      "key": "typescript:S1110"
+    },
+    {
+      "key": "typescript:S1116"
+    },
+    {
+      "key": "typescript:S1117"
+    },
+    {
+      "key": "typescript:S1119"
+    },
+    {
+      "key": "typescript:S1121"
+    },
+    {
+      "key": "typescript:S1125"
+    },
+    {
+      "key": "typescript:S1128"
+    },
+    {
+      "key": "typescript:S1131"
+    },
+    {
+      "key": "typescript:S1134"
+    },
+    {
+      "key": "typescript:S1135"
+    },
+    {
+      "key": "typescript:S1143"
+    },
+    {
+      "key": "typescript:S1154"
+    },
+    {
+      "key": "typescript:S1172"
+    },
+    {
+      "key": "typescript:S1186"
+    },
+    {
+      "key": "typescript:S1192"
+    },
+    {
+      "key": "typescript:S1199"
+    },
+    {
+      "key": "typescript:S1219"
+    },
+    {
+      "key": "typescript:S1226"
+    },
+    {
+      "key": "typescript:S1264"
+    },
+    {
+      "key": "typescript:S1291"
+    },
+    {
+      "key": "typescript:S1301"
+    },
+    {
+      "key": "typescript:S1313"
+    },
+    {
+      "key": "typescript:S1438"
+    },
+    {
+      "key": "typescript:S1439"
+    },
+    {
+      "key": "typescript:S1440"
+    },
+    {
+      "key": "typescript:S1441"
+    },
+    {
+      "key": "typescript:S1444"
+    },
+    {
+      "key": "typescript:S1451"
+    },
+    {
+      "key": "typescript:S1472"
+    },
+    {
+      "key": "typescript:S1479"
+    },
+    {
+      "key": "typescript:S1488"
+    },
+    {
+      "key": "typescript:S1515"
+    },
+    {
+      "key": "typescript:S1516"
+    },
+    {
+      "key": "typescript:S1523"
+    },
+    {
+      "key": "typescript:S1525"
+    },
+    {
+      "key": "typescript:S1526"
+    },
+    {
+      "key": "typescript:S1528"
+    },
+    {
+      "key": "typescript:S1529"
+    },
+    {
+      "key": "typescript:S1530"
+    },
+    {
+      "key": "typescript:S1533"
+    },
+    {
+      "key": "typescript:S1534"
+    },
+    {
+      "key": "typescript:S1535"
+    },
+    {
+      "key": "typescript:S1537"
+    },
+    {
+      "key": "typescript:S1539"
+    },
+    {
+      "key": "typescript:S1541"
+    },
+    {
+      "key": "typescript:S1607"
+    },
+    {
+      "key": "typescript:S1656"
+    },
+    {
+      "key": "typescript:S1751"
+    },
+    {
+      "key": "typescript:S1763"
+    },
+    {
+      "key": "typescript:S1764"
+    },
+    {
+      "key": "typescript:S1774"
+    },
+    {
+      "key": "typescript:S1788"
+    },
+    {
+      "key": "typescript:S1821"
+    },
+    {
+      "key": "typescript:S1848"
+    },
+    {
+      "key": "typescript:S1854"
+    },
+    {
+      "key": "typescript:S1862"
+    },
+    {
+      "key": "typescript:S1871"
+    },
+    {
+      "key": "typescript:S1874"
+    },
+    {
+      "key": "typescript:S1940"
+    },
+    {
+      "key": "typescript:S1994"
+    },
+    {
+      "key": "typescript:S2004"
+    },
+    {
+      "key": "typescript:S2068"
+    },
+    {
+      "key": "typescript:S2076"
+    },
+    {
+      "key": "typescript:S2077"
+    },
+    {
+      "key": "typescript:S2083"
+    },
+    {
+      "key": "typescript:S2092"
+    },
+    {
+      "key": "typescript:S2094"
+    },
+    {
+      "key": "typescript:S2123"
+    },
+    {
+      "key": "typescript:S2137"
+    },
+    {
+      "key": "typescript:S2138"
+    },
+    {
+      "key": "typescript:S2187"
+    },
+    {
+      "key": "typescript:S2201"
+    },
+    {
+      "key": "typescript:S2208"
+    },
+    {
+      "key": "typescript:S2234"
+    },
+    {
+      "key": "typescript:S2245"
+    },
+    {
+      "key": "typescript:S2251"
+    },
+    {
+      "key": "typescript:S2255"
+    },
+    {
+      "key": "typescript:S2260"
+    },
+    {
+      "key": "typescript:S2301"
+    },
+    {
+      "key": "typescript:S2310"
+    },
+    {
+      "key": "typescript:S2376"
+    },
+    {
+      "key": "typescript:S2392"
+    },
+    {
+      "key": "typescript:S2424"
+    },
+    {
+      "key": "typescript:S2427"
+    },
+    {
+      "key": "typescript:S2430"
+    },
+    {
+      "key": "typescript:S2486"
+    },
+    {
+      "key": "typescript:S2589"
+    },
+    {
+      "key": "typescript:S2598"
+    },
+    {
+      "key": "typescript:S2612"
+    },
+    {
+      "key": "typescript:S2631"
+    },
+    {
+      "key": "typescript:S2639"
+    },
+    {
+      "key": "typescript:S2681"
+    },
+    {
+      "key": "typescript:S2685"
+    },
+    {
+      "key": "typescript:S2688"
+    },
+    {
+      "key": "typescript:S2692"
+    },
+    {
+      "key": "typescript:S2699"
+    },
+    {
+      "key": "typescript:S2737"
+    },
+    {
+      "key": "typescript:S2755"
+    },
+    {
+      "key": "typescript:S2757"
+    },
+    {
+      "key": "typescript:S2819"
+    },
+    {
+      "key": "typescript:S2870"
+    },
+    {
+      "key": "typescript:S2871"
+    },
+    {
+      "key": "typescript:S2933"
+    },
+    {
+      "key": "typescript:S2966"
+    },
+    {
+      "key": "typescript:S2970"
+    },
+    {
+      "key": "typescript:S2990"
+    },
+    {
+      "key": "typescript:S2999"
+    },
+    {
+      "key": "typescript:S3001"
+    },
+    {
+      "key": "typescript:S3003"
+    },
+    {
+      "key": "typescript:S3257"
+    },
+    {
+      "key": "typescript:S3317"
+    },
+    {
+      "key": "typescript:S3330"
+    },
+    {
+      "key": "typescript:S3353"
+    },
+    {
+      "key": "typescript:S3358"
+    },
+    {
+      "key": "typescript:S3402"
+    },
+    {
+      "key": "typescript:S3415"
+    },
+    {
+      "key": "typescript:S3498"
+    },
+    {
+      "key": "typescript:S3499"
+    },
+    {
+      "key": "typescript:S3504"
+    },
+    {
+      "key": "typescript:S3512"
+    },
+    {
+      "key": "typescript:S3513"
+    },
+    {
+      "key": "typescript:S3514"
+    },
+    {
+      "key": "typescript:S3516"
+    },
+    {
+      "key": "typescript:S3524"
+    },
+    {
+      "key": "typescript:S3525"
+    },
+    {
+      "key": "typescript:S3531"
+    },
+    {
+      "key": "typescript:S3533"
+    },
+    {
+      "key": "typescript:S3579"
+    },
+    {
+      "key": "typescript:S3616"
+    },
+    {
+      "key": "typescript:S3626"
+    },
+    {
+      "key": "typescript:S3649"
+    },
+    {
+      "key": "typescript:S3696"
+    },
+    {
+      "key": "typescript:S3699"
+    },
+    {
+      "key": "typescript:S3723"
+    },
+    {
+      "key": "typescript:S3735"
+    },
+    {
+      "key": "typescript:S3776"
+    },
+    {
+      "key": "typescript:S3786"
+    },
+    {
+      "key": "typescript:S3799"
+    },
+    {
+      "key": "typescript:S3801"
+    },
+    {
+      "key": "typescript:S3812"
+    },
+    {
+      "key": "typescript:S3854"
+    },
+    {
+      "key": "typescript:S3863"
+    },
+    {
+      "key": "typescript:S3923"
+    },
+    {
+      "key": "typescript:S3972"
+    },
+    {
+      "key": "typescript:S3973"
+    },
+    {
+      "key": "typescript:S3981"
+    },
+    {
+      "key": "typescript:S3984"
+    },
+    {
+      "key": "typescript:S4023"
+    },
+    {
+      "key": "typescript:S4030"
+    },
+    {
+      "key": "typescript:S4036"
+    },
+    {
+      "key": "typescript:S4043"
+    },
+    {
+      "key": "typescript:S4084"
+    },
+    {
+      "key": "typescript:S4123"
+    },
+    {
+      "key": "typescript:S4124"
+    },
+    {
+      "key": "typescript:S4136"
+    },
+    {
+      "key": "typescript:S4137"
+    },
+    {
+      "key": "typescript:S4138"
+    },
+    {
+      "key": "typescript:S4139"
+    },
+    {
+      "key": "typescript:S4140"
+    },
+    {
+      "key": "typescript:S4143"
+    },
+    {
+      "key": "typescript:S4144"
+    },
+    {
+      "key": "typescript:S4156"
+    },
+    {
+      "key": "typescript:S4157"
+    },
+    {
+      "key": "typescript:S4158"
+    },
+    {
+      "key": "typescript:S4165"
+    },
+    {
+      "key": "typescript:S4204"
+    },
+    {
+      "key": "typescript:S4275"
+    },
+    {
+      "key": "typescript:S4322"
+    },
+    {
+      "key": "typescript:S4323"
+    },
+    {
+      "key": "typescript:S4324"
+    },
+    {
+      "key": "typescript:S4325"
+    },
+    {
+      "key": "typescript:S4326"
+    },
+    {
+      "key": "typescript:S4327"
+    },
+    {
+      "key": "typescript:S4328"
+    },
+    {
+      "key": "typescript:S4335"
+    },
+    {
+      "key": "typescript:S4423"
+    },
+    {
+      "key": "typescript:S4426"
+    },
+    {
+      "key": "typescript:S4502"
+    },
+    {
+      "key": "typescript:S4507"
+    },
+    {
+      "key": "typescript:S4524"
+    },
+    {
+      "key": "typescript:S4619"
+    },
+    {
+      "key": "typescript:S4621"
+    },
+    {
+      "key": "typescript:S4622"
+    },
+    {
+      "key": "typescript:S4623"
+    },
+    {
+      "key": "typescript:S4624"
+    },
+    {
+      "key": "typescript:S4634"
+    },
+    {
+      "key": "typescript:S4721"
+    },
+    {
+      "key": "typescript:S4782"
+    },
+    {
+      "key": "typescript:S4784"
+    },
+    {
+      "key": "typescript:S4787"
+    },
+    {
+      "key": "typescript:S4790"
+    },
+    {
+      "key": "typescript:S4798"
+    },
+    {
+      "key": "typescript:S4817"
+    },
+    {
+      "key": "typescript:S4822"
+    },
+    {
+      "key": "typescript:S4823"
+    },
+    {
+      "key": "typescript:S4829"
+    },
+    {
+      "key": "typescript:S4830"
+    },
+    {
+      "key": "typescript:S5042"
+    },
+    {
+      "key": "typescript:S5122"
+    },
+    {
+      "key": "typescript:S5131"
+    },
+    {
+      "key": "typescript:S5144"
+    },
+    {
+      "key": "typescript:S5146"
+    },
+    {
+      "key": "typescript:S5147"
+    },
+    {
+      "key": "typescript:S5148"
+    },
+    {
+      "key": "typescript:S5247"
+    },
+    {
+      "key": "typescript:S5254"
+    },
+    {
+      "key": "typescript:S5256"
+    },
+    {
+      "key": "typescript:S5257"
+    },
+    {
+      "key": "typescript:S5264"
+    },
+    {
+      "key": "typescript:S5332"
+    },
+    {
+      "key": "typescript:S5334"
+    },
+    {
+      "key": "typescript:S5443"
+    },
+    {
+      "key": "typescript:S5527"
+    },
+    {
+      "key": "typescript:S5542"
+    },
+    {
+      "key": "typescript:S5547"
+    },
+    {
+      "key": "typescript:S5604"
+    },
+    {
+      "key": "typescript:S5659"
+    },
+    {
+      "key": "typescript:S5689"
+    },
+    {
+      "key": "typescript:S5693"
+    },
+    {
+      "key": "typescript:S5696"
+    },
+    {
+      "key": "typescript:S5725"
+    },
+    {
+      "key": "typescript:S5728"
+    },
+    {
+      "key": "typescript:S5730"
+    },
+    {
+      "key": "typescript:S5732"
+    },
+    {
+      "key": "typescript:S5736"
+    },
+    {
+      "key": "typescript:S5739"
+    },
+    {
+      "key": "typescript:S5742"
+    },
+    {
+      "key": "typescript:S5757"
+    },
+    {
+      "key": "typescript:S5759"
+    },
+    {
+      "key": "typescript:S5842"
+    },
+    {
+      "key": "typescript:S5843"
+    },
+    {
+      "key": "typescript:S5850"
+    },
+    {
+      "key": "typescript:S5852"
+    },
+    {
+      "key": "typescript:S5856"
+    },
+    {
+      "key": "typescript:S5860"
+    },
+    {
+      "key": "typescript:S5863"
+    },
+    {
+      "key": "typescript:S5868"
+    },
+    {
+      "key": "typescript:S5869"
+    },
+    {
+      "key": "typescript:S5876"
+    },
+    {
+      "key": "typescript:S5958"
+    },
+    {
+      "key": "typescript:S5973"
+    },
+    {
+      "key": "typescript:S6019"
+    },
+    {
+      "key": "typescript:S6035"
+    },
+    {
+      "key": "typescript:S6079"
+    },
+    {
+      "key": "typescript:S6092"
+    },
+    {
+      "key": "typescript:S6096"
+    },
+    {
+      "key": "typescript:S6105"
+    },
+    {
+      "key": "typescript:S6245"
+    },
+    {
+      "key": "typescript:S6249"
+    },
+    {
+      "key": "typescript:S6252"
+    },
+    {
+      "key": "typescript:S6265"
+    },
+    {
+      "key": "typescript:S6268"
+    },
+    {
+      "key": "typescript:S6270"
+    },
+    {
+      "key": "typescript:S6275"
+    },
+    {
+      "key": "typescript:S6281"
+    },
+    {
+      "key": "typescript:S6287"
+    },
+    {
+      "key": "typescript:S6299"
+    },
+    {
+      "key": "typescript:S6302"
+    },
+    {
+      "key": "typescript:S6303"
+    },
+    {
+      "key": "typescript:S6304"
+    },
+    {
+      "key": "typescript:S6308"
+    },
+    {
+      "key": "typescript:S6317"
+    },
+    {
+      "key": "typescript:S6319"
+    },
+    {
+      "key": "typescript:S6321"
+    },
+    {
+      "key": "typescript:S6323"
+    },
+    {
+      "key": "typescript:S6324"
+    },
+    {
+      "key": "typescript:S6325"
+    },
+    {
+      "key": "typescript:S6326"
+    },
+    {
+      "key": "typescript:S6327"
+    },
+    {
+      "key": "typescript:S6328"
+    },
+    {
+      "key": "typescript:S6329"
+    },
+    {
+      "key": "typescript:S6330"
+    },
+    {
+      "key": "typescript:S6331"
+    },
+    {
+      "key": "typescript:S6332"
+    },
+    {
+      "key": "typescript:S6333"
+    },
+    {
+      "key": "typescript:S6350"
+    },
+    {
+      "key": "typescript:S6351"
+    },
+    {
+      "key": "typescript:S6353"
+    },
+    {
+      "key": "typescript:S6397"
+    },
+    {
+      "key": "typescript:S6418"
+    },
+    {
+      "key": "typescript:S6426"
+    },
+    {
+      "key": "typescript:S6435"
+    },
+    {
+      "key": "typescript:S6437"
+    },
+    {
+      "key": "typescript:S6438"
+    },
+    {
+      "key": "typescript:S6439"
+    },
+    {
+      "key": "typescript:S6440"
+    },
+    {
+      "key": "typescript:S6441"
+    },
+    {
+      "key": "typescript:S6442"
+    },
+    {
+      "key": "typescript:S6443"
+    },
+    {
+      "key": "typescript:S6477"
+    },
+    {
+      "key": "typescript:S6478"
+    },
+    {
+      "key": "typescript:S6479"
+    },
+    {
+      "key": "typescript:S6480"
+    },
+    {
+      "key": "typescript:S6481"
+    },
+    {
+      "key": "typescript:S6486"
+    },
+    {
+      "key": "typescript:S6509"
+    },
+    {
+      "key": "typescript:S6522"
+    },
+    {
+      "key": "typescript:S6523"
+    },
+    {
+      "key": "typescript:S6534"
+    },
+    {
+      "key": "typescript:S6535"
+    },
+    {
+      "key": "typescript:S6544"
+    },
+    {
+      "key": "typescript:S6550"
+    },
+    {
+      "key": "typescript:S6551"
+    },
+    {
+      "key": "typescript:S6557"
+    },
+    {
+      "key": "typescript:S6564"
+    },
+    {
+      "key": "typescript:S6565"
+    },
+    {
+      "key": "typescript:S6568"
+    },
+    {
+      "key": "typescript:S6569"
+    },
+    {
+      "key": "typescript:S6571"
+    },
+    {
+      "key": "typescript:S6572"
+    },
+    {
+      "key": "typescript:S6578"
+    },
+    {
+      "key": "typescript:S6582"
+    },
+    {
+      "key": "typescript:S6583"
+    },
+    {
+      "key": "typescript:S6590"
+    },
+    {
+      "key": "typescript:S6594"
+    },
+    {
+      "key": "typescript:S6598"
+    },
+    {
+      "key": "typescript:S6606"
+    },
+    {
+      "key": "typescript:S6627"
+    },
+    {
+      "key": "typescript:S6635"
+    },
+    {
+      "key": "typescript:S6637"
+    },
+    {
+      "key": "typescript:S6638"
+    },
+    {
+      "key": "typescript:S6643"
+    },
+    {
+      "key": "typescript:S6644"
+    },
+    {
+      "key": "typescript:S6647"
+    },
+    {
+      "key": "typescript:S6650"
+    },
+    {
+      "key": "typescript:S6653"
+    },
+    {
+      "key": "typescript:S6654"
+    },
+    {
+      "key": "typescript:S6657"
+    },
+    {
+      "key": "typescript:S6660"
+    },
+    {
+      "key": "typescript:S6661"
+    },
+    {
+      "key": "typescript:S6666"
+    },
+    {
+      "key": "typescript:S6671"
+    },
+    {
+      "key": "typescript:S6676"
+    },
+    {
+      "key": "typescript:S6679"
+    },
+    {
+      "key": "typescript:S6746"
+    },
+    {
+      "key": "typescript:S6747"
+    },
+    {
+      "key": "typescript:S6748"
+    },
+    {
+      "key": "typescript:S6749"
+    },
+    {
+      "key": "typescript:S6750"
+    },
+    {
+      "key": "typescript:S6754"
+    },
+    {
+      "key": "typescript:S6756"
+    },
+    {
+      "key": "typescript:S6757"
+    },
+    {
+      "key": "typescript:S6759"
+    },
+    {
+      "key": "typescript:S6761"
+    },
+    {
+      "key": "typescript:S6763"
+    },
+    {
+      "key": "typescript:S6766"
+    },
+    {
+      "key": "typescript:S6767"
+    },
+    {
+      "key": "typescript:S6770"
+    },
+    {
+      "key": "typescript:S6772"
+    },
+    {
+      "key": "typescript:S6775"
+    },
+    {
+      "key": "typescript:S6788"
+    },
+    {
+      "key": "typescript:S6789"
+    },
+    {
+      "key": "typescript:S6790"
+    },
+    {
+      "key": "typescript:S6791"
+    },
+    {
+      "key": "typescript:S6793"
+    },
+    {
+      "key": "typescript:S6807"
+    },
+    {
+      "key": "typescript:S6811"
+    },
+    {
+      "key": "typescript:S6819"
+    },
+    {
+      "key": "typescript:S6821"
+    },
+    {
+      "key": "typescript:S6822"
+    },
+    {
+      "key": "typescript:S6823"
+    },
+    {
+      "key": "typescript:S6824"
+    },
+    {
+      "key": "typescript:S6825"
+    },
+    {
+      "key": "typescript:S6827"
+    },
+    {
+      "key": "typescript:S6836"
+    },
+    {
+      "key": "typescript:S6840"
+    },
+    {
+      "key": "typescript:S6841"
+    },
+    {
+      "key": "typescript:S6842"
+    },
+    {
+      "key": "typescript:S6843"
+    },
+    {
+      "key": "typescript:S6844"
+    },
+    {
+      "key": "typescript:S6845"
+    },
+    {
+      "key": "typescript:S6846"
+    },
+    {
+      "key": "typescript:S6847"
+    },
+    {
+      "key": "typescript:S6848"
+    },
+    {
+      "key": "typescript:S6849"
+    },
+    {
+      "key": "typescript:S6850"
+    },
+    {
+      "key": "typescript:S6851"
+    },
+    {
+      "key": "typescript:S6852"
+    },
+    {
+      "key": "typescript:S6853"
+    },
+    {
+      "key": "typescript:S6854"
+    },
+    {
+      "key": "typescript:S6855"
+    },
+    {
+      "key": "typescript:S6859"
+    },
+    {
+      "key": "typescript:S6861"
+    },
+    {
+      "key": "typescript:S6957"
+    },
+    {
+      "key": "typescript:S6958"
+    },
+    {
+      "key": "typescript:S6959"
+    },
+    {
+      "key": "typescript:S7044"
+    },
+    {
+      "key": "typescript:S7059"
+    },
+    {
+      "key": "typescript:S7060"
+    },
+    {
+      "key": "typescript:S7134"
+    },
+    {
+      "key": "typescript:S7197"
+    },
+    {
+      "key": "typescript:S7639"
+    },
+    {
+      "key": "typescript:S7641"
+    },
+    {
+      "key": "typescript:S7647"
+    },
+    {
+      "key": "typescript:S7648"
+    },
+    {
+      "key": "typescript:S7649"
+    },
+    {
+      "key": "typescript:S7650"
+    },
+    {
+      "key": "typescript:S7651"
+    },
+    {
+      "key": "typescript:S7652"
+    },
+    {
+      "key": "typescript:S7653"
+    },
+    {
+      "key": "typescript:S7654"
+    },
+    {
+      "key": "typescript:S7655"
+    },
+    {
+      "key": "typescript:S7656"
+    },
+    {
+      "key": "typescript:S7718"
+    },
+    {
+      "key": "typescript:S7719"
+    },
+    {
+      "key": "typescript:S7720"
+    },
+    {
+      "key": "typescript:S7721"
+    },
+    {
+      "key": "typescript:S7722"
+    },
+    {
+      "key": "typescript:S7723"
+    },
+    {
+      "key": "typescript:S7724"
+    },
+    {
+      "key": "typescript:S7725"
+    },
+    {
+      "key": "typescript:S7726"
+    },
+    {
+      "key": "typescript:S7727"
+    },
+    {
+      "key": "typescript:S7728"
+    },
+    {
+      "key": "typescript:S7729"
+    },
+    {
+      "key": "typescript:S7730"
+    },
+    {
+      "key": "typescript:S7731"
+    },
+    {
+      "key": "typescript:S7732"
+    },
+    {
+      "key": "typescript:S7733"
+    },
+    {
+      "key": "typescript:S7734"
+    },
+    {
+      "key": "typescript:S7735"
+    },
+    {
+      "key": "typescript:S7736"
+    },
+    {
+      "key": "typescript:S7737"
+    },
+    {
+      "key": "typescript:S7738"
+    },
+    {
+      "key": "typescript:S7739"
+    },
+    {
+      "key": "typescript:S7740"
+    },
+    {
+      "key": "typescript:S7741"
+    },
+    {
+      "key": "typescript:S7742"
+    },
+    {
+      "key": "typescript:S7743"
+    },
+    {
+      "key": "typescript:S7744"
+    },
+    {
+      "key": "typescript:S7745"
+    },
+    {
+      "key": "typescript:S7746"
+    },
+    {
+      "key": "typescript:S7747"
+    },
+    {
+      "key": "typescript:S7748"
+    },
+    {
+      "key": "typescript:S7749"
+    },
+    {
+      "key": "typescript:S7750"
+    },
+    {
+      "key": "typescript:S7751"
+    },
+    {
+      "key": "typescript:S7752"
+    },
+    {
+      "key": "typescript:S7753"
+    },
+    {
+      "key": "typescript:S7754"
+    },
+    {
+      "key": "typescript:S7755"
+    },
+    {
+      "key": "typescript:S7756"
+    },
+    {
+      "key": "typescript:S7757"
+    },
+    {
+      "key": "typescript:S7758"
+    },
+    {
+      "key": "typescript:S7759"
+    },
+    {
+      "key": "typescript:S7760"
+    },
+    {
+      "key": "typescript:S7761"
+    },
+    {
+      "key": "typescript:S7762"
+    },
+    {
+      "key": "typescript:S7763"
+    },
+    {
+      "key": "typescript:S7764"
+    },
+    {
+      "key": "typescript:S7765"
+    },
+    {
+      "key": "typescript:S7766"
+    },
+    {
+      "key": "typescript:S7767"
+    },
+    {
+      "key": "typescript:S7768"
+    },
+    {
+      "key": "typescript:S7769"
+    },
+    {
+      "key": "typescript:S7770"
+    },
+    {
+      "key": "typescript:S7771"
+    },
+    {
+      "key": "typescript:S7772"
+    },
+    {
+      "key": "typescript:S7773"
+    },
+    {
+      "key": "typescript:S7774"
+    },
+    {
+      "key": "typescript:S7775"
+    },
+    {
+      "key": "typescript:S7776"
+    },
+    {
+      "key": "typescript:S7777"
+    },
+    {
+      "key": "typescript:S7778"
+    },
+    {
+      "key": "typescript:S7780"
+    },
+    {
+      "key": "typescript:S7781"
+    },
+    {
+      "key": "typescript:S7783"
+    },
+    {
+      "key": "typescript:S7784"
+    },
+    {
+      "key": "typescript:S7785"
+    },
+    {
+      "key": "typescript:S7786"
+    },
+    {
+      "key": "typescript:S7787"
+    },
+    {
+      "key": "typescript:S7788"
+    },
+    {
+      "key": "typescript:S7790"
+    },
+    {
+      "key": "typescript:S8134"
+    },
+    {
+      "key": "typescript:S8348"
+    },
+    {
+      "key": "typescript:S8349"
+    }
+  ]
+}
