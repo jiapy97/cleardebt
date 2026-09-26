@@ -562,6 +562,31 @@ def api_rules_list(prefix: str = "") -> dict:
     return {"total": len(catalog), "ai_codefix_list_enabled": ai_codefix_rules_configured(), "rules": rows}
 
 
+@app.get("/api/repairable-rules")
+def api_repairable_rules() -> dict:
+    from cleardebt.ai_codefix_rules import rule_keys
+    from cleardebt.controls import sonar_credentials
+    from cleardebt.repairable_rules import fetch_open_issues, summarize
+    from cleardebt.rules import catalog
+
+    credentials = sonar_credentials()
+    if not credentials:
+        raise HTTPException(status_code=400, detail="先在接入配置中填写 Sonar 地址与令牌。")
+    try:
+        keys = rule_keys()
+    except (ValueError, RuntimeError) as error:
+        raise HTTPException(status_code=503, detail=str(error)) from error
+    try:
+        issues = fetch_open_issues(credentials["url"], credentials["token"])
+    except Exception as error:
+        raise HTTPException(status_code=502, detail=f"读取 Sonar 告警失败：{error}") from error
+    try:
+        metadata = catalog()
+    except Exception:
+        metadata = {}
+    return summarize(issues, keys, metadata)
+
+
 _scan_threads: dict[str, "threading.Thread"] = {}
 _assign_threads: dict[str, "threading.Thread"] = {}
 _mr_threads: dict[tuple[str, int], "threading.Thread"] = {}

@@ -36,6 +36,8 @@ flowchart LR
 
 公开竞品的自动修复资格快照和各自编号体系见 [data/public_fix_lists/README.md](data/public_fix_lists/README.md)。这些快照用于对照研究，不会把 CodeQL、CWE 或其他工具的编号误当成 Sonar 规则键。
 
+控制台的「可修规则」页面实时读取当前 Sonar 打开的告警，按规则键汇总命中数和项目。没有 AI CodeFix 清单时，只统计 Sonar 对具体告警标记的 Quick Fix；配置清单后，显示 Agent 已接入语言中的完整清单，并附当前命中数。
+
 ## 评测：OSS 真实异味集
 
 `bench/oss_smell_v1.json`——dayjs + axios 冻结 SHA（`436bde0`/`5fc40e1`），fresh run（开跑前清 checkpoint，无重放），环境误杀不计分母：

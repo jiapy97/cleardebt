@@ -3,6 +3,21 @@ export interface RepoChoice {
   selected: boolean;
 }
 
+export interface RepairableRulesResponse {
+  mode: "ai_codefix_list" | "sonar_quick_fix";
+  rule_count: number;
+  open_issue_count: number;
+  eligible_issue_count: number;
+  checked_at: string;
+  rules: Array<{
+    key: string;
+    language: string;
+    name: string;
+    issue_count: number;
+    projects: string[];
+  }>;
+}
+
 export interface Overview {
   configured: boolean;
   sonar_url: string;
@@ -206,6 +221,7 @@ export const api = {
         zh_source: string;
       }>;
     }>(`/api/rules?prefix=${encodeURIComponent(prefix)}`),
+  repairableRules: () => req<RepairableRulesResponse>("/api/repairable-rules"),
   rulesRefresh: () => req<{ ok: boolean; count: number }>("/api/rules/refresh", { method: "POST", body: "{}" }),
   rulePin: (rule: string, zh: string) =>
     req<{ rule: string }>("/api/rules/pin", {

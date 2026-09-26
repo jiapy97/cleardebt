@@ -7,6 +7,7 @@ import { Alert, Button, Card } from "antd";
 import {
   AuditOutlined,
   BranchesOutlined,
+  CheckCircleOutlined,
   ControlOutlined,
   HistoryOutlined,
   SettingOutlined,
@@ -16,6 +17,7 @@ import {
 import AssignPage from "./pages/Assign";
 import ControlsPage from "./pages/Controls";
 import RulesPage from "./pages/Rules";
+import RepairableRulesPage from "./pages/RepairableRules";
 import MrsPage from "./pages/Mrs";
 import ActivityPage from "./pages/Activity";
 import SheetPage from "./pages/Sheet";
@@ -31,6 +33,7 @@ const menus = [
   { path: "activity", name: "Agent 活动", icon: <HistoryOutlined /> },
   { path: "sheet", name: "清算单", icon: <AuditOutlined /> },
   { path: "rules", name: "规则管理", icon: <UnorderedListOutlined /> },
+  { path: "repairable", name: "可修规则", icon: <CheckCircleOutlined /> },
   { path: "setup", name: "接入配置", icon: <SettingOutlined /> },
 ];
 
@@ -40,7 +43,8 @@ const pageMeta: Record<string, { title: string; sub: string; node: React.ReactNo
   mrs: { title: "请求修复", sub: "质量门失败的合并请求，开出打向原源分支的修复请求", node: <MrsPage /> },
   activity: { title: "Agent 活动", sub: "最近会话，每 10 秒自动刷新", node: <ActivityPage /> },
   sheet: { title: "清算单", sub: "最近一轮的决策与建议片段", node: <SheetPage /> },
-  rules: { title: "规则管理", sub: "查看 Sonar 规则与可修清单，维护中文名", node: <RulesPage /> },
+  rules: { title: "规则管理", sub: "查看 Sonar 规则元数据，维护中文名", node: <RulesPage /> },
+  repairable: { title: "可修规则", sub: "查看当前 Sonar 告警可指派的规则与数量", node: <RepairableRulesPage /> },
   setup: { title: "接入配置", sub: "地址、令牌和允许修改的仓库", node: <SetupPage /> },
 };
 
@@ -109,7 +113,7 @@ function Shell() {
         {!isLoading && !isError &&
           (Object.keys(pageMeta) as Array<keyof typeof pageMeta>).map((key) => (
             <div key={key} style={{ display: key === page ? "block" : "none" }}>
-              {pageMeta[key].node}
+              {key !== "repairable" || key === page ? pageMeta[key].node : null}
             </div>
           ))}
       </PageContainer>
