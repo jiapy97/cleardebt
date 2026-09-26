@@ -14,6 +14,25 @@ export interface RepairableRulesResponse {
   }>;
 }
 
+export interface Suggestion {
+  fingerprint: string;
+  rule: string;
+  rule_name: string;
+  path: string;
+  line: number;
+  message: string;
+  message_zh: string;
+  level: string;
+  reason: string;
+  fix_method: string;
+  model_used: string;
+  model_attempts: Array<{ model?: string; ok?: boolean; error?: string }>;
+  checks: Array<{ name: string; ok: boolean | null; detail: string }>;
+  diffs: Array<{ path: string; diff: string }>;
+  diff_scope: "file" | "snippet";
+  mr_url: string;
+}
+
 export interface Overview {
   configured: boolean;
   sonar_url: string;
@@ -47,7 +66,7 @@ export interface Issue {
   suppressed?: boolean;
   is_new?: boolean;
   first_seen?: string;
-  status?: { level: string; reason: string; mr_url: string } | null;
+  status?: { level: string; reason: string; mr_url: string; fingerprint?: string } | null;
   tier?: string;
   tier_source?: string;
   sonar_type?: string;
@@ -219,6 +238,7 @@ export const api = {
       }>;
     }>(`/api/rules?prefix=${encodeURIComponent(prefix)}`),
   repairableRules: () => req<RepairableRulesResponse>("/api/repairable-rules"),
+  suggestion: (fingerprint: string) => req<Suggestion>(`/api/suggestions/${encodeURIComponent(fingerprint)}`),
   rulesRefresh: () => req<{ ok: boolean; count: number }>("/api/rules/refresh", { method: "POST", body: "{}" }),
   rulePin: (rule: string, zh: string) =>
     req<{ rule: string }>("/api/rules/pin", {

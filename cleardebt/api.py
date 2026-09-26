@@ -562,6 +562,16 @@ def api_rules_list(prefix: str = "") -> dict:
     return {"total": len(catalog), "ai_codefix_list_enabled": ai_codefix_rules_configured(), "rules": rows}
 
 
+@app.get("/api/suggestions/{fingerprint}")
+def api_suggestion(fingerprint: str) -> dict:
+    from cleardebt.suggestion import load
+
+    found = load(fingerprint.strip())
+    if found is None:
+        raise HTTPException(status_code=404, detail="没有找到这条告警的修复建议。")
+    return found
+
+
 @app.get("/api/repairable-rules")
 def api_repairable_rules() -> dict:
     from cleardebt.ai_codefix_rules import rule_keys

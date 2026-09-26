@@ -488,12 +488,19 @@ def issue_status_map(pairs: list[tuple[str, str]]) -> dict[tuple[str, str], dict
         key = (rule, path)
         if key not in keys:
             continue
-        entry = {"level": level, "reason": reason or "", "mr_url": mr_by_fingerprint.get(fingerprint, "")}
+        entry = {
+            "level": level,
+            "reason": reason or "",
+            "mr_url": mr_by_fingerprint.get(fingerprint, ""),
+            "fingerprint": fingerprint,
+        }
         current = out.get(key)
         if current is None or (not current["mr_url"] and entry["mr_url"]):
             out[key] = entry
         elif entry["level"] == "L1" and current["level"] != "L1" and not current["mr_url"]:
             out[key] = entry
+        # An MR-only entry still links to the suggestion saved for the same issue.
+        out[key].setdefault("fingerprint", fingerprint)
     return out
 
 

@@ -22,6 +22,7 @@ import MrsPage from "./pages/Mrs";
 import ActivityPage from "./pages/Activity";
 import SheetPage from "./pages/Sheet";
 import SetupPage from "./pages/Setup";
+import SuggestionPage from "./pages/Suggestion";
 import { useOverview } from "./lib/useOverview";
 
 const qc = new QueryClient();
@@ -46,7 +47,11 @@ const pageMeta: Record<string, { title: string; sub: string; node: React.ReactNo
   rules: { title: "规则管理", sub: "查看 Sonar 规则元数据，维护中文名", node: <RulesPage /> },
   repairable: { title: "Agent可修规则清单", sub: "Agent 可修复的 Sonar 规则清单", node: <RepairableRulesPage /> },
   setup: { title: "接入配置", sub: "地址、令牌和允许修改的仓库", node: <SetupPage /> },
+  suggestion: { title: "Agent 修复建议", sub: "Agent 对这条告警给出的改法和检查结果", node: <SuggestionPage /> },
 };
+
+// Mounted only while open: they query on demand instead of on every console load.
+const lazyPages = new Set(["repairable", "suggestion"]);
 
 const validPages = new Set(Object.keys(pageMeta));
 
@@ -113,7 +118,7 @@ function Shell() {
         {!isLoading && !isError &&
           (Object.keys(pageMeta) as Array<keyof typeof pageMeta>).map((key) => (
             <div key={key} style={{ display: key === page ? "block" : "none" }}>
-              {key !== "repairable" || key === page ? pageMeta[key].node : null}
+              {!lazyPages.has(key) || key === page ? pageMeta[key].node : null}
             </div>
           ))}
       </PageContainer>

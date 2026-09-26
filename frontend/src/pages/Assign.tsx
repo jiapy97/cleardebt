@@ -218,6 +218,19 @@ export default function AssignPage() {
       render: (_, r) => <StatusBadge status={r.status} />,
     },
     {
+      title: "Agent 修复建议",
+      key: "suggestion",
+      width: 130,
+      render: (_, r) =>
+        r.status?.fingerprint ? (
+          <a href={`#/suggestion?fp=${encodeURIComponent(r.status.fingerprint)}`} target="_blank" rel="noreferrer">
+            查看建议
+          </a>
+        ) : (
+          "—"
+        ),
+    },
+    {
       title: "操作",
       key: "op",
       width: 90,
@@ -297,7 +310,7 @@ export default function AssignPage() {
         <Table<Issue>
           rowKey={issueId}
           columns={readOnly
-            ? columns.filter((column) => !["eligible", "tier", "status", "op"].includes(String(column.key)))
+            ? columns.filter((column) => !["eligible", "tier", "status", "suggestion", "op"].includes(String(column.key)))
             : columns}
           dataSource={visible}
           pagination={{ pageSize: 20, showSizeChanger: false }}
