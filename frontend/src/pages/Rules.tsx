@@ -19,7 +19,7 @@ interface RuleRow {
 }
 
 function Verdict({ tier, listEnabled, listed }: { tier: string; listEnabled: boolean; listed: boolean | null }) {
-  if (!listEnabled) return <Tooltip title="尚未配置 Sonar AI CodeFix 清单，Agent 不会修复 Sonar 告警"><Tag>清单未配置</Tag></Tooltip>;
+  if (!listEnabled) return <Tooltip title="本页是规则目录；实际可修资格按扫描结果中每条告警的 Quick Fix 标记判断"><Tag>按告警判断</Tag></Tooltip>;
   if (listed && tier === "unknown") return <Tooltip title="清单内，但 Agent 尚未接入此语言"><Tag>Agent 未接入</Tag></Tooltip>;
   return <Tooltip title={listed ? "在已配置的 Sonar AI CodeFix 清单内" : "不在已配置的 Sonar AI CodeFix 清单内"}>
     <Tag color={listed ? "green" : "orange"}>{listed ? "清单内" : "清单外"}</Tag>
@@ -89,7 +89,7 @@ export default function RulesPage() {
           </Button>
         </Space>
         <div style={{ marginTop: 8, color: "#8c8c8c", fontSize: 12 }}>
-          共 {data?.total ?? 0} 条（Sonar 全量）。类型/严重度/影响面/英文名全部是 Sonar 原文；{data?.ai_codefix_list_enabled ? "可修资格按已配置的 Sonar AI CodeFix 清单逐条匹配。" : "当前未配置 AI CodeFix 清单，Sonar 告警不能指派修复。"}中文名你可以亲手写，不写就显示英文。
+          共 {data?.total ?? 0} 条（Sonar 全量）。类型/严重度/影响面/英文名全部是 Sonar 原文；{data?.ai_codefix_list_enabled ? "可修资格按已配置的 Sonar AI CodeFix 清单逐条匹配。" : "未配置 AI CodeFix 清单时，按扫描结果中每条告警的 Quick Fix 标记决定可修资格。"}中文名你可以亲手写，不写就显示英文。
         </div>
       </Card>
       <Card title="规则">

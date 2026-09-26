@@ -86,7 +86,7 @@ def _enrich(name: str, rows: list[dict]) -> list[dict]:
         item["tier_source"] = (
             "sca" if is_sca_rule(rule)
             else "sonar_ai_codefix_list" if ai_codefix_rules_configured()
-            else "sonar_ai_codefix_list_missing"
+            else "sonar_quick_fix"
         )
     suppressed = suppressed_map(name)
     seen = first_seen_map(name)

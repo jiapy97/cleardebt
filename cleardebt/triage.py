@@ -1,7 +1,8 @@
-"""Rule tiers for one issue. Sonar repair eligibility uses exact list keys.
+"""Rule tiers for one issue from Sonar's own repair signals.
 
-Without a configured AI CodeFix list, no Sonar issue is repairable. SCA
-dependency upgrades have their own route.
+An authorized AI CodeFix list, when configured, controls exact rule keys.
+Otherwise an issue needs Sonar's own quickFixAvailable flag. SCA dependency
+upgrades have their own route.
 """
 
 import re
@@ -47,7 +48,7 @@ def is_secret_rule(rule: str) -> bool:
 
 
 def tier_for(rule: str) -> str:
-    """Listed Sonar rules use the model path; all other Sonar rules stop."""
+    """Rule-level membership; without a list, eligibility is issue-specific."""
     if is_sca_rule(rule):
         return "A"
     if not language_supported(rule):
@@ -57,7 +58,15 @@ def tier_for(rule: str) -> str:
 
 def tier_for_issue(issue: dict) -> str:
     """One issue's tier, shared by the backlog and the execution graph."""
-    return tier_for(issue.get("rule") or "")
+    rule = issue.get("rule") or ""
+    if is_sca_rule(rule):
+        return "A"
+    if not language_supported(rule):
+        return "unknown"
+    in_list = listed(rule)
+    if in_list is not None:
+        return "B" if in_list else "C"
+    return "B" if issue.get("quick_fix") is True else "C"
 
 
 def issue_repairable(issue: dict) -> bool:

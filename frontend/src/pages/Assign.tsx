@@ -185,8 +185,10 @@ export default function AssignPage() {
       key: "tier",
       width: 130,
       render: (_, r) => {
-        if (r.tier_source === "sonar_ai_codefix_list_missing") {
-          return <Tooltip title="尚未配置 Sonar AI CodeFix 清单，Agent 不会修复 Sonar 告警"><Tag>清单未配置</Tag></Tooltip>;
+        if (r.tier_source === "sonar_quick_fix") {
+          return <Tooltip title={r.eligible ? "Sonar 本次扫描标记这条告警有 Quick Fix" : "Sonar 本次扫描未标记这条告警有 Quick Fix"}>
+            <Tag color={r.eligible ? "green" : "orange"}>{r.eligible ? "Sonar Quick Fix" : "无 Quick Fix"}</Tag>
+          </Tooltip>;
         }
         if (r.tier_source === "sonar_ai_codefix_list") {
           const listed = r.tier === "A" || r.tier === "B";
