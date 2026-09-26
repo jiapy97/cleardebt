@@ -2,6 +2,7 @@
 """Start Postgres, Redis, the review page, and the morning worker.
 
 Safe to run again: pieces that are already up are left alone.
+With --restart, the review page and the worker are stopped first so they load new code.
 Sonar and code hosting are not started here. Fill those in on the review page.
 """
 
@@ -31,6 +32,8 @@ def main() -> int:
     _wait_postgres()
     _venv()
     _typescript()
+    if "--restart" in sys.argv[1:]:
+        _stop()
     if not _page_up():
         _daemon("var/uvicorn.log", [str(PYTHON), "-m", "uvicorn", "cleardebt.api:app", "--host", "127.0.0.1", "--port", "8000"])
     if not _worker_up():
@@ -102,6 +105,18 @@ def _page_up() -> bool:
 def _worker_up() -> bool:
     probe = subprocess.run(["pgrep", "-f", "python -m arq cleardebt.batch_worker"], capture_output=True, text=True)
     return bool(probe.stdout.strip())
+
+
+def _stop() -> None:
+    patterns = ["uvicorn cleardebt.api:app", "python -m arq cleardebt.batch_worker"]
+    for pattern in patterns:
+        subprocess.run(["pkill", "-f", pattern], capture_output=True)
+    for _ in range(50):
+        alive = [p for p in patterns if subprocess.run(["pgrep", "-f", p], capture_output=True).stdout.strip()]
+        if not alive and not _page_up():
+            return
+        time.sleep(0.2)
+    raise SystemExit("旧的网页或 worker 没有停下来。")
 
 
 def _daemon(log_name: str, command: list[str], marker: str = "Uvicorn running") -> None:
