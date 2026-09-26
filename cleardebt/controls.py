@@ -59,9 +59,33 @@ def backlog_gate(settings: dict, repo: str) -> str | None:
     refused = gate(settings, repo)
     if refused:
         return refused
+    if project_read_only(settings, repo):
+        return f"{repo} 是无令牌只读仓库，只能扫描和查看问题。"
     if not project_switches(settings, repo)["backlog_fix"]:
         return f"{repo} 的 backlog 修复关掉了。"
     return None
+
+
+def project_read_only(settings: dict, repo: str) -> bool:
+    return any(
+        item.get("sonar_key") == repo and bool(item.get("read_only"))
+        for item in settings.get("bindings") or []
+    )
+
+
+def binding_read_only(item: dict, tokens: dict[str, str]) -> bool:
+    from cleardebt.hosting import detect_provider
+
+    provider = item.get("provider") or detect_provider(item.get("gitlab_url") or "")
+    return bool(item.get("read_only")) or not bool(tokens.get(provider))
+
+
+def _hosting_tokens(row: tuple) -> dict[str, str]:
+    return {
+        "gitlab": row[7] or "",
+        "github": (row[13] if len(row) > 13 else None) or "",
+        "azure_devops": (row[14] if len(row) > 14 else None) or "",
+    }
 
 
 def unbound_reason(repo: str) -> str:
@@ -140,13 +164,7 @@ def credentials_for(bindings: list[dict], token: str, sonar_key: str | None, tok
         return None
     url = str(chosen["gitlab_url"]).rstrip("/")
     provider = chosen.get("provider") or detect_provider(url)
-    chosen_token = (
-        tokens.get(provider)
-        or (token if provider == "gitlab" else "")
-        or tokens.get("gitlab")
-        or token
-        or ""
-    )
+    chosen_token = tokens.get(provider) or (token if provider == "gitlab" else "") or ""
     path = chosen.get("project_path") or ""
     if not path:
         try:
@@ -160,7 +178,7 @@ def credentials_for(bindings: list[dict], token: str, sonar_key: str | None, tok
                 path = _gitlab_project_path(url)
         except Exception:
             path = url
-    return credentials_bundle(
+    saved = credentials_bundle(
         url=url,
         token=chosen_token,
         project_id=chosen.get("project_id"),
@@ -168,6 +186,8 @@ def credentials_for(bindings: list[dict], token: str, sonar_key: str | None, tok
         provider=provider,
         sonar_key=chosen.get("sonar_key") or "",
     )
+    saved["read_only"] = bool(chosen.get("read_only")) or not bool(chosen_token)
+    return saved
 
 
 def binding_lines(bindings: list[dict]) -> str:
@@ -184,6 +204,7 @@ def binding_lines(bindings: list[dict]) -> str:
 def list_bindings() -> list[dict]:
     """Enriched binding rows for the setup table."""
     row = _row()
+    tokens = _hosting_tokens(row)
     out = []
     for item in _bindings_from_row(row):
         out.append(
@@ -195,6 +216,7 @@ def list_bindings() -> list[dict]:
                 "project_path": item.get("project_path") or "",
                 "backlog_fix": item.get("backlog_fix", True),
                 "request_fix": item.get("request_fix", True),
+                "read_only": binding_read_only(item, tokens),
             }
         )
     return out
@@ -206,6 +228,7 @@ def upsert_binding(sonar_key: str, gitlab_url: str) -> dict:
         _github_project_path,
         _gitlab_project_path,
         detect_provider,
+        resolve_repository,
     )
 
     key = (sonar_key or "").strip()
@@ -227,8 +250,20 @@ def upsert_binding(sonar_key: str, gitlab_url: str) -> dict:
             path = _gitlab_project_path(url)
     except Exception as error:
         raise ValueError(str(error)) from error
-    project_id = _resolve_project_id(provider, url, path)
     row = _row()
+    tokens = _hosting_tokens(row)
+    token = tokens.get(provider) or ""
+    if token:
+        project_id = _resolve_project_id(provider, url, path)
+    else:
+        from cleardebt.hosting import HostingError
+
+        try:
+            resolved = resolve_repository(url, "", provider)
+        except HostingError as error:
+            raise ValueError(str(error)) from error
+        project_id = resolved["project_id"]
+        url = resolved["url"]
     stored = [dict(item) for item in _bindings_from_row(row)]
     current = next((item for item in stored if item.get("sonar_key") == key), {})
     entry = {
@@ -239,6 +274,7 @@ def upsert_binding(sonar_key: str, gitlab_url: str) -> dict:
         "project_path": path,
         "backlog_fix": current.get("backlog_fix", True),
         "request_fix": current.get("request_fix", True),
+        "read_only": not bool(token),
         "automation": current.get("automation") or {},
     }
     stored = [item for item in stored if item.get("sonar_key") != key] + [entry]
@@ -250,7 +286,7 @@ def upsert_binding(sonar_key: str, gitlab_url: str) -> dict:
             "UPDATE controls SET repo_bindings = %s, whitelist = %s WHERE id = 1",
             (_json(stored), whitelist),
         )
-    return {k: entry.get(k) for k in ("sonar_key", "gitlab_url", "provider", "project_id", "project_path")}
+    return {k: entry.get(k) for k in ("sonar_key", "gitlab_url", "provider", "project_id", "project_path", "read_only")}
 
 
 def delete_binding(sonar_key: str) -> None:
@@ -411,6 +447,7 @@ def form_values() -> dict:
         ROOT / "deploy" / "llm" / ".token"
     ) or _file_token(ROOT / "deploy" / "deepseek" / ".token")
     bindings = _bindings_from_row(row)
+    hosting_tokens = {"gitlab": gitlab_token, "github": github_token, "azure_devops": azure_token}
     return {
         "configured": row[3],
         "sonar_url": sonar_url,
@@ -428,6 +465,7 @@ def form_values() -> dict:
                 "provider": item.get("provider") or "",
                 "backlog_fix": item.get("backlog_fix", True),
                 "request_fix": item.get("request_fix", True),
+                "read_only": binding_read_only(item, hosting_tokens),
                 "automation": item.get("automation") or {},
             }
             for item in bindings
@@ -463,6 +501,7 @@ def _file_token(path) -> str:
 
 def load_controls() -> dict:
     row = _row()
+    hosting_tokens = _hosting_tokens(row)
     return {
         "enabled": row[0],
         "dry_run": row[1],
@@ -483,6 +522,7 @@ def load_controls() -> dict:
                 "provider": item.get("provider") or "",
                 "backlog_fix": item.get("backlog_fix", True),
                 "request_fix": item.get("request_fix", True),
+                "read_only": binding_read_only(item, hosting_tokens),
                 "automation": item.get("automation") or {},
             }
             for item in _bindings_from_row(row)
@@ -503,11 +543,7 @@ def gitlab_credentials(sonar_key: str | None = None) -> dict | None:
     row = _row()
     if not row[3]:
         return None
-    tokens = {
-        "gitlab": row[7] or "",
-        "github": (row[13] if len(row) > 13 else None) or "",
-        "azure_devops": (row[14] if len(row) > 14 else None) or "",
-    }
+    tokens = _hosting_tokens(row)
     if not any(tokens.values()):
         tokens = {key: "" for key in tokens}
     return credentials_for(_bindings_from_row(row), tokens.get("gitlab") or "", sonar_key, tokens=tokens)
@@ -718,15 +754,13 @@ def connect_integration(
                     "provider": "",
                     "backlog_fix": old.get("backlog_fix", True),
                     "request_fix": old.get("request_fix", True),
+                    "read_only": old.get("read_only", False),
                     "automation": old.get("automation") or {},
                 }
             )
             continue
         provider = detect_provider(url)
         token = tokens.get(provider) or ""
-        if not token:
-            label = {"gitlab": "GitLab", "github": "GitHub", "azure_devops": "Azure DevOps"}[provider]
-            raise ValueError(f"{key} 绑的是 {label}，请填上对应令牌。")
         try:
             resolved = resolve_repository(url, token, provider)
         except HostingError as error:
@@ -740,11 +774,10 @@ def connect_integration(
                 "provider": resolved["provider"],
                 "backlog_fix": old.get("backlog_fix", True),
                 "request_fix": old.get("request_fix", True),
+                "read_only": not bool(token),
                 "automation": old.get("automation") or {},
             }
         )
-    if not any(tokens.values()):
-        raise ValueError("至少填一种代码托管令牌（GitLab / GitHub / Azure DevOps）")
     return save_integration(
         sonar_url=sonar_url,
         sonar_token=sonar_token,

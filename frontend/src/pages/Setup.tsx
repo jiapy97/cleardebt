@@ -26,9 +26,6 @@ export default function SetupPage() {
     const patch: Record<string, string> = {};
     const incoming: Record<string, string | undefined> = {
       sonar_url: overview.sonar_url,
-      sonar_token: overview.sonar_token || undefined,
-      gitlab_token: overview.gitlab_token || undefined,
-      llm_token: overview.llm_token || undefined,
       bindings: overview.binding_lines || undefined,
     };
     for (const [k, v] of Object.entries(incoming)) {
@@ -126,7 +123,7 @@ export default function SetupPage() {
           <Form.Item label="大模型密钥（自备）" name="llm_token">
             <Input.Password autoComplete="off" />
           </Form.Item>
-          <Form.Item label="允许修改的仓库（白名单）">
+          <Form.Item label="接入的仓库（无仓库令牌时仅扫描）">
             {choices.length === 0 ? (
               <span style={{ color: "#8c8c8c" }}>填好 Sonar 后刷新，这里会列出项目</span>
             ) : (

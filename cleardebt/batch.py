@@ -51,6 +51,7 @@ def plan_merges(
             )
             continue
         saved = [existing[row["fingerprint"]] for row in passed if row["fingerprint"] in existing]
+        pending = [row for row in passed if row["fingerprint"] not in existing]
         if len(saved) == len(passed):
             decisions.append(
                 {
@@ -90,7 +91,7 @@ def plan_merges(
                 "action": "open",
                 "level": "L1",
                 "count": len(passed),
-                "issues": passed,
+                "issues": pending,
             }
         )
         slots -= 1

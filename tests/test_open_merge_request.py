@@ -1,4 +1,5 @@
 import sys
+import tempfile
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -6,11 +7,25 @@ from unittest.mock import patch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 
 from cleardebt.gitlab_mr import NotEligible
-from open_merge_request import create_merge_request, project_access_level
+from open_merge_request import _apply_verified_files, create_merge_request, project_access_level
 import open_merge_request
 
 
 class OpenMergeRequestProjectTest(unittest.TestCase):
+    def test_applies_every_file_from_the_verified_patch_set(self):
+        with tempfile.TemporaryDirectory() as directory:
+            repo = Path(directory)
+            paths = _apply_verified_files(
+                repo,
+                [
+                    {"path": "package.json", "after": "package\n"},
+                    {"path": "package-lock.json", "after": "lock\n"},
+                ],
+            )
+            self.assertEqual(paths, ["package.json", "package-lock.json"])
+            self.assertEqual((repo / "package.json").read_text(), "package\n")
+            self.assertEqual((repo / "package-lock.json").read_text(), "lock\n")
+
     def test_source_has_no_hardcoded_project(self):
         self.assertFalse(hasattr(open_merge_request, "PROJECT_ID"))
         self.assertFalse(hasattr(open_merge_request, "PROJECT_PATH"))

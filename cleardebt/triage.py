@@ -71,7 +71,7 @@ def sonar_tier(issue: dict) -> str:
     quality = {str((i or {}).get("softwareQuality") or "").upper() for i in impacts}
     impact_sev = {str((i or {}).get("severity") or "").upper() for i in impacts}
     if kind in {"VULNERABILITY", "SECURITY_HOTSPOT"} or "SECURITY" in quality:
-        return "A" if _secrets_carveout() else "C"
+        return "A" if _secret_rule(issue.get("rule") or "") and _secrets_carveout() else "C"
     effort = parse_effort(issue.get("sonar_effort"))
     if effort is not None and effort > 30:
         return "C"
@@ -114,6 +114,24 @@ def tier_for(rule: str) -> str:
         return policy_tier(lookup(rule))
     except Exception:
         return "unknown"
+
+
+def tier_for_issue(issue: dict) -> str:
+    """One issue's tier, shared by the backlog and the execution graph."""
+    rule = issue.get("rule") or ""
+    if is_sca_rule(rule):
+        return "A"
+    if not language_supported(rule):
+        return "unknown"
+    if issue.get("sonar_type") or issue.get("sonar_impacts"):
+        tier = sonar_tier(issue)
+        if tier != "unknown":
+            return tier
+    return tier_for(rule)
+
+
+def issue_repairable(issue: dict) -> bool:
+    return (issue.get("tier") or tier_for_issue(issue)) in {"A", "B"}
 
 
 def _english_name(rule: str) -> str:

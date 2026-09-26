@@ -1,10 +1,11 @@
 import unittest
+from threading import Event
 from unittest.mock import patch
 
 from fastapi.testclient import TestClient
 
 from cleardebt.api import app
-from cleardebt.request_fix import request_fix_gate
+from cleardebt.request_fix import list_mr_issues, remediate_merge_request, request_fix_gate
 
 
 READY = {
@@ -17,6 +18,64 @@ READY = {
 
 
 class RequestFixTest(unittest.TestCase):
+    def test_mr_issue_list_uses_issue_level_triage(self):
+        mr = {"repo": "toy-js", "mr_iid": 42}
+        sonar_issue = {
+            "rule": "javascript:S1128", "component": "toy-js:src/a.js", "key": "issue-1",
+            "type": "CODE_SMELL", "severity": "MAJOR",
+            "impacts": [{"softwareQuality": "MAINTAINABILITY", "severity": "HIGH"}],
+        }
+        with (
+            patch("cleardebt.request_fix.load_merge_request", return_value=mr),
+            patch("cleardebt.request_fix.load_token", return_value="token"),
+            patch("cleardebt.request_fix.sonar_base_url", return_value="http://sonar"),
+            patch("cleardebt.request_fix.fetch_issues", return_value=[sonar_issue]),
+            patch("cleardebt.request_fix.describe_message", return_value="告警"),
+            patch("cleardebt.triage.tier_for", return_value="A"),
+        ):
+            row = list_mr_issues("toy-js", 42)["issues"][0]
+        self.assertEqual(row["tier"], "C")
+        self.assertFalse(row["eligible"])
+
+    def test_remediate_endpoint_returns_before_worker_finishes(self):
+        client = TestClient(app)
+        entered = Event()
+        release = Event()
+
+        def slow_remediate(*args, **kwargs):
+            entered.set()
+            release.wait(timeout=10)
+
+        with (
+            patch("cleardebt.api.load_controls", return_value=READY),
+            patch("cleardebt.request_fix.request_fix_gate", return_value=None),
+            patch("cleardebt.assign.create_session", return_value=91),
+            patch("cleardebt.request_fix.remediate_merge_request", side_effect=slow_remediate) as run,
+        ):
+            try:
+                response = client.post("/mrs/remediate", json={
+                    "repo": "toy-js", "mr_iid": 42,
+                    "issues": [{"rule": "javascript:S1128", "path": "src/a.js", "sonar_key": "issue-1"}],
+                })
+                self.assertEqual(response.status_code, 200)
+                self.assertEqual(response.json()["session_id"], 91)
+                self.assertTrue(entered.wait(timeout=2))
+                self.assertFalse(release.is_set())
+                duplicate = client.post("/mrs/remediate", json={
+                    "repo": "toy-js", "mr_iid": 42,
+                    "issues": [{"rule": "javascript:S1128", "path": "src/a.js", "sonar_key": "issue-1"}],
+                })
+                self.assertTrue(duplicate.json()["already_running"])
+                run.assert_called_once_with(
+                    "toy-js", 42,
+                    [{"rule": "javascript:S1128", "path": "src/a.js", "sonar_key": "issue-1"}],
+                    session_id=91,
+                )
+            finally:
+                release.set()
+                from cleardebt.api import _mr_threads
+                _mr_threads[("toy-js", 42)].join(timeout=2)
+
     def test_gate_requires_request_fix_flag(self):
         self.assertIsNone(request_fix_gate(READY, "toy-js"))
         self.assertIn(
@@ -25,7 +84,6 @@ class RequestFixTest(unittest.TestCase):
         )
 
     def test_remediate_opens_mr_against_source_branch(self):
-        client = TestClient(app)
         mr = {
             "repo": "toy-js",
             "mr_iid": 42,
@@ -42,6 +100,9 @@ class RequestFixTest(unittest.TestCase):
             patch("cleardebt.request_fix.load_controls", return_value=READY),
             patch("cleardebt.request_fix.request_fix_gate", return_value=None),
             patch("cleardebt.request_fix.load_merge_request", return_value=mr),
+            patch("cleardebt.request_fix.list_mr_issues", return_value={"issues": [
+                {"rule": "javascript:S1128", "path": "src/a.js", "sonar_key": "issue-42", "eligible": True},
+            ]}),
             patch("cleardebt.request_fix.create_session", return_value=9),
             patch("cleardebt.request_fix.finish_session") as finish,
             patch("cleardebt.request_fix.save_report"),
@@ -64,16 +125,9 @@ class RequestFixTest(unittest.TestCase):
                 },
             ) as open_mr,
         ):
-            response = client.post(
-                "/mrs/remediate",
-                json={
-                    "repo": "toy-js",
-                    "mr_iid": 42,
-                    "issues": [{"rule": "javascript:S1128", "path": "src/a.js"}],
-                },
+            body = remediate_merge_request(
+                "toy-js", 42, [{"rule": "javascript:S1128", "path": "src/a.js", "sonar_key": "issue-42"}]
             )
-        self.assertEqual(response.status_code, 200)
-        body = response.json()
         self.assertTrue(body["started"])
         self.assertEqual(body["source"], "request_fix")
         self.assertEqual(body["merge_request"]["source_branch"], "feature/login")
@@ -83,6 +137,7 @@ class RequestFixTest(unittest.TestCase):
             path="src/a.js",
             git_branch="feature/login",
             pull_request="42",
+            issue_key="issue-42",
         )
         open_mr.assert_called_once()
         kwargs = open_mr.call_args.kwargs
@@ -93,7 +148,6 @@ class RequestFixTest(unittest.TestCase):
         finish.assert_called_once()
 
     def test_remediate_respects_dry_run(self):
-        client = TestClient(app)
         dry = dict(READY, dry_run=True)
         mr = {
             "repo": "toy-js",
@@ -111,6 +165,9 @@ class RequestFixTest(unittest.TestCase):
             patch("cleardebt.request_fix.load_controls", return_value=dry),
             patch("cleardebt.request_fix.request_fix_gate", return_value=None),
             patch("cleardebt.request_fix.load_merge_request", return_value=mr),
+            patch("cleardebt.request_fix.list_mr_issues", return_value={"issues": [
+                {"rule": "javascript:S1128", "path": "src/a.js", "eligible": True},
+            ]}),
             patch("cleardebt.request_fix.create_session", return_value=1),
             patch("cleardebt.request_fix.finish_session"),
             patch("cleardebt.request_fix.save_report"),
@@ -125,15 +182,10 @@ class RequestFixTest(unittest.TestCase):
             ),
             patch("cleardebt.request_fix.open_merge_request.execute") as open_mr,
         ):
-            response = client.post(
-                "/mrs/remediate",
-                json={
-                    "repo": "toy-js",
-                    "mr_iid": 7,
-                    "issues": [{"rule": "javascript:S1128", "path": "src/a.js"}],
-                },
+            body = remediate_merge_request(
+                "toy-js", 7, [{"rule": "javascript:S1128", "path": "src/a.js"}]
             )
-        self.assertEqual(response.json()["decisions"][0]["action"], "dry_run")
+        self.assertEqual(body["decisions"][0]["action"], "dry_run")
         open_mr.assert_not_called()
 
     def test_offer_posts_note(self):

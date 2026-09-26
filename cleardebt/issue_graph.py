@@ -22,7 +22,7 @@ from cleardebt.fake_fix import review_patch
 from cleardebt.languages import TEST_EXCLUSIONS, has_node_test_stack, sonar_sources_value
 from cleardebt.sandbox import run_project_tests
 from cleardebt.sca import apply_bump, is_sca_rule, parse_risk, verify_bump
-from cleardebt.triage import describe, llm_repairable, tier_for
+from cleardebt.triage import describe, issue_repairable, tier_for_issue
 
 ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = ROOT / "scripts"
@@ -54,6 +54,7 @@ def _docker_sonar_url(url: str) -> str:
 
 class IssueState(TypedDict, total=False):
     fingerprint: str
+    sonar_fingerprint: str
     rule: str
     path: str
     message: str
@@ -73,6 +74,8 @@ class IssueState(TypedDict, total=False):
     tests_skipped: bool
     uncovered_lines: list
     project: str
+    git_branch: str
+    pull_request: str
     proposed_old: str
     proposed_new: str
     model_error: str
@@ -82,17 +85,23 @@ class IssueState(TypedDict, total=False):
     model_attempts: Annotated[list, operator.add]
     sca_package: str
     sca_to_version: str
+    sonar_type: str
+    sonar_severity: str
+    sonar_impacts: list[dict]
+    sonar_effort: str
+    quick_fix: bool
     history: Annotated[list[str], operator.add]
+    changed_files: list[dict]
 
 
 def triage(state: IssueState) -> dict:
-    return {"tier": tier_for(state["rule"]), "history": ["triage"]}
+    return {"tier": tier_for_issue(state), "history": ["triage"]}
 
 
 def fix(state: IssueState) -> dict:
     file_path = Path(state["work_dir"]) / state["path"]
     rule = state["rule"]
-    if not llm_repairable(rule):
+    if not issue_repairable(state):
         raise RuntimeError(f"没有这条规则的改写：{rule}")
 
     if is_sca_rule(rule):
@@ -122,6 +131,7 @@ def fix(state: IssueState) -> dict:
             "fix_method": "sca",
             "sca_package": bumped["package"],
             "sca_to_version": bumped["to_version"],
+            "changed_files": bumped.get("changed_files") or [],
             "history": ["fix"],
         }
 
@@ -134,6 +144,7 @@ def fix(state: IssueState) -> dict:
                 "before": before,
                 "after": after,
                 "fix_method": "mechanical",
+                "changed_files": [{"path": state.get("path", ""), "before": before, "after": after}],
                 "history": ["fix"],
             }
 
@@ -188,6 +199,7 @@ def fix(state: IssueState) -> dict:
         "model_used": model,
         "model_attempts": [{"model": model, "ok": True}],
         "model_error": "",
+        "changed_files": [{"path": state.get("path", ""), "before": before, "after": after}],
         "history": ["fix"],
     }
 
@@ -284,7 +296,13 @@ def rescan(state: IssueState) -> dict:
             baseline=project,
         )
         rescan_check.wait_until_processed(sonar_base_url(), token, temp_key)
-        before = rescan_check.issue_rows(sonar_base_url(), token, project)
+        before = rescan_check.issue_rows(
+            sonar_base_url(),
+            token,
+            project,
+            pull_request=state.get("pull_request") or None,
+            branch=(state.get("git_branch") or None) if not state.get("pull_request") else None,
+        )
         after = rescan_check.issue_rows(sonar_base_url(), token, temp_key)
         result = rescan_check.verdict(before, after, state["rule"])
     finally:
@@ -292,7 +310,8 @@ def rescan(state: IssueState) -> dict:
     if rescan_check.analysis_date(sonar_base_url(), token, project) != stamp:
         raise RuntimeError("baseline project was overwritten")
     removed_fingerprints = {row["fingerprint"] for row in result["removed"]}
-    ok = bool(result["ok"] and state["fingerprint"] in removed_fingerprints)
+    target_fingerprint = state.get("sonar_fingerprint") or state["fingerprint"]
+    ok = bool(result["ok"] and target_fingerprint in removed_fingerprints)
     return {
         "rescan_ok": ok,
         "rescan_removed": [_brief(row) for row in result["removed"]],

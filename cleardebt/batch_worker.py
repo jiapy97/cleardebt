@@ -141,8 +141,9 @@ def _note(result: dict) -> None:
 
 class WorkerSettings:
     functions = [run_one]
-    # Hourly tick; schedule_due() / schedule_skip_reason() decide whether each repo runs.
-    cron_jobs = [cron(nightly, minute={0})]
+    # Tick every minute; schedule_due() decides whether each repo's configured
+    # local hour/minute is due.
+    cron_jobs = [cron(nightly)]
     redis_settings = RedisSettings(host="127.0.0.1", port=6379)
     job_timeout = 600
     max_jobs = 4

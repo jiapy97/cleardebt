@@ -55,7 +55,7 @@ python3.12 scripts/up.py
 在审核页填写：
 
 1. **Sonar** 地址与令牌  
-2. **代码托管**令牌（GitLab / GitHub / Azure DevOps 按需；公开仓可免令牌）  
+2. **代码托管**令牌（GitLab / GitHub / Azure DevOps 按需；公开仓可免令牌，匿名拉取、扫描和查看问题，不能指派修复）
 3. **绑定**：每个 Sonar 项目一行，写成 `项目key https://托管地址`（按 URL 识别平台）  
 4. **大模型**：审核页填密钥，或设 `CLEARDEBT_LLM_API_KEY` / `deploy/llm/.token`。模型只交 `old_string` / `new_string`，过不过由重扫与测试决定  
 

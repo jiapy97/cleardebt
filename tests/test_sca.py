@@ -49,11 +49,15 @@ class ScaBumpTest(unittest.TestCase):
                 encoding="utf-8",
             )
             risk = parse_risk("Upgrade lodash to version 4.17.21", "package.json")
-            apply_bump(work, risk)
+            bumped = apply_bump(work, risk)
             pkg = json.loads((work / "package.json").read_text(encoding="utf-8"))
             self.assertEqual(pkg["dependencies"]["lodash"], "^4.17.21")
             checked = verify_bump(work, risk)
             self.assertTrue(checked["ok"])
+            self.assertEqual(
+                {item["path"] for item in bumped["changed_files"]},
+                {"package.json", "package-lock.json"},
+            )
 
     def test_bump_pip_requirements(self):
         with tempfile.TemporaryDirectory() as directory:

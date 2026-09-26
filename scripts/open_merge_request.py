@@ -23,7 +23,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 
 from cleardebt.gitlab_mr import NotEligible, ensure_access, ensure_eligible, render_description
 from cleardebt.issue_graph import build_graph
-from run_issue import DB_URI, _find_issue
+from run_issue import DB_URI, _find_issue, execution_fingerprint
 
 
 def execute(
@@ -47,6 +47,11 @@ def execute(
             state = graph.get_state({"configurable": {"thread_id": fingerprint}}).values or {}
         if not state:
             raise NotEligible("没有这条告警的过闸记录。")
+        if (state.get("project") or "").strip() != project:
+            raise NotEligible("这条过闸记录属于另一个项目，不会复用。")
+        state_branch = (state.get("git_branch") or "").strip()
+        if target_branch and state_branch and state_branch != target_branch.strip():
+            raise NotEligible("这条过闸记录属于另一个分支，不会复用。")
         issue = {
             "fingerprint": fingerprint,
             "rule": state.get("rule") or rule or "javascript:S1128",
@@ -55,7 +60,8 @@ def execute(
         }
     else:
         issue = _find_issue(load_sonar_token(), rule or "javascript:S1128", project, path=path)
-        fingerprint = issue["fingerprint"]
+        fingerprint = execution_fingerprint(issue["fingerprint"], project)
+        issue["fingerprint"] = fingerprint
         with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
             checkpointer.setup()
             graph = build_graph(checkpointer)
@@ -63,6 +69,8 @@ def execute(
     saved = gitlab_credentials(issue["project"])
     if not saved:
         raise NotEligible(unbound_reason(issue["project"]))
+    if saved.get("read_only") or not saved.get("token"):
+        raise NotEligible(f"{issue['project']} 是无令牌只读仓库，只能扫描和查看问题。")
     from cleardebt.hosting import HostingError, create_request, ensure_push_access
 
     try:
@@ -85,10 +93,11 @@ def execute(
     git(repo, ["config", "user.name", "ClearDebt"])
     git(repo, ["config", "user.email", "cleardebt@localhost"])
     git(repo, ["checkout", "-b", branch])
-    target = repo / state["path"]
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(state.get("after") or "", encoding="utf-8")
-    git(repo, ["add", state["path"]])
+    changed = state.get("changed_files") or [
+        {"path": state["path"], "after": state.get("after") or ""}
+    ]
+    changed_paths = _apply_verified_files(repo, changed)
+    git(repo, ["add", "--", *changed_paths])
     git(repo, ["commit", "-m", f"ClearDebt 修复（{state['rule']}）"])
     push(repo, saved["token"], branch, provider=saved.get("provider") or "gitlab")
     try:
@@ -114,6 +123,24 @@ def execute(
     }
     save_merge_request(record)
     return record
+
+
+def _apply_verified_files(repo: Path, changed: list[dict]) -> list[str]:
+    paths = []
+    root = repo.resolve()
+    for item in changed:
+        relative = str(item.get("path") or "").replace("\\", "/").lstrip("/")
+        if not relative:
+            raise NotEligible("过闸记录里有空文件名，不会开请求。")
+        target = (repo / relative).resolve()
+        if target != root and root not in target.parents:
+            raise NotEligible("过闸记录里的文件超出仓库，不会开请求。")
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(str(item.get("after") or ""), encoding="utf-8")
+        paths.append(relative)
+    if not paths:
+        raise NotEligible("过闸记录里没有可提交的文件。")
+    return paths
 
 
 def main() -> int:

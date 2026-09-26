@@ -7,6 +7,7 @@ Bindings still store the clone URL in `gitlab_url` for backward compatibility;
 from __future__ import annotations
 
 import json
+import os
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -42,6 +43,8 @@ def askpass_username(provider: str) -> str:
 def resolve_repository(url: str, token: str, provider: str | None = None) -> dict:
     """Validate access and return provider-specific ids for the binding."""
     kind = detect_provider(url, provider)
+    if not token:
+        return resolve_public_repository(url, kind)
     if kind == "github":
         return _resolve_github(url, token)
     if kind == "azure_devops":
@@ -49,11 +52,36 @@ def resolve_repository(url: str, token: str, provider: str | None = None) -> dic
     return _resolve_gitlab(url, token)
 
 
+def resolve_public_repository(url: str, provider: str | None = None) -> dict:
+    """Accept only an anonymously readable HTTPS repository for scan-only use."""
+    kind = detect_provider(url, provider)
+    parsed = urllib.parse.urlparse(url)
+    if (
+        parsed.scheme != "https"
+        or not parsed.hostname
+        or parsed.username
+        or parsed.password
+        or parsed.query
+        or parsed.fragment
+    ):
+        raise HostingError("无令牌仓库请填写公开的 HTTPS 仓库地址。")
+    if kind == "github":
+        path = _github_project_path(url)
+    elif kind == "azure_devops":
+        path = "/".join(_azure_parts(url))
+    else:
+        path = _gitlab_project_path(url)
+    remote = url if url.endswith(".git") else url.rstrip("/") + ".git"
+    if not _ls_remote_default(remote, anonymous=True):
+        raise HostingError("无法匿名读取仓库默认分支；请确认仓库公开且地址正确。")
+    return {"provider": kind, "project_id": None, "project_path": path, "url": url.rstrip("/")}
+
+
 _DEFAULT_BRANCH_CACHE: dict[str, tuple[str, float]] = {}
 _DEFAULT_BRANCH_TTL = 3600.0
 
 
-def _ls_remote_default(remote: str) -> str:
+def _ls_remote_default(remote: str, *, anonymous: bool = False) -> str:
     """Read the default branch via git protocol; zero API quota.
 
     `git ls-remote --symref <remote> HEAD` answers `ref: refs/heads/<name>`
@@ -65,11 +93,23 @@ def _ls_remote_default(remote: str) -> str:
     if not (remote or "").strip():
         return ""
     try:
+        env = None
+        command = ["git"]
+        if anonymous:
+            env = os.environ.copy()
+            env.update({
+                "GIT_CONFIG_GLOBAL": os.devnull,
+                "GIT_CONFIG_NOSYSTEM": "1",
+                "GIT_TERMINAL_PROMPT": "0",
+                "GIT_ASKPASS": os.devnull,
+            })
+            command += ["-c", "credential.helper=", "-c", f"core.askPass={os.devnull}"]
         completed = subprocess.run(
-            ["git", "ls-remote", "--symref", remote.strip(), "HEAD"],
+            [*command, "ls-remote", "--symref", remote.strip(), "HEAD"],
             capture_output=True,
             text=True,
             timeout=30,
+            env=env,
         )
     except Exception:
         return ""
@@ -396,7 +436,7 @@ def _gitlab_project_path(url: str) -> str:
     parts = [part for part in urllib.parse.urlparse(url).path.split("/") if part]
     if len(parts) < 2:
         raise HostingError("GitLab 地址要写成 https://gitlab.com/组/项目")
-    return "/".join(parts[:2])
+    return "/".join(parts[:2]).removesuffix(".git")
 
 
 def _github_project_path(url: str) -> str:

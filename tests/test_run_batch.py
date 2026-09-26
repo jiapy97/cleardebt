@@ -2,15 +2,88 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import call, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "scripts"))
 
-from run_batch import _open_one, _settle
+from run_batch import _issues, _open_group, _open_one, _settle
 
 
 class RecordDefaultBranchTest(unittest.TestCase):
+    def test_issue_collection_keeps_each_file_for_the_same_rule(self):
+        rows = [
+            {"rule": "javascript:S1128", "component": "toy:src/a.js"},
+            {"rule": "javascript:S1128", "component": "toy:src/b.js"},
+            {"rule": "javascript:S1128", "component": "toy:src/a.js"},
+        ]
+        with (
+            patch("run_batch.sonar_base_url", return_value="http://sonar"),
+            patch("run_batch.fetch_issues", return_value=rows),
+        ):
+            self.assertEqual(
+                _issues("token", "toy"),
+                [
+                    {"rule": "javascript:S1128", "path": "src/a.js"},
+                    {"rule": "javascript:S1128", "path": "src/b.js"},
+                ],
+            )
+
+    def test_group_request_commits_and_records_every_verified_file(self):
+        saved = {
+            "token": "t",
+            "project_id": 5,
+            "url": "https://example.test/g/one",
+            "provider": "gitlab",
+            "remote": "https://example.test/g/one.git",
+        }
+        issues = [
+            {
+                "rule": "javascript:S1128",
+                "fingerprint": "aaa11111deadbeef",
+                "path": "src/a.js",
+                "level": "L1",
+                "reason": "过了",
+                "project": "toy-js",
+                "changed_files": [{"path": "src/a.js", "after": "a fixed\n"}],
+            },
+            {
+                "rule": "javascript:S1128",
+                "fingerprint": "bbb22222deadbeef",
+                "path": "src/b.js",
+                "level": "L1",
+                "reason": "过了",
+                "project": "toy-js",
+                "changed_files": [{"path": "src/b.js", "after": "b fixed\n"}],
+            },
+        ]
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            records = []
+            with (
+                patch("run_batch.ROOT", root),
+                patch("run_batch.gitlab_credentials", return_value=saved),
+                patch("run_batch.checkout_default", return_value="main"),
+                patch("run_batch.find_merge_request", return_value=None),
+                patch("run_batch.git") as git,
+                patch("run_batch.push"),
+                patch(
+                    "cleardebt.hosting.create_request",
+                    return_value={"iid": 9, "web_url": "https://example.test/9", "provider": "gitlab"},
+                ),
+                patch("run_batch.save_merge_request", side_effect=lambda row: records.append(dict(row))),
+            ):
+                opened = _open_group("t", issues, "toy-js")
+            work = root / "var" / "merge" / "aaa11111dead"
+            self.assertEqual((work / "src/a.js").read_text(), "a fixed\n")
+            self.assertEqual((work / "src/b.js").read_text(), "b fixed\n")
+            self.assertIn(
+                call(work, ["add", "--", "src/a.js", "src/b.js"]),
+                git.call_args_list,
+            )
+        self.assertEqual({row["fingerprint"] for row in records}, {"aaa11111deadbeef", "bbb22222deadbeef"})
+        self.assertEqual(opened["fingerprints"], ["aaa11111deadbeef", "bbb22222deadbeef"])
+
     def test_records_the_cloned_default_branch_and_skips_the_same_fingerprint(self):
         fingerprint = "abc12345deadbeef"
         store: dict[str, dict] = {}

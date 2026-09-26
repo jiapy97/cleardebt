@@ -98,6 +98,14 @@ def apply_bump(work: Path, risk: dict) -> dict:
     package = risk["package"]
     to_version = risk["to_version"]
     primary = _primary_path(work, risk.get("path") or "", ecosystem)
+    tracked = [primary]
+    if ecosystem == "npm":
+        tracked.extend(path for path in (work / "package-lock.json", work / "yarn.lock") if path.is_file())
+    before_files = {
+        str(path.relative_to(work)).replace("\\", "/"): path.read_text(encoding="utf-8")
+        for path in tracked
+        if path.is_file()
+    }
     before = primary.read_text(encoding="utf-8") if primary.is_file() else ""
     if ecosystem == "npm":
         after = bump_npm(work, package, to_version, primary)
@@ -109,6 +117,13 @@ def apply_bump(work: Path, risk: dict) -> dict:
         after = bump_gradle(primary, package, to_version)
     else:
         raise ValueError(f"还不支持这种依赖清单：{ecosystem or primary.name}")
+    changed_files = []
+    for path in tracked:
+        relative = str(path.relative_to(work)).replace("\\", "/")
+        after_text = path.read_text(encoding="utf-8") if path.is_file() else ""
+        before_text = before_files.get(relative, "")
+        if after_text != before_text:
+            changed_files.append({"path": relative, "before": before_text, "after": after_text})
     return {
         "path": str(primary.relative_to(work)).replace("\\", "/"),
         "before": before,
@@ -116,6 +131,7 @@ def apply_bump(work: Path, risk: dict) -> dict:
         "ecosystem": ecosystem,
         "package": package,
         "to_version": to_version,
+        "changed_files": changed_files,
     }
 
 

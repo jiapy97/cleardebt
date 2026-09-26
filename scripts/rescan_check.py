@@ -173,10 +173,23 @@ def wait_until_processed(host: str, token: str, project_key: str) -> None:
     raise SystemExit(f"timed out waiting for {project_key}")
 
 
-def issue_rows(host: str, token: str, project_key: str) -> list[dict]:
+def issue_rows(
+    host: str,
+    token: str,
+    project_key: str,
+    *,
+    pull_request: str | None = None,
+    branch: str | None = None,
+) -> list[dict]:
     sources: dict[str, str] = {}
     rows = []
-    for issue in fetch_issues(host, token, project_key):
+    for issue in fetch_issues(
+        host,
+        token,
+        project_key,
+        pull_request=pull_request,
+        branch=branch,
+    ):
         path = issue_path(issue.get("component", ""), project_key)
         text_range = issue.get("textRange") or {}
         start = int(text_range.get("startLine") or 1)

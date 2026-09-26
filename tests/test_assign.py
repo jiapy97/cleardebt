@@ -4,6 +4,7 @@ from unittest.mock import patch
 from fastapi.testclient import TestClient
 
 from cleardebt.api import app
+from cleardebt.assign import _enrich, resolve_selected_issues
 from cleardebt.review import render_page
 
 
@@ -11,6 +12,37 @@ READY = {"configured": True, "enabled": True, "whitelist": ["toy-js"], "dry_run"
 
 
 class AssignApiTest(unittest.TestCase):
+    def test_backlog_eligibility_uses_each_issues_sonar_signals(self):
+        rows = [
+            {"rule": "javascript:S1186", "path": "src/a.js", "sonar_type": "CODE_SMELL",
+             "sonar_impacts": [{"softwareQuality": "MAINTAINABILITY", "severity": "LOW"}]},
+            {"rule": "javascript:S1128", "path": "src/b.js", "sonar_type": "CODE_SMELL",
+             "sonar_impacts": [{"softwareQuality": "MAINTAINABILITY", "severity": "HIGH"}]},
+        ]
+        with (
+            patch("cleardebt.triage.tier_for", side_effect=lambda rule: "C" if rule.endswith("S1186") else "A"),
+            patch("cleardebt.assign.describe_message", return_value="告警"),
+            patch("cleardebt.assign.suppressed_map", return_value={}),
+            patch("cleardebt.assign.first_seen_map", return_value={}),
+            patch("cleardebt.assign.issue_status_map", return_value={}),
+        ):
+            enriched = _enrich("toy-js", rows)
+        by_rule = {row["rule"]: row for row in enriched}
+        self.assertEqual((by_rule["javascript:S1186"]["tier"], by_rule["javascript:S1186"]["eligible"]), ("A", True))
+        self.assertEqual((by_rule["javascript:S1128"]["tier"], by_rule["javascript:S1128"]["eligible"]), ("C", False))
+
+    def test_selection_uses_issue_identity_and_rejects_ambiguous_legacy_pick(self):
+        rows = [
+            {"rule": "javascript:S1128", "path": "src/a.js", "line": 2, "sonar_key": "one"},
+            {"rule": "javascript:S1128", "path": "src/a.js", "line": 8, "sonar_key": "two"},
+        ]
+        chosen = resolve_selected_issues(
+            [{"rule": "javascript:S1128", "path": "src/a.js", "sonar_key": "two"}], rows
+        )
+        self.assertEqual(chosen[0]["line"], 8)
+        with self.assertRaisesRegex(ValueError, "无法唯一定位"):
+            resolve_selected_issues([{"rule": "javascript:S1128", "path": "src/a.js"}], rows)
+
     def test_list_issues_requires_repo(self):
         client = TestClient(app)
         response = client.get("/issues")
@@ -73,6 +105,10 @@ class AssignApiTest(unittest.TestCase):
         with (
             patch("cleardebt.assign.load_controls", return_value=READY),
             patch("cleardebt.assign.gate", return_value=None),
+            patch("cleardebt.assign.list_backlog_issues", return_value=[
+                {"rule": "javascript:S1128", "path": "src/a.js", "eligible": True},
+                {"rule": "javascript:S2077", "path": "src/b.js", "eligible": False},
+            ]),
             patch("cleardebt.assign.create_session", return_value=7),
             patch("cleardebt.assign.finish_session") as finish,
             patch("cleardebt.assign.save_report") as report,
@@ -101,6 +137,12 @@ class AssignApiTest(unittest.TestCase):
             )
         self.assertTrue(body["started"])
         self.assertEqual(body["session_id"], 7)
+        open_mr.assert_called_once_with(
+            "javascript:S1128",
+            "toy-js",
+            path="src/a.js",
+            fingerprint="fp",
+        )
 
     def test_assign_respects_dry_run(self):
         client = TestClient(app)
@@ -108,6 +150,9 @@ class AssignApiTest(unittest.TestCase):
         with (
             patch("cleardebt.assign.load_controls", return_value=dry),
             patch("cleardebt.assign.gate", return_value=None),
+            patch("cleardebt.assign.list_backlog_issues", return_value=[
+                {"rule": "javascript:S1128", "path": "src/a.js", "eligible": True},
+            ]),
             patch("cleardebt.assign.create_session", return_value=1),
             patch("cleardebt.assign.finish_session"),
             patch("cleardebt.assign.save_report"),
@@ -129,6 +174,32 @@ class AssignApiTest(unittest.TestCase):
             )
         self.assertEqual(body["decisions"][0]["action"], "dry_run")
         open_mr.assert_not_called()
+
+    def test_sca_selection_preserves_package_and_target_version(self):
+        from cleardebt.assign import assign_to_agent
+
+        rows = [
+            {"rule": "sca:UPGRADE", "path": "package.json", "fingerprint": "risk-a", "sonar_key": "sca-release",
+             "message": "Upgrade alpha to version 2.0.0", "package": "alpha", "to_version": "2.0.0", "eligible": True},
+            {"rule": "sca:UPGRADE", "path": "package.json", "fingerprint": "risk-b", "sonar_key": "sca-release",
+             "message": "Upgrade beta to version 3.0.0", "package": "beta", "to_version": "3.0.0", "eligible": True},
+        ]
+        with (
+            patch("cleardebt.assign.load_controls", return_value=dict(READY, dry_run=True)),
+            patch("cleardebt.assign.list_backlog_issues", return_value=rows),
+            patch("cleardebt.assign.finish_session"),
+            patch("cleardebt.assign.save_report"),
+            patch("cleardebt.assign.run_issue.execute", return_value={
+                "level": "L1", "rule": "sca:UPGRADE", "path": "package.json", "fingerprint": "fp",
+            }) as execute,
+        ):
+            assign_to_agent("toy-js", [
+                {"rule": "sca:UPGRADE", "path": "package.json", "fingerprint": "risk-b", "sonar_key": "sca-release"},
+            ], session_id=7)
+        execute.assert_called_once_with(
+            "sca:UPGRADE", "toy-js", path="package.json",
+            message="Upgrade beta to version 3.0.0", sca_package="beta", sca_to_version="3.0.0",
+        )
 
     def test_page_shows_assign_and_activity(self):
         html = render_page(

@@ -47,6 +47,30 @@ class FakeFixTest(unittest.TestCase):
         self.assertEqual(rejections[0]["kind"], "emptied_function")
         self.assertEqual(rejections[0]["function"], "formatLabel")
 
+    def test_deleting_a_javascript_function_is_rejected(self):
+        before = "export function live() {\n  return 1;\n}\n"
+        rejections = review_patch([("src/live.js", before, "")])
+        self.assertIn("erased_file", [item["kind"] for item in rejections])
+        self.assertIn("emptied_function", [item["kind"] for item in rejections])
+
+    def test_emptying_a_python_function_is_rejected(self):
+        before = "def live():\n    return 1\n"
+        after = "def live():\n    pass\n"
+        rejections = review_patch([("src/live.py", before, after)])
+        self.assertEqual([item["kind"] for item in rejections], ["emptied_function"])
+
+    def test_emptying_a_java_method_is_rejected(self):
+        before = "public class Live {\n  public int value() { return 1; }\n}\n"
+        after = "public class Live {\n  public int value() { }\n}\n"
+        rejections = review_patch([("src/Live.java", before, after)])
+        self.assertEqual([item["kind"] for item in rejections], ["emptied_function"])
+
+    def test_deleting_a_csharp_method_is_rejected(self):
+        before = "public class Live {\n  public int Value() { return 1; }\n}\n"
+        after = "public class Live {\n}\n"
+        rejections = review_patch([("src/Live.cs", before, after)])
+        self.assertEqual([item["kind"] for item in rejections], ["emptied_function"])
+
 
 if __name__ == "__main__":
     unittest.main()

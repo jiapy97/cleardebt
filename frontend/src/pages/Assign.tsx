@@ -2,16 +2,17 @@ import { useEffect, useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Alert, Button, Card, Checkbox, Select, Space, Spin, Table, Tag, Tooltip, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { api, type AssignDecision, type Issue } from "../lib/api";
+import { api, issueId, issueSelection, type AssignDecision, type Issue } from "../lib/api";
 import { useRepoChoices } from "../lib/useOverview";
 import { StatusBadge } from "./widgets";
 
 export default function AssignPage() {
-  const { choices, def } = useRepoChoices();
+  const { choices, def, overview } = useRepoChoices();
   const [repo, setRepo] = useState("");
   const [cache, setCache] = useState<Record<string, { issues: Issue[]; note: string }>>({});
   const [picked, setPicked] = useState<string[]>([]);
   const cur = repo || def;
+  const readOnly = overview?.bindings.some((binding) => binding.sonar_key === cur && binding.read_only === true) ?? false;
   const shown = (cur && cache[cur]) || null;
   const [phase, setPhase] = useState("");
   const [scanning, setScanning] = useState(false);
@@ -72,6 +73,7 @@ export default function AssignPage() {
     mutationFn: (target: string) => api.issueSnapshot(target),
     onSuccess: (d, target) => {
       setCache((c) => ({ ...c, [target]: { issues: d.issues, note: d.scan_note } }));
+      if (target === cur) setPicked([]);
     },
     onError: () => {},
   });
@@ -84,16 +86,8 @@ export default function AssignPage() {
 
   const assign = useMutation({
     mutationFn: () => {
-      const seen = new Set<string>();
-      const deduped: Array<{ rule: string; path: string }> = [];
-      for (const p of picked) {
-        const [rule, path] = p.split("|");
-        const k = `${rule}|${path}`;
-        if (seen.has(k)) continue;
-        seen.add(k);
-        deduped.push({ rule, path });
-      }
-      return api.assign(cur, deduped);
+      const selected = (shown?.issues ?? []).filter((row) => picked.includes(issueId(row)));
+      return api.assign(cur, selected.map(issueSelection));
     },
     onSuccess: (d) => {
       if (d.already_running) {
@@ -184,7 +178,7 @@ export default function AssignPage() {
       title: "可修",
       key: "eligible",
       width: 80,
-      render: (_, r) => <StatusBadge tone={r.eligible ? "ok" : "mute"} text={r.eligible ? "可修" : "跳过"} />,
+      render: (_, r) => <StatusBadge tone={!readOnly && r.eligible ? "ok" : "mute"} text={readOnly ? "仅查看" : r.eligible ? "可修" : "跳过"} />,
     },
     {
       title: "结论",
@@ -306,6 +300,7 @@ export default function AssignPage() {
           />
         )}
         {shown?.note && <Alert style={{ marginTop: 12 }} type="success" showIcon message={shown.note} />}
+        {readOnly && <Alert style={{ marginTop: 12 }} type="info" showIcon message="这个公开仓库没有托管平台令牌：可以拉取、扫描和查看问题，不能指派修复。" />}
       </Card>
       <Card title={`告警列表（${visible.length} 条${hiddenCount > 0 ? `，已忽略 ${hiddenCount} 条` : ""}）`}>
         {hiddenCount > 0 && (
@@ -316,31 +311,35 @@ export default function AssignPage() {
           </div>
         )}
         <Table<Issue>
-          rowKey={(r) => `${r.rule}|${r.path}|${r.line ?? 0}`}
-          columns={columns}
+          rowKey={issueId}
+          columns={readOnly
+            ? columns.filter((column) => !["eligible", "tier", "status", "op"].includes(String(column.key)))
+            : columns}
           dataSource={visible}
           pagination={{ pageSize: 20, showSizeChanger: false }}
-          rowSelection={{
+          rowSelection={readOnly ? undefined : {
             selectedRowKeys: picked,
             onChange: (keys) => setPicked(keys as string[]),
             getCheckboxProps: (r) => ({ disabled: !r.eligible }),
           }}
           locale={{ emptyText: cur ? "库里还没有这个项目的快照，点「重新扫描」扫一遍入库" : "选好项目后点「重新扫描」" }}
         />
-        <Button
-          type="primary"
-          loading={assigning}
-          disabled={picked.length === 0}
-          onClick={() => {
-            setAssigning(true);
-            setAssignSession(null);
-            setAssignResult(null);
-            setAssignError("");
-            assign.mutate();
-          }}
-        >
-          指派给 Agent{picked.length > 0 ? `（${picked.length}）` : ""}
-        </Button>
+        {!readOnly && (
+          <Button
+            type="primary"
+            loading={assigning}
+            disabled={picked.length === 0}
+            onClick={() => {
+              setAssigning(true);
+              setAssignSession(null);
+              setAssignResult(null);
+              setAssignError("");
+              assign.mutate();
+            }}
+          >
+            指派给 Agent{picked.length > 0 ? `（${picked.length}）` : ""}
+          </Button>
+        )}
         {assigning && (
           <span style={{ display: "inline-flex", alignItems: "center", gap: 8, marginLeft: 12, color: "#595959" }}>
             <Spin size="small" /> 正在跑，第 {assignSession ?? ""} 会话…

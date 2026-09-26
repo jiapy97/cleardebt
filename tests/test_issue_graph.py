@@ -8,7 +8,7 @@ from unittest.mock import patch
 from langgraph.checkpoint.memory import MemorySaver
 from langgraph.checkpoint.postgres import PostgresSaver
 
-from cleardebt.issue_graph import build_graph, next_action, rescan, triage
+from cleardebt.issue_graph import build_graph, fix, next_action, rescan, triage
 
 DB_URI = os.environ.get(
     "CLEARDEBT_DATABASE_URL",
@@ -79,6 +79,32 @@ class NextActionTest(unittest.TestCase):
 
 
 class IssueGraphTest(unittest.TestCase):
+    def test_issue_signals_drive_graph_triage_and_fix_gate(self):
+        signals = {
+            "sonar_type": "CODE_SMELL",
+            "sonar_impacts": [{"softwareQuality": "MAINTAINABILITY", "severity": "LOW"}],
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            work = Path(directory)
+            (work / "src").mkdir()
+            (work / "src" / "a.js").write_text("const a = 1;\n", encoding="utf-8")
+            state = _blank_state(rule="javascript:S1186", path="src/a.js", work_dir=str(work), **signals)
+            with (
+                patch("cleardebt.triage.tier_for", return_value="C"),
+                patch("cleardebt.issue_graph.apply_mechanical", return_value="const a = 2;\n"),
+            ):
+                state.update(triage(state))
+                self.assertEqual(state["tier"], "A")
+                self.assertEqual(fix(state)["fix_method"], "mechanical")
+
+        high = _blank_state(
+            rule="javascript:S1128",
+            sonar_type="CODE_SMELL",
+            sonar_impacts=[{"softwareQuality": "MAINTAINABILITY", "severity": "HIGH"}],
+        )
+        with patch("cleardebt.triage.tier_for", return_value="A"):
+            self.assertEqual(triage(high)["tier"], "C")
+
     def test_c_tier_stops_at_triage(self):
         graph = build_graph(MemorySaver())
         result = graph.invoke(_blank_state(), {"configurable": {"thread_id": "c-tier"}})

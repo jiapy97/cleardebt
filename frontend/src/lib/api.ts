@@ -43,6 +43,35 @@ export interface Issue {
   sonar_impacts?: Array<{ softwareQuality?: string; severity?: string }>;
   sonar_effort?: string;
   quick_fix?: boolean;
+  sonar_key?: string;
+  fingerprint?: string;
+  package?: string;
+  to_version?: string;
+}
+
+export interface IssueSelection {
+  rule: string;
+  path: string;
+  line?: number;
+  sonar_key?: string;
+  fingerprint?: string;
+}
+
+export function issueId(issue: Issue): string {
+  if (issue.rule.startsWith("sca:") && issue.fingerprint) return `sca:${issue.fingerprint}`;
+  if (issue.sonar_key) return `sonar:${issue.sonar_key}`;
+  if (issue.fingerprint) return `sca:${issue.fingerprint}`;
+  return `fallback:${issue.rule}:${issue.path}:${issue.line ?? 0}:${issue.message}`;
+}
+
+export function issueSelection(issue: Issue): IssueSelection {
+  return {
+    rule: issue.rule,
+    path: issue.path,
+    line: issue.line ?? 0,
+    sonar_key: issue.sonar_key,
+    fingerprint: issue.fingerprint,
+  };
 }
 
 export interface AssignDecision {
@@ -121,7 +150,7 @@ export const api = {
       `/api/scan/progress?repo=${encodeURIComponent(repo)}`,
     ),
   bindings: (body: { sonar_key: string; gitlab_url: string }) =>
-    req<{ ok: boolean; sonar_key: string }>("/api/bindings", {
+    req<{ ok: boolean; sonar_key: string; read_only?: boolean }>("/api/bindings", {
       method: "POST",
       body: JSON.stringify(body),
     }),
@@ -180,7 +209,7 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ rule, zh }),
     }),
-  assign: (repo: string, issues: Array<{ rule: string; path: string }>) =>
+  assign: (repo: string, issues: IssueSelection[]) =>
     req<{ started: boolean; already_running?: boolean; repo: string; session_id?: number }>(
       "/issues/assign",
       {
@@ -205,13 +234,11 @@ export const api = {
       method: "POST",
       body: JSON.stringify({ repo, mr_iid }),
     }),
-  mrRemediate: (repo: string, mr_iid: number, issues: Array<{ rule: string; path: string }>) =>
-    req<{ session_id: number }>("/mrs/remediate", {
+  mrRemediate: (repo: string, mr_iid: number, issues: IssueSelection[]) =>
+    req<{ session_id?: number; already_running?: boolean }>("/mrs/remediate", {
       method: "POST",
       body: JSON.stringify({ repo, mr_iid, issues }),
     }),
   latestSheet: () =>
     req<{ sheet: Record<string, unknown> | null }>("/api/reports/latest").then((d) => d.sheet),
-  revealTokens: () =>
-    req<Record<string, string>>("/api/tokens/reveal", { method: "POST", body: "{}" }),
 };

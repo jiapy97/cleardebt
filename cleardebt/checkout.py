@@ -78,8 +78,14 @@ def _git(repo: Path, args: list[str], token: str, *, provider: str = "gitlab") -
     env["CLEARDEBT_GIT_TOKEN"] = token
     env["GIT_ASKPASS"] = str(askpass)
     env["GIT_TERMINAL_PROMPT"] = "0"
+    command = ["git", *args]
+    if not token:
+        env["GIT_CONFIG_GLOBAL"] = os.devnull
+        env["GIT_CONFIG_NOSYSTEM"] = "1"
+        env["GIT_ASKPASS"] = os.devnull
+        command = ["git", "-c", "credential.helper=", "-c", f"core.askPass={os.devnull}", *args]
     completed = subprocess.run(
-        ["git", *args],
+        command,
         cwd=repo,
         env=env,
         capture_output=True,

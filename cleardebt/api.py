@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import sys
+import threading
 from pathlib import Path
 
 from fastapi import Body, FastAPI, Form, HTTPException
@@ -282,16 +283,43 @@ def mr_offer(body: dict = Body(...)) -> dict:
 
 @app.post("/mrs/remediate")
 def mr_remediate(body: dict = Body(...)) -> dict:
-    from cleardebt.request_fix import remediate_merge_request
+    from cleardebt.assign import create_session, finish_session
+    from cleardebt.request_fix import remediate_merge_request, request_fix_gate
 
+    name = (body.get("repo") or "").strip()
     try:
-        return remediate_merge_request(
-            body.get("repo") or "",
-            body.get("mr_iid") or 0,
-            body.get("issues") or [],
-        )
-    except ValueError as error:
-        raise HTTPException(status_code=400, detail=str(error)) from error
+        iid = int(body.get("mr_iid") or 0)
+    except (TypeError, ValueError) as error:
+        raise HTTPException(status_code=400, detail="合并请求号不对。") from error
+    selections = body.get("issues") or []
+    if iid < 1:
+        raise HTTPException(status_code=400, detail="合并请求号不对。")
+    if not selections:
+        raise HTTPException(status_code=400, detail="没有勾选告警。")
+    refused = request_fix_gate(load_controls(), name)
+    if refused:
+        raise HTTPException(status_code=400, detail=refused)
+    key = (name, iid)
+    with _mr_threads_lock:
+        existing = _mr_threads.get(key)
+        if existing is not None and existing.is_alive():
+            return {"started": True, "already_running": True, "repo": name, "mr_iid": iid}
+
+        session_id = create_session(source="request_fix", repo=name, issue_count=len(selections), status="running")
+
+        def _run() -> None:
+            try:
+                remediate_merge_request(name, iid, selections, session_id=session_id)
+            except Exception as error:  # noqa: BLE001
+                try:
+                    finish_session(session_id, status="failed", details={"error": str(error)})
+                except Exception:
+                    pass
+
+        thread = threading.Thread(target=_run, name=f"mr-fix-{name}-{iid}", daemon=True)
+        _mr_threads[key] = thread
+        thread.start()
+    return {"started": True, "already_running": False, "repo": name, "mr_iid": iid, "session_id": session_id}
 
 
 @app.post("/issues/list", response_class=HTMLResponse)
@@ -534,6 +562,8 @@ def api_rules_list(prefix: str = "") -> dict:
 
 _scan_threads: dict[str, "threading.Thread"] = {}
 _assign_threads: dict[str, "threading.Thread"] = {}
+_mr_threads: dict[tuple[str, int], "threading.Thread"] = {}
+_mr_threads_lock = threading.Lock()
 
 
 @app.post("/api/issues/list")
@@ -568,10 +598,6 @@ def api_list_issues(body: dict = Body(...)) -> dict:
 
 @app.get("/api/overview")
 def api_overview() -> dict:
-    from cleardebt.controls import form_values
-
-    real = form_values()
-    tokens = {key: real.get(key) or "" for key in ("sonar_token", "gitlab_token", "github_token", "azure_token", "llm_token")}
     try:
         settings = _form_settings()
     except Exception as error:
@@ -591,7 +617,6 @@ def api_overview() -> dict:
             "backlog_automation": controls.get("backlog_automation") or {},
             "overview_warning": f"Sonar 连不上，只显示已保存的名单：{error}",
         }
-    settings.update(tokens)
     return settings
 
 
@@ -623,25 +648,6 @@ def api_setup(body: dict = Body(...)) -> dict:
 @app.get("/api/reports/latest")
 def api_latest_sheet() -> dict:
     return {"sheet": latest_sheet()}
-
-
-@app.post("/api/tokens/reveal")
-def api_reveal_tokens() -> dict:
-    """Return the real saved tokens for the local admin to view/edit.
-
-    The console only listens on 127.0.0.1; values are filled into the form
-    on explicit user action (never echoed into the initial page render).
-    """
-    from cleardebt.controls import form_values
-
-    values = form_values()
-    return {
-        "sonar_token": values.get("sonar_token") or "",
-        "gitlab_token": values.get("gitlab_token") or "",
-        "github_token": values.get("github_token") or "",
-        "azure_token": values.get("azure_token") or "",
-        "llm_token": values.get("llm_token") or "",
-    }
 
 
 @app.post("/issues/assign-form", response_class=HTMLResponse)
@@ -707,13 +713,13 @@ def _assign_notice(result: dict) -> str:
 
 @app.post("/issues/run")
 def run_one_issue(repo: str = "", rule: str = "") -> dict:
-    from cleardebt.controls import gate
+    from cleardebt.controls import backlog_gate
 
     settings = load_controls()
     name = repo.strip()
     if not name:
         return {"started": False, "reason": "没有写项目，不会跑。"}
-    refused = gate(settings, name)
+    refused = backlog_gate(settings, name)
     if refused:
         return {"started": False, "reason": refused}
     chosen_rule = rule.strip() or run_issue.RULE
@@ -721,7 +727,12 @@ def run_one_issue(repo: str = "", rule: str = "") -> dict:
         ran = run_issue.execute(chosen_rule, name)
         merge_request = None
         if ran.get("level") == "L1" and not settings["dry_run"]:
-            merge_request = open_merge_request.execute(ran.get("rule") or chosen_rule, name)
+            merge_request = open_merge_request.execute(
+                ran.get("rule") or chosen_rule,
+                name,
+                path=ran.get("path"),
+                fingerprint=ran.get("fingerprint"),
+            )
     except NotEligible as error:
         raise HTTPException(status_code=409, detail=str(error)) from error
     except SystemExit as error:

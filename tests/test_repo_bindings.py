@@ -191,12 +191,12 @@ class BindingTest(unittest.TestCase):
         def creds(key=None):
             return projects.get(key)
 
-        def execute(rule, project="toy-js"):
+        def execute(rule, project="toy-js", path=None):
             seen.append(project)
             return {
                 "rule": rule,
                 "fingerprint": project + "fp",
-                "path": "src/a.js",
+                "path": path or "src/a.js",
                 "level": "L2",
                 "reason": "建议",
                 "project": project,

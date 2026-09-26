@@ -1,6 +1,7 @@
 import unittest
+from unittest.mock import patch
 
-from cleardebt.triage import describe_message
+from cleardebt.triage import describe_message, tier_for_issue
 
 
 class DescribeMessageTest(unittest.TestCase):
@@ -23,6 +24,15 @@ class DescribeMessageTest(unittest.TestCase):
         text = describe_message("sca:UPGRADE", "Upgrade lodash to version 4.17.21")
         self.assertIn("按建议升依赖版本", text)
         self.assertIn("lodash", text)
+
+    def test_secret_override_does_not_allow_other_security_issues(self):
+        signals = {
+            "sonar_type": "VULNERABILITY",
+            "sonar_impacts": [{"softwareQuality": "SECURITY", "severity": "HIGH"}],
+        }
+        with patch.dict("os.environ", {"CLEARDEBT_FIX_SECRETS": "1"}):
+            self.assertEqual(tier_for_issue({"rule": "javascript:S2077", **signals}), "C")
+            self.assertEqual(tier_for_issue({"rule": "javascript:S2068", **signals}), "A")
 
 
 if __name__ == "__main__":

@@ -68,11 +68,11 @@ class CleanMachineTest(unittest.TestCase):
         def creds(key=None):
             return FOREIGN.get(key)
 
-        def execute(rule, project=""):
+        def execute(rule, project="", path=None):
             return {
                 "rule": rule,
                 "fingerprint": f"{project}-fp-{rule}",
-                "path": "src/a.js" if project == "alpha" else "src/b.js",
+                "path": path or ("src/a.js" if project == "alpha" else "src/b.js"),
                 "level": "L1",
                 "reason": "重扫和测试都过了。",
                 "project": project,

@@ -4,6 +4,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 import sys
 from pathlib import Path
@@ -15,6 +16,7 @@ sys.path.insert(0, str(ROOT / "scripts"))
 from langgraph.checkpoint.postgres import PostgresSaver
 
 from cleardebt.issue_graph import build_graph, next_action, sonar_base_url
+from cleardebt.triage import tier_for_issue
 from list_issues import fetch_issues, fingerprint, issue_path, line_span, load_token
 import rescan_check
 
@@ -34,14 +36,15 @@ def execute(
     message: str = "",
     sca_package: str = "",
     sca_to_version: str = "",
+    issue_key: str = "",
 ) -> dict:
     project = (project or "").strip()
     if not project:
         raise SystemExit("没有写项目，不会跑。")
-    from cleardebt.controls import gate, load_controls
+    from cleardebt.controls import backlog_gate, load_controls
     from cleardebt.sca import is_sca_rule
 
-    refused = gate(load_controls(), project)
+    refused = backlog_gate(load_controls(), project)
     if refused:
         raise SystemExit(refused)
     if is_sca_rule(rule):
@@ -60,16 +63,24 @@ def execute(
             rule,
             project,
             path=path,
+            issue_key=issue_key,
             pull_request=pull_request,
             branch=None if pull_request else git_branch,
         )
-    work = ROOT / "var" / "work" / issue["fingerprint"]
-    config = {"configurable": {"thread_id": issue["fingerprint"]}}
+    issue["sonar_fingerprint"] = issue["fingerprint"]
+    issue["fingerprint"] = execution_fingerprint(
+        issue["fingerprint"],
+        project,
+        git_branch=git_branch,
+        pull_request=pull_request,
+    )
+    issue["git_branch"] = (git_branch or "").strip()
+    issue["pull_request"] = (pull_request or "").strip()
     with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
         checkpointer.setup()
         graph = build_graph(checkpointer)
-        snapshot = graph.get_state(config)
-        action = next_action(snapshot)
+        config, snapshot, action = _checkpoint_for_issue(graph, issue)
+        work = ROOT / "var" / "work" / issue["fingerprint"]
         if action == "start":
             _prepare_work_dir(work, issue, git_branch=git_branch)
             result = graph.invoke(_initial_state(issue, work), config)
@@ -92,11 +103,52 @@ def execute(
         "proposed_new": result.get("proposed_new"),
         "project": result.get("project") or project,
         "model_attempts": result.get("model_attempts"),
+        "changed_files": result.get("changed_files") or [],
         "checkpoints": steps,
     }
     if payload.get("proposed_old") and payload.get("level") in {"L1", "L2", "L3"}:
         payload["suggestion"] = _save_suggestion(payload)
     return payload
+
+
+def _checkpoint_for_issue(graph, issue: dict) -> tuple[dict, object, str]:
+    """Reuse a checkpoint only while its triage agrees with this Sonar issue."""
+    config = {"configurable": {"thread_id": issue["fingerprint"]}}
+    snapshot = graph.get_state(config)
+    action = next_action(snapshot)
+    if action != "start":
+        current_tier = tier_for_issue(issue)
+        if (snapshot.values or {}).get("tier") != current_tier:
+            # Keep the old result intact while giving the changed decision its own work directory.
+            raw = f"{issue['fingerprint']}\ntriage:{current_tier}"
+            issue["fingerprint"] = hashlib.sha256(raw.encode("utf-8")).hexdigest()
+            config = {"configurable": {"thread_id": issue["fingerprint"]}}
+            snapshot = graph.get_state(config)
+            action = next_action(snapshot)
+    return config, snapshot, action
+
+
+def execution_fingerprint(
+    issue_fingerprint: str,
+    project: str,
+    *,
+    git_branch: str | None = None,
+    pull_request: str | None = None,
+) -> str:
+    """Identity for checkpoints/work/MRs, scoped to one repo and ref.
+
+    Sonar issue fingerprints intentionally remain project-agnostic so a
+    baseline and its temporary rescan can be compared. They must not be used
+    as durable job ids because two repositories can contain identical code.
+    """
+    if pull_request:
+        ref = f"pr:{pull_request}:{(git_branch or '').strip()}"
+    elif git_branch:
+        ref = f"branch:{git_branch.strip()}"
+    else:
+        ref = "default"
+    raw = f"{project.strip()}\n{ref}\n{issue_fingerprint}"
+    return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
 def main() -> int:
@@ -156,6 +208,7 @@ def _find_issue(
     project: str | None = None,
     path: str | None = None,
     *,
+    issue_key: str = "",
     pull_request: str | None = None,
     branch: str | None = None,
 ) -> dict:
@@ -172,6 +225,8 @@ def _find_issue(
         branch=branch,
     ):
         if issue["rule"] != rule:
+            continue
+        if issue_key and issue.get("key") != issue_key:
             continue
         issue_file = issue_path(issue.get("component", ""), project)
         if want and issue_file != want:
@@ -192,6 +247,11 @@ def _find_issue(
             "end_line": end,
             "source": sources[component],
             "project": project,
+            "sonar_type": issue.get("type") or "",
+            "sonar_severity": issue.get("severity") or "",
+            "sonar_impacts": issue.get("impacts") or [],
+            "sonar_effort": issue.get("effort") or issue.get("debt") or "",
+            "quick_fix": bool(issue.get("quickFixAvailable")),
         }
     where = f"{project}" + (f" 文件 {want}" if want else "")
     if pull_request:
@@ -254,6 +314,7 @@ def _prepare_work_dir(work: Path, issue: dict, git_branch: str | None = None) ->
 def _initial_state(issue: dict, work: Path) -> dict:
     return {
         "fingerprint": issue["fingerprint"],
+        "sonar_fingerprint": issue.get("sonar_fingerprint") or issue["fingerprint"],
         "rule": issue["rule"],
         "path": issue["path"],
         "message": issue["message"],
@@ -270,8 +331,15 @@ def _initial_state(issue: dict, work: Path) -> dict:
         "rescan_added": [],
         "uncovered_lines": [],
         "project": issue["project"],
+        "git_branch": issue.get("git_branch") or "",
+        "pull_request": issue.get("pull_request") or "",
         "sca_package": issue.get("sca_package") or "",
         "sca_to_version": issue.get("sca_to_version") or "",
+        "sonar_type": issue.get("sonar_type") or "",
+        "sonar_severity": issue.get("sonar_severity") or "",
+        "sonar_impacts": issue.get("sonar_impacts") or [],
+        "sonar_effort": issue.get("sonar_effort") or "",
+        "quick_fix": bool(issue.get("quick_fix")),
         "fix_attempt": 0,
         "history": [],
     }

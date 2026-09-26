@@ -10,6 +10,24 @@ READY = {"configured": True, "enabled": True, "whitelist": ["toy-js"], "dry_run"
 
 
 class ApiTest(unittest.TestCase):
+    def test_overview_does_not_echo_saved_tokens(self):
+        client = TestClient(app)
+        secrets = {
+            "sonar_token": "secret-sonar",
+            "gitlab_token": "secret-gitlab",
+            "github_token": "secret-github",
+            "azure_token": "secret-azure",
+            "llm_token": "secret-llm",
+        }
+        with (
+            patch("cleardebt.api._form_settings", return_value={"configured": True}),
+            patch("cleardebt.controls.form_values", return_value=secrets) as form_values,
+        ):
+            body = client.get("/api/overview").json()
+        for key in ("sonar_token", "gitlab_token", "github_token", "azure_token", "llm_token"):
+            self.assertNotIn(key, body)
+        form_values.assert_not_called()
+
     def test_run_opens_a_merge_request_only_after_l1(self):
         client = TestClient(app)
         with (
@@ -23,7 +41,12 @@ class ApiTest(unittest.TestCase):
             response = client.post("/issues/run", params={"repo": "toy-js"})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json()["merge_request"]["action"], "opened")
-        open_mr.assert_called_once_with("javascript:S1128", "toy-js")
+        open_mr.assert_called_once_with(
+            "javascript:S1128",
+            "toy-js",
+            path=None,
+            fingerprint="fp",
+        )
 
     def test_run_does_not_open_a_merge_request_for_l2(self):
         client = TestClient(app)
@@ -162,10 +185,7 @@ if __name__ == "__main__":
 
 
 class RevealTokensTest(unittest.TestCase):
-    def test_reveal_returns_token_keys(self):
+    def test_plaintext_token_reveal_is_not_exposed(self):
         client = TestClient(app)
         response = client.post("/api/tokens/reveal")
-        self.assertEqual(response.status_code, 200)
-        body = response.json()
-        for key in ("sonar_token", "gitlab_token", "github_token", "azure_token", "llm_token"):
-            self.assertIn(key, body)
+        self.assertEqual(response.status_code, 404)

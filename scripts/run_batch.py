@@ -114,7 +114,7 @@ def run_controlled(repo: str) -> dict:
         before = _mr_count()
         token = load_token(None)
         issues = _issues(token, repo)
-        results = [execute(issue["rule"], project=repo) for issue in issues]
+        results = [execute(issue["rule"], project=repo, path=issue["path"]) for issue in issues]
         sheet = _settle(results, dry_run=settings["dry_run"], repo=repo)
     except SystemExit as error:
         reason = _exit_text(error)
@@ -159,10 +159,11 @@ def _issues(token: str, project: str) -> list[dict]:
     rows = []
     for issue in fetch_issues(sonar_base_url(), token, project):
         rule = issue["rule"]
-        if rule in seen:
-            continue
-        seen.add(rule)
         path = issue["component"].split(":", 1)[-1]
+        key = (rule, path)
+        if key in seen:
+            continue
+        seen.add(key)
         rows.append({"rule": rule, "path": path})
     return rows
 
@@ -195,9 +196,10 @@ def _settle(results: list[dict], dry_run: bool = False, repo: str | None = None)
             decision["reason"] = "空跑，不开合并请求。"
             decision.pop("issues", None)
             continue
-        issue = dict(decision["issues"][0])
-        issue.setdefault("project", repo)
-        record = _open_one(gitlab_token, issue, repo)
+        issues = [dict(item) for item in decision["issues"]]
+        for issue in issues:
+            issue.setdefault("project", repo)
+        record = _open_group(gitlab_token, issues, repo)
         decision["web_url"] = record["web_url"]
         decision["merge_request_iid"] = record["merge_request_iid"]
         opened.append(record)
@@ -214,11 +216,19 @@ def _settle(results: list[dict], dry_run: bool = False, repo: str | None = None)
 
 
 def _open_one(token: str, issue: dict, repo: str | None = None) -> dict:
-    from cleardebt.hosting import HostingError, create_request
+    return _open_group(token, [issue], repo)
 
-    existing = find_merge_request(issue["fingerprint"])
-    if existing:
-        return existing
+
+def _open_group(token: str, issues: list[dict], repo: str | None = None) -> dict:
+    from cleardebt.hosting import HostingError, create_request
+    from open_merge_request import _apply_verified_files
+
+    if not issues:
+        raise SystemExit("没有通过验证的告警，不开合并请求。")
+    pending = [issue for issue in issues if not find_merge_request(issue["fingerprint"])]
+    if not pending:
+        return find_merge_request(issues[0]["fingerprint"]) or {}
+    issue = pending[0]
     saved = gitlab_credentials(issue.get("project") or repo)
     if not saved:
         raise SystemExit(unbound_reason(issue.get("project") or repo or "这个项目"))
@@ -228,10 +238,23 @@ def _open_one(token: str, issue: dict, repo: str | None = None) -> dict:
     git(work, ["config", "user.name", "ClearDebt"])
     git(work, ["config", "user.email", "cleardebt@localhost"])
     git(work, ["checkout", "-b", branch])
-    target = work / issue["path"]
-    target.parent.mkdir(parents=True, exist_ok=True)
-    target.write_text(Path(issue["work_dir"], issue["path"]).read_text(encoding="utf-8"), encoding="utf-8")
-    git(work, ["add", issue["path"]])
+    changed = []
+    seen_paths = set()
+    for item in pending:
+        files = item.get("changed_files") or [
+            {
+                "path": item["path"],
+                "after": Path(item["work_dir"], item["path"]).read_text(encoding="utf-8"),
+            }
+        ]
+        for file_change in files:
+            path = file_change.get("path") or ""
+            if path in seen_paths:
+                raise SystemExit(f"同一批里有多个独立补丁要改 {path}，不会相互覆盖。")
+            seen_paths.add(path)
+            changed.append(file_change)
+    changed_paths = _apply_verified_files(work, changed)
+    git(work, ["add", "--", *changed_paths])
     git(work, ["commit", "-m", f"{_title(issue['rule'])}（{issue['rule']}）"])
     push(work, saved["token"], branch, provider=saved.get("provider") or "gitlab")
     try:
@@ -240,7 +263,7 @@ def _open_one(token: str, issue: dict, repo: str | None = None) -> dict:
             source_branch=branch,
             target_branch=default,
             title=f"{_title(issue['rule'])}（{issue['rule']}）",
-            description=_description(issue),
+            description=_group_description(pending),
         )
     except HostingError as error:
         raise SystemExit(str(error)) from error
@@ -252,7 +275,16 @@ def _open_one(token: str, issue: dict, repo: str | None = None) -> dict:
         "target_branch": default,
         "provider": opened.get("provider") or saved.get("provider") or "gitlab",
     }
-    save_merge_request(record)
+    for item in pending:
+        save_merge_request(
+            {
+                **record,
+                "fingerprint": item["fingerprint"],
+                "rule": item.get("rule") or "",
+                "path": item.get("path") or "",
+            }
+        )
+    record["fingerprints"] = [item["fingerprint"] for item in pending]
     return record
 
 
@@ -274,6 +306,27 @@ def _description(issue: dict) -> str:
             "不同规则不会混进这个请求。今天最多开两个合并请求。",
         ]
     )
+
+
+def _group_description(issues: list[dict]) -> str:
+    first = issues[0]
+    lines = [
+        "ClearDebt 自动修复，待审。同一条规则和文件类型的改动放在这一个请求里。",
+        "",
+        f"- 规则：{first['rule']}",
+        f"- 过闸告警：{len(issues)} 条",
+    ]
+    for item in issues:
+        lines.append(f"  - `{item['path']}` · `{item['fingerprint']}`")
+    lines.extend(
+        [
+            "",
+            f"- 重扫和测试：{first.get('reason')}",
+            "",
+            "不同规则不会混进这个请求。今天最多开两个合并请求。",
+        ]
+    )
+    return "\n".join(lines)
 
 
 def _opened_today() -> int:

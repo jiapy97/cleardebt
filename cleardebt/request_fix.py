@@ -15,20 +15,22 @@ if str(ROOT / "scripts") not in sys.path:
 
 import open_merge_request
 import run_issue
-from cleardebt.assign import create_session, finish_session
+from cleardebt.assign import _sonar_row, create_session, finish_session, resolve_selected_issues
 from cleardebt.controls import gate, gitlab_credentials, load_controls, save_report, unbound_reason
 from cleardebt.gitlab_mr import NotEligible
 from cleardebt.issue_graph import sonar_base_url
-from cleardebt.triage import describe_message, llm_repairable
-from list_issues import fetch_issues, issue_path, load_token
+from cleardebt.triage import describe_message, issue_repairable, tier_for_issue
+from list_issues import fetch_issues, load_token
 
 
 def request_fix_gate(settings: dict, repo: str) -> str | None:
-    from cleardebt.controls import project_switches
+    from cleardebt.controls import project_read_only, project_switches
 
     refused = gate(settings, repo)
     if refused:
         return refused
+    if project_read_only(settings, repo):
+        return f"{repo} 是无令牌只读仓库，只能扫描和查看问题。"
     if not settings.get("request_fix", True):
         return "请求修复关掉了。"
     if not project_switches(settings, repo)["request_fix"]:
@@ -85,21 +87,12 @@ def list_mr_issues(repo: str, mr_iid: int) -> dict:
         pull_request=str(mr["mr_iid"]),
     ):
         rule = issue.get("rule") or ""
-        path = issue_path(issue.get("component", ""), mr["repo"])
         text = issue.get("message") or ""
-        text_range = issue.get("textRange") or {}
-        rows.append(
-            {
-                "repo": mr["repo"],
-                "rule": rule,
-                "path": path,
-                "line": int(text_range.get("startLine") or 0),
-                "message": text,
-                "message_zh": describe_message(rule, text),
-                "sonar_key": issue.get("key") or "",
-                "eligible": llm_repairable(rule),
-            }
-        )
+        row = _sonar_row(mr["repo"], issue)
+        row["message_zh"] = describe_message(rule, text)
+        row["tier"] = tier_for_issue(row)
+        row["eligible"] = issue_repairable(row)
+        rows.append(row)
     rows.sort(key=lambda item: (item["path"], item["rule"]))
     return {
         "merge_request": {
@@ -168,7 +161,9 @@ def post_run_agent_note(repo: str, mr_iid: int) -> dict:
     }
 
 
-def remediate_merge_request(repo: str, mr_iid: int, selections: list[dict]) -> dict:
+def remediate_merge_request(
+    repo: str, mr_iid: int, selections: list[dict], *, session_id: int | None = None
+) -> dict:
     """Run selected MR issues; open fix MRs targeting the original source branch."""
     settings = load_controls()
     name = (repo or "").strip()
@@ -176,18 +171,13 @@ def remediate_merge_request(repo: str, mr_iid: int, selections: list[dict]) -> d
     if refused:
         raise ValueError(refused)
     mr = load_merge_request(name, mr_iid)
-    picks = []
-    for item in selections or []:
-        rule = (item.get("rule") or "").strip()
-        path = (item.get("path") or "").strip()
-        if not rule or not path:
-            continue
-        picks.append({"rule": rule, "path": path, "eligible": llm_repairable(rule)})
+    current = list_mr_issues(name, mr_iid)["issues"]
+    picks = resolve_selected_issues(selections, current)
     if not picks:
         raise ValueError("没有勾选告警。")
     ineligible = [item for item in picks if not item["eligible"]]
     eligible = [item for item in picks if item["eligible"]]
-    session_id = create_session(
+    session_id = session_id or create_session(
         source="request_fix",
         repo=name,
         issue_count=len(picks),
@@ -198,12 +188,17 @@ def remediate_merge_request(repo: str, mr_iid: int, selections: list[dict]) -> d
     try:
         for item in eligible:
             try:
+                kwargs = {
+                    "path": item["path"],
+                    "git_branch": mr["source_branch"],
+                    "pull_request": str(mr["mr_iid"]),
+                }
+                if item.get("sonar_key"):
+                    kwargs["issue_key"] = item["sonar_key"]
                 ran = run_issue.execute(
                     item["rule"],
                     name,
-                    path=item["path"],
-                    git_branch=mr["source_branch"],
-                    pull_request=str(mr["mr_iid"]),
+                    **kwargs,
                 )
             except SystemExit as error:
                 text = error.code if isinstance(error.code, str) else "没有跑完。"

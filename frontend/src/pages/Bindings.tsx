@@ -8,6 +8,7 @@ interface Row {
   sonar_key: string;
   gitlab_url: string;
   provider: string;
+  read_only?: boolean;
   health?: { ok: boolean; sonar_ok: boolean; git_ok: boolean; hint?: string };
   testing?: boolean;
   error?: string;
@@ -60,7 +61,7 @@ export default function BindingsTable() {
     if (loaded) return;
     fetch("/api/bindings")
       .then((r) => r.json())
-      .then((d: { bindings: Array<{ sonar_key: string; gitlab_url: string; provider: string }> }) => {
+      .then((d: { bindings: Array<{ sonar_key: string; gitlab_url: string; provider: string; read_only?: boolean }> }) => {
         setRows(
           (d.bindings ?? []).map((b, i) => {
             const h = healthMap[b.sonar_key];
@@ -69,6 +70,7 @@ export default function BindingsTable() {
               sonar_key: b.sonar_key,
               gitlab_url: b.gitlab_url,
               provider: b.provider || providerOf(b.gitlab_url),
+              read_only: b.read_only,
               health: h
                 ? { ok: !!h.ok, sonar_ok: h.sonar_ok !== false, git_ok: h.git_ok !== false, hint: h.hint }
                 : undefined,
@@ -113,9 +115,9 @@ export default function BindingsTable() {
     }
     api
       .bindings({ sonar_key: row.sonar_key, gitlab_url: row.gitlab_url })
-      .then(() => {
+      .then((d) => {
         message.success(`已保存 ${row.sonar_key}`);
-        patch(row.key, { error: undefined });
+        patch(row.key, { error: undefined, read_only: d.read_only });
         qc.invalidateQueries({ queryKey: ["overview"] });
         qc.invalidateQueries({ queryKey: ["bindings-health"] });
       })
@@ -186,8 +188,8 @@ export default function BindingsTable() {
           {
             title: "平台",
             dataIndex: "provider",
-            width: 90,
-            render: (v: string) => <Tag>{v || "—"}</Tag>,
+            width: 150,
+            render: (v: string, r) => <Space size={4}><Tag>{v || "—"}</Tag>{r.read_only && <Tag color="blue">只读</Tag>}</Space>,
           },
           {
             title: "连通",

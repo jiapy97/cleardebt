@@ -6,6 +6,7 @@ function body that was emptied.
 
 from __future__ import annotations
 
+import ast
 import difflib
 import re
 from pathlib import Path
@@ -43,6 +44,14 @@ def review_patch(files: list[tuple[str, str, str]]) -> list[dict]:
                     "reason": "改了测试文件。不能靠改测试来算通过。",
                 }
             )
+        if before.strip() and not after.strip():
+            rejections.append(
+                {
+                    "kind": "erased_file",
+                    "path": path,
+                    "reason": "把整个源文件删空了。告警是跟着代码一起消失的，不是修好。",
+                }
+            )
         for name in _emptied_functions(before, after, path):
             rejections.append(
                 {
@@ -71,15 +80,87 @@ def _is_test_path(path: str) -> bool:
 
 
 def _emptied_functions(before: str, after: str, path: str) -> list[str]:
-    if not is_js_ts_path(path):
+    if is_js_ts_path(path):
+        before_bodies = _function_emptiness(before, path)
+        after_bodies = _function_emptiness(after, path)
+    elif Path(path).suffix.lower() == ".py":
+        before_bodies = _python_function_emptiness(before)
+        after_bodies = _python_function_emptiness(after)
+    elif Path(path).suffix.lower() in {".java", ".cs"}:
+        before_bodies = _brace_function_emptiness(before)
+        after_bodies = _brace_function_emptiness(after)
+    else:
         return []
-    before_bodies = _function_emptiness(before, path)
-    after_bodies = _function_emptiness(after, path)
     emptied = []
     for name, was_empty in before_bodies.items():
-        if not was_empty and after_bodies.get(name) is True:
+        if not was_empty and (name not in after_bodies or after_bodies.get(name) is True):
             emptied.append(name)
     return emptied
+
+
+def _python_function_emptiness(source: str) -> dict[str, bool]:
+    try:
+        tree = ast.parse(source)
+    except SyntaxError:
+        return {}
+    found = {}
+    for node in ast.walk(tree):
+        if not isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        body = list(node.body)
+        if body and isinstance(body[0], ast.Expr) and isinstance(body[0].value, ast.Constant) and isinstance(body[0].value.value, str):
+            body = body[1:]
+        found[node.name] = not body or all(isinstance(item, ast.Pass) for item in body)
+    return found
+
+
+_BRACE_FUNCTION = re.compile(
+    r"(?m)^\s*(?:@[\w.()\", ]+\s*)*"
+    r"(?:public|private|protected|internal|static|final|virtual|override|abstract|sealed|async|synchronized|\s)+"
+    r"[\w<>,.?\[\]]+\s+(?P<name>[A-Za-z_]\w*)\s*\([^;{}]*\)"
+    r"(?:\s+throws\s+[^\{]+)?\s*\{"
+)
+
+
+def _brace_function_emptiness(source: str) -> dict[str, bool]:
+    """Best-effort empty/deleted method guard for Java and C# patches."""
+    found = {}
+    for match in _BRACE_FUNCTION.finditer(source):
+        name = match.group("name")
+        start = match.end() - 1
+        end = _matching_brace(source, start)
+        if end is None:
+            continue
+        body = source[start + 1 : end]
+        body = re.sub(r"//.*?$|/\*.*?\*/", "", body, flags=re.MULTILINE | re.DOTALL).strip()
+        compact = "".join(body.split())
+        found[name] = compact in {"", "return;"}
+    return found
+
+
+def _matching_brace(source: str, start: int) -> int | None:
+    depth = 0
+    quote = ""
+    escaped = False
+    for index in range(start, len(source)):
+        char = source[index]
+        if quote:
+            if escaped:
+                escaped = False
+            elif char == "\\":
+                escaped = True
+            elif char == quote:
+                quote = ""
+            continue
+        if char in {'"', "'"}:
+            quote = char
+        elif char == "{":
+            depth += 1
+        elif char == "}":
+            depth -= 1
+            if depth == 0:
+                return index
+    return None
 
 
 def _function_emptiness(source: str, path: str) -> dict[str, bool]:

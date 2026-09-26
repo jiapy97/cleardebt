@@ -61,10 +61,10 @@ class ControlGateTest(unittest.TestCase):
         self.assertEqual(result["repos"], [])
         run.assert_not_called()
 
-    def test_nightly_job_ticks_hourly(self):
+    def test_nightly_job_ticks_every_minute(self):
         job = WorkerSettings.cron_jobs[0]
         self.assertEqual(job.coroutine.__name__, "nightly")
-        self.assertEqual(job.minute, {0})
+        self.assertIsNone(job.minute)
 
 
 if __name__ == "__main__":

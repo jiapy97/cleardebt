@@ -9,10 +9,66 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "scripts"))
 from cleardebt.batch_worker import run_one
 from cleardebt.gitlab_mr import NotEligible
 from open_merge_request import execute as open_merge_request
-from run_issue import execute, main
+from run_issue import _checkpoint_for_issue, _find_issue, _initial_state, execute, execution_fingerprint, main
 
 
 class RunOneProjectTest(unittest.TestCase):
+    def test_find_issue_uses_sonar_key_when_rule_and_file_repeat(self):
+        issues = [
+            {"rule": "javascript:S1128", "component": "toy-js:src/a.js", "key": "first",
+             "textRange": {"startLine": 2, "endLine": 2}},
+            {"rule": "javascript:S1128", "component": "toy-js:src/a.js", "key": "second",
+             "textRange": {"startLine": 8, "endLine": 8}},
+        ]
+        with (
+            patch("run_issue.fetch_issues", return_value=issues),
+            patch("run_issue.rescan_check.api_text", return_value="\n".join(str(i) for i in range(1, 11))),
+        ):
+            found = _find_issue("token", "javascript:S1128", "toy-js", path="src/a.js", issue_key="second")
+        self.assertEqual(found["start_line"], 8)
+
+    def test_run_issue_passes_fresh_sonar_signals_to_graph(self):
+        row = {"rule": "javascript:S1128", "component": "toy-js:src/a.js", "key": "one",
+               "type": "CODE_SMELL", "severity": "MAJOR", "effort": "5min",
+               "impacts": [{"softwareQuality": "MAINTAINABILITY", "severity": "HIGH"}],
+               "quickFixAvailable": True}
+        with (
+            patch("run_issue.fetch_issues", return_value=[row]),
+            patch("run_issue.rescan_check.api_text", return_value="const a = 1;\n"),
+        ):
+            issue = _find_issue("token", "javascript:S1128", "toy-js", path="src/a.js", issue_key="one")
+        state = _initial_state(issue, Path("/tmp/work"))
+        self.assertEqual(state["sonar_type"], "CODE_SMELL")
+        self.assertEqual(state["sonar_impacts"][0]["severity"], "HIGH")
+        self.assertEqual(state["sonar_effort"], "5min")
+        self.assertTrue(state["quick_fix"])
+
+    def test_changed_issue_tier_does_not_reuse_old_completed_checkpoint(self):
+        finished = type("Snapshot", (), {"values": {"tier": "C", "level": "C"}, "next": ()})()
+        empty = type("Snapshot", (), {"values": {}, "next": ()})()
+        graph = type("Graph", (), {"get_state": lambda self, config: finished if config["configurable"]["thread_id"] == "old" else empty})()
+        issue = {"fingerprint": "old", "rule": "javascript:S1186", "sonar_type": "CODE_SMELL",
+                 "sonar_impacts": [{"softwareQuality": "MAINTAINABILITY", "severity": "LOW"}]}
+        config, snapshot, action = _checkpoint_for_issue(graph, issue)
+        self.assertEqual(action, "start")
+        self.assertIs(snapshot, empty)
+        self.assertNotEqual(issue["fingerprint"], "old")
+        self.assertEqual(config["configurable"]["thread_id"], issue["fingerprint"])
+
+    def test_execution_identity_is_scoped_to_project_and_ref(self):
+        base = execution_fingerprint("same-sonar-fp", "alpha")
+        self.assertNotEqual(base, execution_fingerprint("same-sonar-fp", "beta"))
+        self.assertNotEqual(base, execution_fingerprint("same-sonar-fp", "alpha", git_branch="feature/x"))
+        self.assertNotEqual(
+            execution_fingerprint("same-sonar-fp", "alpha", git_branch="feature/x"),
+            execution_fingerprint(
+                "same-sonar-fp",
+                "alpha",
+                git_branch="feature/x",
+                pull_request="42",
+            ),
+        )
+
     def test_missing_or_unlisted_project_does_not_run(self):
         settings = {"configured": True, "enabled": True, "whitelist": ["alpha"]}
         with (

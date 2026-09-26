@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { Alert, Button, Card, Input, Select, Space, Table, message } from "antd";
 import type { ColumnsType } from "antd/es/table";
-import { api, type Issue, type Session } from "../lib/api";
+import { api, issueId, issueSelection, type Issue, type Session } from "../lib/api";
 import { useRepoChoices } from "../lib/useOverview";
 import { StatusBadge } from "./widgets";
 
@@ -40,12 +40,14 @@ export default function MrsPage() {
       api.mrRemediate(
         cur,
         Number(iid),
-        picked.map((p) => {
-          const [rule, path] = p.split("|");
-          return { rule, path };
-        }),
+        (issues ?? []).filter((row) => picked.includes(issueId(row))).map(issueSelection),
       ),
-    onSuccess: (d) => setStatus(`完成。会话 #${d.session_id}。去 Agent 活动查看。`),
+    onSuccess: (d) => {
+      setStatus(d.already_running
+        ? "这条请求正在修复，去 Agent 活动查看。"
+        : `已开始会话 #${d.session_id}。去 Agent 活动查看结果。`);
+      if (!d.already_running) setPicked([]);
+    },
     onError: (e: Error) => {
       setStatus(e.message);
       message.error(e.message);
@@ -78,7 +80,12 @@ export default function MrsPage() {
           <Select
             style={{ width: 220 }}
             value={cur || undefined}
-            onChange={setRepo}
+            onChange={(value) => {
+              setRepo(value);
+              setIssues(null);
+              setPicked([]);
+              setStatus("");
+            }}
             options={choices.map((c) => ({ label: c.key, value: c.key }))}
           />
           <Input
@@ -87,7 +94,12 @@ export default function MrsPage() {
             min={1}
             placeholder="合并/拉取请求号"
             value={iid}
-            onChange={(e) => setIid(e.target.value)}
+            onChange={(e) => {
+              setIid(e.target.value);
+              setIssues(null);
+              setPicked([]);
+              setStatus("");
+            }}
           />
           <Button type="primary" loading={list.isPending} disabled={!cur || !iid} onClick={() => list.mutate()}>
             列出告警
@@ -100,7 +112,7 @@ export default function MrsPage() {
       </Card>
       <Card title="请求上的告警">
         <Table<Issue>
-          rowKey={(r) => `${r.rule}|${r.path}|${r.line ?? 0}`}
+          rowKey={issueId}
           columns={columns}
           dataSource={issues ?? []}
           pagination={false}

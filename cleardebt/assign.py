@@ -18,7 +18,7 @@ from cleardebt.controls import backlog_gate, gate, load_controls, save_report
 from cleardebt.gitlab_mr import NotEligible
 from cleardebt.issue_graph import sonar_base_url
 from cleardebt.sca import fetch_dependency_risks
-from cleardebt.triage import describe_message, llm_repairable, sonar_tier, tier_for
+from cleardebt.triage import describe_message, issue_repairable, sonar_tier, tier_for_issue
 from list_issues import fetch_issues, issue_path, load_token
 
 DB_URI = os.environ.get(
@@ -79,14 +79,11 @@ def _enrich(name: str, rows: list[dict]) -> list[dict]:
         rule = item.get("rule") or ""
         text = item.get("message") or ""
         item["message_zh"] = describe_message(rule, text)
-        item["eligible"] = llm_repairable(rule)
         item["line"] = item.get("line") or 0
-        if item.get("sonar_type") or item.get("sonar_impacts"):
-            item["tier"] = sonar_tier(item)
-            item["tier_source"] = "sonar"
-        else:
-            item["tier"] = tier_for(rule)
-            item["tier_source"] = "policy"
+        item["tier"] = tier_for_issue(item)
+        item["eligible"] = issue_repairable(item)
+        native_tier = sonar_tier(item) if item.get("sonar_type") or item.get("sonar_impacts") else "unknown"
+        item["tier_source"] = "sonar" if native_tier != "unknown" else "policy"
     suppressed = suppressed_map(name)
     seen = first_seen_map(name)
     for item in rows:
@@ -204,6 +201,42 @@ def _suppression_key(item: dict) -> tuple[str, str, int]:
         (item.get("path") or "").strip(),
         int(item.get("line") or 0),
     )
+
+
+def resolve_selected_issues(selections: list[dict], available: list[dict]) -> list[dict]:
+    """Resolve client selections against current Sonar rows, preserving issue identity."""
+    resolved = []
+    seen = set()
+    for selection in selections or []:
+        rule = (selection.get("rule") or "").strip()
+        path = (selection.get("path") or "").strip()
+        sonar_key = (selection.get("sonar_key") or "").strip()
+        risk_fingerprint = (selection.get("fingerprint") or "").strip()
+        if not rule or not path:
+            raise ValueError("勾选的告警缺少规则或文件，请刷新列表。")
+        candidates = [row for row in available if row.get("rule") == rule and row.get("path") == path]
+        if rule.lower().startswith("sca:") and risk_fingerprint:
+            candidates = [row for row in candidates if row.get("fingerprint") == risk_fingerprint]
+        elif sonar_key:
+            candidates = [row for row in candidates if row.get("sonar_key") == sonar_key]
+        elif risk_fingerprint:
+            candidates = [row for row in candidates if row.get("fingerprint") == risk_fingerprint]
+        elif selection.get("line") is not None:
+            candidates = [row for row in candidates if int(row.get("line") or 0) == int(selection["line"])]
+        if len(candidates) != 1:
+            raise ValueError(f"{rule} {path} 已变化或无法唯一定位，请刷新告警列表后重试。")
+        row = candidates[0]
+        if rule.lower().startswith("sca:") and risk_fingerprint:
+            identity = ("sca", risk_fingerprint)
+        elif sonar_key:
+            identity = ("sonar", sonar_key)
+        else:
+            identity = ("row", rule, path, int(row.get("line") or 0))
+        if identity in seen:
+            continue
+        seen.add(identity)
+        resolved.append(row)
+    return resolved
 
 
 def suppress_issue(repo: str, rule: str, path: str, line: int = 0, reason: str = "") -> None:
@@ -471,27 +504,8 @@ def assign_to_agent(
     refused = backlog_gate(settings, name)
     if refused:
         raise ValueError(refused)
-    picks = []
-    seen_picks = set()
-    for item in selections or []:
-        rule = (item.get("rule") or "").strip()
-        path = (item.get("path") or "").strip()
-        if not rule or not path:
-            continue
-        key = f"{rule}|{path}"
-        if key in seen_picks:
-            continue
-        seen_picks.add(key)
-        picks.append(
-            {
-                "rule": rule,
-                "path": path,
-                "message": item.get("message") or "",
-                "package": item.get("package") or "",
-                "to_version": item.get("to_version") or "",
-                "eligible": llm_repairable(rule),
-            }
-        )
+    current = list_backlog_issues(name)
+    picks = resolve_selected_issues(selections, current)
     if not picks:
         raise ValueError("没有勾选告警。")
     ineligible = [item for item in picks if not item["eligible"]]
@@ -517,13 +531,18 @@ def assign_to_agent(
             nonlocal done_count
             index, item = index_item
             try:
+                kwargs = {
+                    "path": item["path"],
+                    "message": item.get("message") or "",
+                    "sca_package": item.get("package") or "",
+                    "sca_to_version": item.get("to_version") or "",
+                }
+                if item.get("sonar_key") and not item["rule"].lower().startswith("sca:"):
+                    kwargs["issue_key"] = item["sonar_key"]
                 ran = run_issue.execute(
                     item["rule"],
                     name,
-                    path=item["path"],
-                    message=item.get("message") or "",
-                    sca_package=item.get("package") or "",
-                    sca_to_version=item.get("to_version") or "",
+                    **kwargs,
                 )
             except SystemExit as error:
                 text = error.code if isinstance(error.code, str) else "没有跑完。"
@@ -556,7 +575,12 @@ def assign_to_agent(
             }
             if ran.get("level") == "L1" and not settings.get("dry_run"):
                 try:
-                    opened = open_merge_request.execute(ran.get("rule") or item["rule"], name)
+                    opened = open_merge_request.execute(
+                        ran.get("rule") or item["rule"],
+                        name,
+                        path=ran.get("path") or item["path"],
+                        fingerprint=ran.get("fingerprint"),
+                    )
                     decision["action"] = "opened" if opened.get("action") == "opened" else "already"
                     decision["web_url"] = opened.get("web_url")
                 except NotEligible as error:
