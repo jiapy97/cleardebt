@@ -72,10 +72,12 @@ class IssueState(TypedDict, total=False):
     after: str
     rejections: list
     rescan_ok: bool
+    rescan_executed: bool
     rescan_removed: list
     rescan_added: list
     tests_passed: bool
     tests_skipped: bool
+    tests_executed: bool
     uncovered_lines: list
     project: str
     git_branch: str
@@ -108,6 +110,7 @@ class IssueState(TypedDict, total=False):
     agent_patch_count: int
     agent_full_count: int
     agent_usage_tokens: int
+    fixed_usage_tokens: int
     agent_infra_count: int
     agent_last_action_hash: str
     agent_repeat_count: int
@@ -180,6 +183,7 @@ def fix(state: IssueState) -> dict:
             "history": ["fix"],
         }
 
+    usage = {"tokens": 0}
     try:
         from cleardebt.controls import load_controls
         from cleardebt.examples import same_rule_examples
@@ -204,6 +208,7 @@ def fix(state: IssueState) -> dict:
             evidence=evidence,
             examples=examples,
             model=model,
+            on_usage=lambda count: usage.__setitem__("tokens", count),
         )
         after = apply_once(before, old, new)
     except (ModelOutputError, ValueError, RuntimeError) as error:
@@ -218,6 +223,7 @@ def fix(state: IssueState) -> dict:
             "fix_attempt": attempt,
             "model_used": model,
             "model_attempts": [{"model": model, "error": str(error)}],
+            "fixed_usage_tokens": int(state.get("fixed_usage_tokens") or 0) + usage["tokens"],
             "history": ["fix"],
         }
     file_path.write_text(after, encoding="utf-8")
@@ -230,6 +236,7 @@ def fix(state: IssueState) -> dict:
         "fix_attempt": attempt,
         "model_used": model,
         "model_attempts": [{"model": model, "ok": True}],
+        "fixed_usage_tokens": int(state.get("fixed_usage_tokens") or 0) + usage["tokens"],
         "model_error": "",
         "changed_files": [{"path": state.get("path", ""), "before": before, "after": after}],
         "history": ["fix"],
@@ -256,10 +263,12 @@ def retry_fix(state: IssueState) -> dict:
         "after": before,
         "rejections": [],
         "rescan_ok": False,
+        "rescan_executed": False,
         "rescan_removed": [],
         "rescan_added": [],
         "tests_passed": False,
         "tests_skipped": False,
+        "tests_executed": False,
         "uncovered_lines": [],
         "model_error": "",
         "proposed_old": "",
@@ -305,6 +314,7 @@ def rescan(state: IssueState) -> dict:
         checked = verify_bump(Path(state["work_dir"]), risk)
         return {
             "rescan_ok": bool(checked.get("ok")),
+            "rescan_executed": False,
             "rescan_removed": (
                 [{"rule": state.get("rule"), "path": risk.get("path"), "package": risk.get("package")}]
                 if checked.get("ok")
@@ -352,6 +362,7 @@ def rescan(state: IssueState) -> dict:
     ok = bool(result["ok"] and target_fingerprint in removed_fingerprints)
     return {
         "rescan_ok": ok,
+        "rescan_executed": True,
         "rescan_removed": [_brief(row) for row in result["removed"]],
         "rescan_added": [_brief(row) for row in result["added"]],
         "history": ["rescan"],
@@ -366,6 +377,7 @@ def run_tests(state: IssueState) -> dict:
         return {
             "tests_passed": True,
             "tests_skipped": True,
+            "tests_executed": False,
             "uncovered_lines": [],
             "history": ["test"],
         }
@@ -374,12 +386,14 @@ def run_tests(state: IssueState) -> dict:
         return {
             "tests_passed": True,
             "tests_skipped": True,
+            "tests_executed": False,
             "uncovered_lines": [],
             "history": ["test"],
         }
     completed = run_project_tests(work)
     if completed.returncode != 0:
-        return {"tests_passed": False, "tests_skipped": False, "uncovered_lines": [], "history": ["test"]}
+        return {"tests_passed": False, "tests_skipped": False, "tests_executed": True,
+                "uncovered_lines": [], "history": ["test"]}
     coverage = json.loads((work / "coverage" / "coverage-final.json").read_text(encoding="utf-8"))
     changed = state.get("changed_files") or [
         {"path": state["path"], "before": state.get("before", ""), "after": state.get("after", "")}
@@ -392,7 +406,8 @@ def run_tests(state: IssueState) -> dict:
             item.get("after", ""),
         )
         missed.extend(lines if len(changed) == 1 else [f"{item['path']}:{line}" for line in lines])
-    return {"tests_passed": True, "tests_skipped": False, "uncovered_lines": missed, "history": ["test"]}
+    return {"tests_passed": True, "tests_skipped": False, "tests_executed": True,
+            "uncovered_lines": missed, "history": ["test"]}
 
 
 def decide(state: IssueState) -> dict:

@@ -57,7 +57,7 @@ flowchart TD
 
 ## 评测：自主 Agent 对照
 
-**评测集**：120 条冻结用例（[`bench/oss_smell_cases_v2.json`](bench/oss_smell_cases_v2.json)），覆盖 47 种规则类型，来自 dayjs 与 axios 的固定 SHA（`436bde0`、`5fc40e1`）。用同一条告警分别运行固定 AI 修复和自主工具循环，每一臂使用独立的新 checkpoint；仅统计仓库版本、检查闸门和执行模式均匹配的成对结果。脚本只调用单告警执行器，不会创建修复请求。
+**评测集**：当前使用 120 条带 Sonar issue key 的冻结用例（[`bench/oss_smell_cases_v3.json`](bench/oss_smell_cases_v3.json)），覆盖 48 种规则类型，来自 dayjs 与 axios 的固定 SHA（`436bde0`、`5fc40e1`）。用同一条告警分别运行固定 AI 修复和自主工具循环，每一臂使用独立的新 checkpoint；仅统计仓库版本、检查闸门和执行模式均匹配的成对结果。脚本只调用单告警执行器，不会创建修复请求。v2 用例缺少告警 key，含无法区分的重复项，仅保留作历史记录。
 
 ```bash
 # 验证评测集
@@ -66,15 +66,20 @@ flowchart TD
 # 运行评测（建议从小批量开始）
 .venv/bin/python bench/run_autonomous_compare.py --per-project 10
 
+# 对单次运行出报告；默认不合并历史重跑
+.venv/bin/python bench/calculate_metrics.py --input var/bench/autonomous-compare-RUN_ID.json
+
 # 重新生成或扩展评测集
 .venv/bin/python bench/generate_cases.py --target 150 --per-rule-max 6
 ```
 
-**评测指标**：修复成功率（重扫通过）、编译和测试通过率、新问题引入率、单次修复成本（token）和耗时。详细说明见 [bench/README.md](bench/README.md)。
+**评测指标**：同一检查闸门内的 L1 成功率、两臂独有成功数、实际测试通过/跳过/未运行、新增告警、模型报告 token 和耗时。详细说明见 [bench/README.md](bench/README.md)。
 
-dayjs 运行 Sonar 重扫、测试和覆盖率检查。axios 的测试需要外部服务，两臂均跳过测试并在结果中标记。脚本把逐条结果和汇总写入 `var/bench/`；样本少时只作为链路验证，不据此声称总体成功率。
+dayjs 运行 Sonar 重扫、测试和覆盖率检查。axios 的测试需要外部服务，两臂均跳过测试并在结果中标记。脚本把逐条结果和汇总写入 `var/bench/`；统计脚本一次只读取明确指定的运行，不把历史重复结果混进分母。样本少时只作为链路验证，不据此声称总体成功率。
 
 **历史评测**：2026-09-27 的 v5 成对评测预定 30 条、有效 27 条：自主 Agent L1 24 条，固定流程 L1 22 条。dayjs 的 14 条有效配对跑完整测试闸；axios 的 13 条仅跑 Sonar 闸。逐条数据、排除原因、耗时和限制见 [自主 Agent v5 评测报告](bench/autonomous_v5_report_2026-09-27.md)。早期 4 条链路试跑见 [v4 记录](bench/autonomous_pilot_2026-09-27.md)，不与 v5 汇总。旧版 59 条用例集见 [`bench/oss_smell_cases_v1.json`](bench/oss_smell_cases_v1.json)。
+
+**v6 链路验证**：新版采集字段分别在 1 条 dayjs 完整闸门和 1 条 axios 仅重扫闸门上试跑，见 [dayjs 报告](bench/evaluation_smoke_v6_2026-09-27.md)和 [axios 报告](bench/evaluation_smoke_axios_v6_2026-09-27.md)。这是字段与判卷链路验证，不作为总体效果比较。
 
 ## 启动
 

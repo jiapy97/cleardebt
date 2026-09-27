@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import json
 import os
+import urllib.error
 import urllib.request
 from pathlib import Path
+from typing import Callable
 
 from cleardebt.triage import describe
 
@@ -95,6 +97,7 @@ def propose_patch(
     evidence: dict | None = None,
     examples: list[dict] | None = None,
     model: str | None = None,
+    on_usage: Callable[[int], None] | None = None,
 ) -> tuple[str, str]:
     """Ask the model for one old/new replacement. Gates still decide L1/L2/L3."""
     creds = llm_credentials()
@@ -132,8 +135,14 @@ def propose_patch(
         headers={"Authorization": f"Bearer {creds['token']}", "Content-Type": "application/json"},
         method="POST",
     )
-    with urllib.request.urlopen(request, timeout=60) as response:
-        payload = json.loads(response.read().decode("utf-8"))
+    try:
+        with urllib.request.urlopen(request, timeout=60) as response:
+            payload = json.loads(response.read().decode("utf-8"))
+    except (urllib.error.HTTPError, urllib.error.URLError, TimeoutError) as error:
+        raise ModelOutputError(f"模型请求失败：{error}") from error
+    usage = payload.get("usage") or {}
+    if on_usage is not None and isinstance(usage, dict):
+        on_usage(int(usage.get("total_tokens") or 0))
     content = payload["choices"][0]["message"]["content"]
     return parse_replacement(content)
 

@@ -1,0 +1,859 @@
+{
+  "generated": "expanded_oss_cases_v3",
+  "repos": {
+    "bench-dayjs": {
+      "url": "https://github.com/iamkun/dayjs",
+      "sha": "436bde0bcded312781cbe45dc2b0ef079a36d8e3",
+      "gate": "full"
+    },
+    "bench-axios": {
+      "url": "https://github.com/axios/axios",
+      "sha": "5fc40e1c7478d342ec64c4e865ed4cd1a334207c",
+      "gate": "rescan-only"
+    }
+  },
+  "count": 120,
+  "sampling_strategy": "balanced: max 5 per rule, seed=42",
+  "issues": [
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7741",
+      "path": "lib/utils.js",
+      "message": "Compare with `undefined` directly instead of using `typeof`.",
+      "issue_key": "69815053-1936-4531-a003-4b7e05e369f3"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S4138",
+      "path": "lib/helpers/cookies.js",
+      "message": "Expected a `for-of` loop instead of a `for` loop with this simple iteration.",
+      "issue_key": "29796c94-d832-4a82-a6a3-2767e2652ac8"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S1940",
+      "path": "src/index.js",
+      "message": "Use the opposite operator (!==) instead.",
+      "issue_key": "ef156bc1-a10e-4aac-b219-887032b1ec54"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S7726",
+      "path": "src/plugin/isSameOrBefore/index.js",
+      "message": "The arrow function should be named.",
+      "issue_key": "9984029c-04ca-4b51-8111-3e6c0263479d"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S6676",
+      "path": "lib/core/AxiosHeaders.js",
+      "message": "Unnecessary '.call()'.",
+      "issue_key": "dcf4426e-12af-4bc2-8f47-da24bcbbd9a1"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S6635",
+      "path": "src/plugin/duration/index.js",
+      "message": "Unexpected return statement in constructor.",
+      "issue_key": "38cb6867-50ea-4b59-931f-a98eafbe1aef"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S7724",
+      "path": "src/locale/ru.js",
+      "message": "Specify the rules you want to disable.",
+      "issue_key": "9974a919-e1e7-42e0-a21a-2873655dc1aa"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S7781",
+      "path": "src/locale/ar.js",
+      "message": "Prefer `String#replaceAll()` over `String#replace()`.",
+      "issue_key": "9004a7b9-2eb9-49ae-a618-eb4f1a8d4475"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7770",
+      "path": "lib/adapters/http.js",
+      "message": "arrow function is equivalent to `Number`. Use `Number` directly.",
+      "issue_key": "76499884-7dbc-4fe9-8759-80478a2d0529"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7781",
+      "path": "lib/helpers/buildURL.js",
+      "message": "Prefer `String#replaceAll()` over `String#replace()`.",
+      "issue_key": "eeee564e-de12-4d08-9c5c-68b47d40c40f"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S6594",
+      "path": "src/plugin/duration/index.js",
+      "message": "Use the \"RegExp.exec()\" method instead.",
+      "issue_key": "277c9a55-cc7b-4e14-a5f4-c8fd32048a88"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7772",
+      "path": "lib/adapters/http.js",
+      "message": "Prefer `node:path` over `path`.",
+      "issue_key": "7a0d86fd-5498-4ac2-a47f-4a752a1f2894"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S3358",
+      "path": "src/plugin/objectSupport/index.js",
+      "message": "Extract this nested ternary operation into an independent statement.",
+      "issue_key": "1028ca37-063c-46b1-842e-c41c4d7e5c18"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7758",
+      "path": "lib/helpers/estimateDataURLDecodedBytes.js",
+      "message": "Prefer `String#codePointAt()` over `String#charCodeAt()`.",
+      "issue_key": "6b1d5fed-7798-41df-831a-3feedca4e37d"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S6325",
+      "path": "lib/helpers/sanitizeHeaderValue.js",
+      "message": "Use a regular expression literal instead of the 'RegExp' constructor.",
+      "issue_key": "3c2611bc-104b-482e-a217-824ef67e5ac3"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S6325",
+      "path": "lib/helpers/sanitizeHeaderValue.js",
+      "message": "Use a regular expression literal instead of the 'RegExp' constructor.",
+      "issue_key": "6493b769-853f-4be6-9008-2ee5e008a9ab"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S6557",
+      "path": "src/plugin/negativeYear/index.js",
+      "message": "Use 'String#startsWith' method instead.",
+      "issue_key": "330d5138-833f-4b71-91e6-26a2368f0cec"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7740",
+      "path": "lib/core/AxiosHeaders.js",
+      "message": "Do not assign `this` to `self`.",
+      "issue_key": "be8675ae-bf35-48cb-9571-6d738ccadfe0"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S6635",
+      "path": "src/plugin/duration/index.js",
+      "message": "Unexpected return statement in constructor.",
+      "issue_key": "ba2ad4d4-7b72-4153-b183-861c0044da68"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7780",
+      "path": "lib/helpers/sanitizeHeaderValue.js",
+      "message": "`String.raw` should be used to avoid escaping `\\`.",
+      "issue_key": "b14f5f45-46f2-4cf7-830d-36559b650a69"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S7774",
+      "path": "src/plugin/minMax/index.js",
+      "message": "Prefer using `Array.prototype.slice`.",
+      "issue_key": "960775e4-ee3b-4622-983a-3ff9be6c58d4"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S6557",
+      "path": "lib/helpers/shouldBypassProxy.js",
+      "message": "Use 'String#startsWith' method instead.",
+      "issue_key": "6303d448-f6ae-4e8d-bb29-4abe2f0ef1a2"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S1121",
+      "path": "lib/utils.js",
+      "message": "Extract the assignment of \"value\" from this expression.",
+      "issue_key": "b5ca279c-d04a-4178-b09f-991e24faf86f"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7778",
+      "path": "lib/adapters/http.js",
+      "message": "Do not call `Array#push()` multiple times.",
+      "issue_key": "ae4a270e-73af-4242-8881-f0c9c27d9d1e"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7722",
+      "path": "lib/core/Axios.js",
+      "message": "Pass a message to the `Error` constructor.",
+      "issue_key": "da9f696e-2737-4c68-83dd-8cba40cd3194"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7780",
+      "path": "lib/helpers/sanitizeHeaderValue.js",
+      "message": "`String.raw` should be used to avoid escaping `\\`.",
+      "issue_key": "8cb9c96c-18c9-48bc-8b1c-e635d644892c"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7773",
+      "path": "lib/adapters/fetch.js",
+      "message": "Prefer `Number.parseInt` over `parseInt`.",
+      "issue_key": "c334749f-819c-41ed-a6f1-329315069e27"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7772",
+      "path": "lib/adapters/http.js",
+      "message": "Prefer `node:http2` over `http2`.",
+      "issue_key": "2b910dc6-5032-4d17-a7e0-94f7eb5c9910"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S5843",
+      "path": "src/plugin/duration/index.js",
+      "message": "Simplify this regular expression to reduce its complexity from 22 to the 20 allowed.",
+      "issue_key": "0ce3a215-921e-4054-b010-6c16c06f1f61"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7758",
+      "path": "lib/adapters/fetch.js",
+      "message": "Prefer `String.fromCodePoint()` over `String.fromCharCode()`.",
+      "issue_key": "bb365888-4695-4966-83f0-4606b1be19e7"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S1121",
+      "path": "lib/utils.js",
+      "message": "Extract the assignment of \"result\" from this expression.",
+      "issue_key": "34ec1496-9b08-4c2b-8a6e-93b89e644b74"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S1121",
+      "path": "lib/core/Axios.js",
+      "message": "Extract the assignment of \"dummy\" from this expression.",
+      "issue_key": "c3cdb98c-41b6-48c0-9ab9-d5c04190470e"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S6645",
+      "path": "lib/adapters/http.js",
+      "message": "It's not necessary to initialize 'maxDownloadRate' to undefined.",
+      "issue_key": "d50c4327-3083-4fc1-9e1d-66c1bc8db56e"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S5843",
+      "path": "src/constant.js",
+      "message": "Simplify this regular expression to reduce its complexity from 27 to the 20 allowed.",
+      "issue_key": "eb5d5e66-3f44-4af2-a78b-75169b8c8d67"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S6582",
+      "path": "lib/adapters/fetch.js",
+      "message": "Prefer using an optional chain expression instead, as it's more concise and easier to read.",
+      "issue_key": "08e99201-09aa-4fcc-88a5-00b108958374"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S6661",
+      "path": "lib/adapters/http.js",
+      "message": "Use an object spread instead of `Object.assign` eg: `{ ...foo }`.",
+      "issue_key": "5d4783ce-b4f7-4bd1-951e-1ba35faf5b39"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7758",
+      "path": "lib/core/AxiosHeaders.js",
+      "message": "Prefer `String#codePointAt()` over `String#charCodeAt()`.",
+      "issue_key": "84f11788-7c29-4b8d-abc9-75183c378024"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S4138",
+      "path": "lib/utils.js",
+      "message": "Expected a `for-of` loop instead of a `for` loop with this simple iteration.",
+      "issue_key": "a271984b-98be-4e7b-ad06-15bebef17bcb"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S3358",
+      "path": "src/locale/bn-bd.js",
+      "message": "Extract this nested ternary operation into an independent statement.",
+      "issue_key": "e997ea28-956b-4060-9703-be386b1505bf"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S7765",
+      "path": "src/plugin/customParseFormat/index.js",
+      "message": "Use `.includes()`, rather than `.indexOf()`, when checking for existence.",
+      "issue_key": "d28714c5-d2b4-4118-afa8-0d64877a007d"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S3403",
+      "path": "lib/helpers/validator.js",
+      "message": "Remove this \"===\" check; it will always be false. Did you mean to use \"==\"?",
+      "issue_key": "afa9eae7-6b02-4766-baa7-2d2f84b3a3f9"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S3403",
+      "path": "lib/helpers/fromDataURI.js",
+      "message": "Remove this \"===\" check; it will always be false. Did you mean to use \"==\"?",
+      "issue_key": "ccc860f9-0336-4bf7-9596-abebc01129b8"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S7724",
+      "path": "src/locale/cs.js",
+      "message": "Specify the rules you want to disable.",
+      "issue_key": "566cf409-01ab-4c38-a4f1-13a819cf4b0b"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S7726",
+      "path": "src/plugin/isYesterday/index.js",
+      "message": "The arrow function should be named.",
+      "issue_key": "8b5ee1e9-09da-4a55-b0bf-02f4836f4431"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S7724",
+      "path": "src/locale/be.js",
+      "message": "Specify the rules you want to disable.",
+      "issue_key": "0548ecd8-c268-46ff-b327-aa62c433aea9"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S5843",
+      "path": "src/locale/lt.js",
+      "message": "Simplify this regular expression to reduce its complexity from 31 to the 20 allowed.",
+      "issue_key": "ec0fcd31-1317-4caa-808f-28bbfc1cc29d"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S7741",
+      "path": "src/plugin/devHelper/index.js",
+      "message": "Compare with `undefined` directly instead of using `typeof`.",
+      "issue_key": "6c37dee7-c3d9-48ea-b871-d293e9c8ece5"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7773",
+      "path": "lib/helpers/shouldBypassProxy.js",
+      "message": "Prefer `Number.parseInt` over `parseInt`.",
+      "issue_key": "2d8423f6-0008-4d5b-949e-f8c13c7b4efe"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S2486",
+      "path": "src/plugin/customParseFormat/index.js",
+      "message": "Handle this exception, don't catch it at all, or explain in a comment why it is ignored.",
+      "issue_key": "1a703339-7a31-4ceb-a709-08963227d579"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7739",
+      "path": "lib/cancel/CancelToken.js",
+      "message": "Do not add `then` to an object.",
+      "issue_key": "5326c6a7-275d-4206-8596-5d75e86ea4a0"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S7726",
+      "path": "src/plugin/timezone/index.js",
+      "message": "The arrow function should be named.",
+      "issue_key": "8c0d86c5-be85-428b-a987-8fffa97f51bb"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S6582",
+      "path": "lib/adapters/xhr.js",
+      "message": "Prefer using an optional chain expression instead, as it's more concise and easier to read.",
+      "issue_key": "0f25d608-dd16-45b4-be0e-a81bbd7e24f9"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S7722",
+      "path": "src/plugin/customParseFormat/index.js",
+      "message": "Pass a message to the `Error` constructor.",
+      "issue_key": "ec015ae9-964f-41b5-91b0-559ab6414a8f"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S6645",
+      "path": "lib/adapters/http.js",
+      "message": "It's not necessary to initialize 'auth' to undefined.",
+      "issue_key": "4c8fee7d-95c2-4ea2-9b45-91f99a7dc03f"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S1121",
+      "path": "lib/adapters/fetch.js",
+      "message": "Extract the assignment of \"target\" from this expression.",
+      "issue_key": "973ee6df-77ad-438d-8da9-145c3c86d462"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7741",
+      "path": "lib/utils.js",
+      "message": "Compare with `undefined` directly instead of using `typeof`.",
+      "issue_key": "15192590-981a-427e-90e7-3f856dce2bf0"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S6645",
+      "path": "lib/adapters/fetch.js",
+      "message": "It's not necessary to initialize 'auth' to undefined.",
+      "issue_key": "d1353960-3fc2-4092-b255-eaf50307b506"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S7774",
+      "path": "src/plugin/minMax/index.js",
+      "message": "Prefer using `Array.prototype.slice`.",
+      "issue_key": "dc060b58-9cad-47ac-8ad3-6f85cf1dd091"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S7732",
+      "path": "src/plugin/customParseFormat/index.js",
+      "message": "Avoid using `instanceof` for type checking as it can lead to unreliable results.",
+      "issue_key": "3f484231-0ad2-4011-bdfe-4e35f3afb84e"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S3800",
+      "path": "lib/adapters/fetch.js",
+      "message": "Refactor this function to always return the same type.",
+      "issue_key": "26399f65-f0d4-427d-a64b-7bd9cec6dc65"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S6653",
+      "path": "lib/helpers/validator.js",
+      "message": "Use 'Object.hasOwn()' instead of 'Object.prototype.hasOwnProperty.call()'.",
+      "issue_key": "68a711c6-0606-4e3c-b85c-bc8f4d30c254"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S6582",
+      "path": "lib/adapters/http.js",
+      "message": "Prefer using an optional chain expression instead, as it's more concise and easier to read.",
+      "issue_key": "fb38408f-29ba-46c8-b011-2b8c5f525b7a"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7776",
+      "path": "lib/core/setFormDataHeaders.js",
+      "message": "`FORM_DATA_CONTENT_HEADERS` should be a `Set`, and use `FORM_DATA_CONTENT_HEADERS.has()` to check existence or non-existence.",
+      "issue_key": "3dcf0240-577c-4e65-a52f-cc768209defd"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7723",
+      "path": "lib/utils.js",
+      "message": "Use `new Error()` instead of `Error()`.",
+      "issue_key": "fff305b9-d076-4fae-b8f7-50351d2f5d09"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S5843",
+      "path": "src/plugin/customParseFormat/index.js",
+      "message": "Simplify this regular expression to reduce its complexity from 60 to the 20 allowed.",
+      "issue_key": "b5f51a00-16af-42db-9e39-616e290f5f74"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S6594",
+      "path": "lib/helpers/shouldBypassProxy.js",
+      "message": "Use the \"RegExp.exec()\" method instead.",
+      "issue_key": "39b48b4b-e1fd-4709-95d4-d8ff92ab6bd1"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S6666",
+      "path": "lib/helpers/spread.js",
+      "message": "Use the spread operator instead of '.apply()'.",
+      "issue_key": "77338a4a-0832-4459-a033-3879429fe567"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S7781",
+      "path": "src/locale/ku.js",
+      "message": "Prefer `String#replaceAll()` over `String#replace()`.",
+      "issue_key": "dca2ef93-31f1-4b1d-be72-7e8db0926c84"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S1301",
+      "path": "src/locale/zh-cn.js",
+      "message": "Replace this \"switch\" statement by \"if\" statements to increase readability.",
+      "issue_key": "55f76c86-88ec-4012-9589-4321031c900f"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S6645",
+      "path": "lib/adapters/http.js",
+      "message": "It's not necessary to initialize 'maxUploadRate' to undefined.",
+      "issue_key": "7b0dce7a-9ae9-4fd2-a04e-cb371d9d9f9c"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S1301",
+      "path": "src/locale/zh-hk.js",
+      "message": "Replace this \"switch\" statement by \"if\" statements to increase readability.",
+      "issue_key": "c981b8db-bb75-47de-842f-92259045e4e1"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S7770",
+      "path": "src/plugin/minMax/index.js",
+      "message": "arrow function is equivalent to `Boolean`. Use `Boolean` directly.",
+      "issue_key": "5f51adfa-0a21-4223-bcf3-2b6ad8c3fb58"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S7732",
+      "path": "src/plugin/objectSupport/index.js",
+      "message": "Avoid using `instanceof` for type checking as it can lead to unreliable results.",
+      "issue_key": "6db58859-b45c-4d15-b009-ba9128d453ca"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S6353",
+      "path": "lib/helpers/shouldBypassProxy.js",
+      "message": "Use concise character class syntax '\\d' instead of '[0-9]'.",
+      "issue_key": "b09ce8df-35c9-47f0-8c2d-a1d76b6da2b6"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7741",
+      "path": "lib/utils.js",
+      "message": "Compare with `undefined` directly instead of using `typeof`.",
+      "issue_key": "91b4fb8a-31e8-4daf-9d9a-ab7de1814fda"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S7721",
+      "path": "src/plugin/objectSupport/index.js",
+      "message": "Move function 'callObject' to the outer scope.",
+      "issue_key": "0493049a-1919-419c-aaa2-78c9b220c488"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S6635",
+      "path": "src/plugin/duration/index.js",
+      "message": "Unexpected return statement in constructor.",
+      "issue_key": "1aa5c785-0794-4bda-9e8d-bb49923a8d69"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7773",
+      "path": "lib/helpers/resolveConfig.js",
+      "message": "Prefer `Number.parseInt` over `parseInt`.",
+      "issue_key": "8fc88be1-3a92-46d7-b971-fc34ab3b8754"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7773",
+      "path": "lib/adapters/fetch.js",
+      "message": "Prefer `Number.isFinite` over `isFinite`.",
+      "issue_key": "5a1306fa-d23b-4c25-b3ae-4a49ca6700dc"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S1121",
+      "path": "lib/helpers/Http2Sessions.js",
+      "message": "Extract the assignment of \"authoritySessions\" from this expression.",
+      "issue_key": "a294b69d-0a58-4642-bed9-0d25aaa8b28f"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S2589",
+      "path": "lib/adapters/http.js",
+      "message": "This always evaluates to truthy. Consider refactoring this code.",
+      "issue_key": "bc5d1aeb-4ffe-4faf-9987-2ad4df55a0da"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7772",
+      "path": "lib/helpers/formDataToStream.js",
+      "message": "Prefer `node:stream` over `stream`.",
+      "issue_key": "659ed20b-1e28-4514-8c52-7ec2a56f7b76"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S7726",
+      "path": "src/plugin/isoWeeksInYear/index.js",
+      "message": "The arrow function should be named.",
+      "issue_key": "a23ca9a6-d56d-491e-954c-b249a8843c7b"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S6594",
+      "path": "src/index.js",
+      "message": "Use the \"RegExp.exec()\" method instead.",
+      "issue_key": "20b9fa83-4b3e-4a37-8ed1-da56481cf1cd"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7765",
+      "path": "lib/defaults/index.js",
+      "message": "Use `.includes()`, rather than `.indexOf()`, when checking for existence.",
+      "issue_key": "d68634c3-9ad8-489f-898d-9eb7576a7582"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7772",
+      "path": "lib/adapters/http.js",
+      "message": "Prefer `node:events` over `events`.",
+      "issue_key": "aee71399-3965-4cd7-b0f2-2adc0eb78f93"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S3403",
+      "path": "lib/adapters/adapters.js",
+      "message": "Remove this \"===\" check; it will always be false. Did you mean to use \"==\"?",
+      "issue_key": "d4be341b-bceb-4c0b-bafe-58e3956f92d1"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S6676",
+      "path": "lib/utils.js",
+      "message": "Unnecessary '.call()'.",
+      "issue_key": "c9de8553-b1b4-46d2-a995-811f4af45770"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7772",
+      "path": "lib/adapters/http.js",
+      "message": "Prefer `node:stream` over `stream`.",
+      "issue_key": "a33d7faa-e6d0-40bc-905c-292e167816f2"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S6035",
+      "path": "src/plugin/duration/index.js",
+      "message": "Replace this alternation with a character class.",
+      "issue_key": "f8f3083e-430f-411c-a71f-9bf110e3f463"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7773",
+      "path": "lib/adapters/http.js",
+      "message": "Prefer `Number.parseInt` over `parseInt`.",
+      "issue_key": "bf40c7b9-d2b7-4b18-bedc-a3be865d4efa"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7765",
+      "path": "lib/helpers/toFormData.js",
+      "message": "Use `.includes()`, rather than `.indexOf()`, when checking for existence.",
+      "issue_key": "ba04d2f4-89f2-4312-a222-75db9845e98c"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S6353",
+      "path": "lib/helpers/shouldBypassProxy.js",
+      "message": "Use concise character class syntax '\\d' instead of '[0-9]'.",
+      "issue_key": "e18aed74-8b20-41aa-87af-29d0cf3698f0"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S6582",
+      "path": "lib/adapters/xhr.js",
+      "message": "Prefer using an optional chain expression instead, as it's more concise and easier to read.",
+      "issue_key": "e5b40445-6111-463d-b07f-b676b5f51ef7"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S6644",
+      "path": "lib/helpers/progressEventReducer.js",
+      "message": "Unnecessary use of conditional expression for default assignment.",
+      "issue_key": "93480877-7e43-40b3-b328-0d1184f3025a"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7740",
+      "path": "lib/cancel/CancelToken.js",
+      "message": "Do not assign `this` to `token`.",
+      "issue_key": "f54c470f-a674-4465-9753-c0c473d26fca"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S7781",
+      "path": "src/locale/ku.js",
+      "message": "Prefer `String#replaceAll()` over `String#replace()`.",
+      "issue_key": "664e4a32-977f-45d2-8cf6-2adab2b4b84d"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S7781",
+      "path": "src/locale/ar.js",
+      "message": "Prefer `String#replaceAll()` over `String#replace()`.",
+      "issue_key": "98953120-74ff-448d-a28d-1f488b63ae73"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7765",
+      "path": "lib/core/dispatchRequest.js",
+      "message": "Use `.includes()`, rather than `.indexOf()`, when checking for existence.",
+      "issue_key": "f14d7431-02cc-48db-918e-003ed3eece4c"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S7722",
+      "path": "src/plugin/customParseFormat/index.js",
+      "message": "Pass a message to the `Error` constructor.",
+      "issue_key": "b8474aea-6de8-46fb-92a1-7e41339f1fcc"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S6035",
+      "path": "src/plugin/customParseFormat/index.js",
+      "message": "Replace this alternation with a character class.",
+      "issue_key": "32f8411d-1ff7-4fb5-937b-227616c30433"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7758",
+      "path": "lib/core/AxiosHeaders.js",
+      "message": "Prefer `String#codePointAt()` over `String#charCodeAt()`.",
+      "issue_key": "e42127d6-7131-4365-9af0-13eca11a4304"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S2245",
+      "path": "lib/utils.js",
+      "message": "Make sure that using this pseudorandom number generator is safe here.",
+      "issue_key": "75335ea2-2a5d-4078-86c2-d876efb8ab4d"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S1301",
+      "path": "src/locale/zh.js",
+      "message": "Replace this \"switch\" statement by \"if\" statements to increase readability.",
+      "issue_key": "4d68a48d-986f-4960-8492-689defd82428"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S6635",
+      "path": "src/plugin/duration/index.js",
+      "message": "Unexpected return statement in constructor.",
+      "issue_key": "606b1652-6e10-41a1-8873-52bf64c7ae27"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S6582",
+      "path": "lib/helpers/parseProtocol.js",
+      "message": "Prefer using an optional chain expression instead, as it's more concise and easier to read.",
+      "issue_key": "80d3b292-e5b2-4fe8-8060-70f72d0f9d56"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7741",
+      "path": "lib/utils.js",
+      "message": "Compare with `undefined` directly instead of using `typeof`.",
+      "issue_key": "b6c2fd8e-c2ee-4b2e-a323-c7ccade91f0d"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S7724",
+      "path": "src/locale/uk.js",
+      "message": "Specify the rules you want to disable.",
+      "issue_key": "e68a41d8-f4c5-4a74-9705-fce170dfebf0"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7059",
+      "path": "lib/cancel/CancelToken.js",
+      "message": "Refactor this asynchronous operation outside of the constructor.",
+      "issue_key": "31c8a13b-d2e5-48d9-a1c5-1cf9262ce0d0"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S6557",
+      "path": "lib/helpers/shouldBypassProxy.js",
+      "message": "Use the 'String#endsWith' method instead.",
+      "issue_key": "4c7e4bd8-a01f-4a29-9dbb-01b43ad9391c"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S1301",
+      "path": "src/locale/zh-tw.js",
+      "message": "Replace this \"switch\" statement by \"if\" statements to increase readability.",
+      "issue_key": "c9f2e861-dde3-43f3-ba2a-037acf9b36e7"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7765",
+      "path": "lib/defaults/index.js",
+      "message": "Use `.includes()`, rather than `.indexOf()`, when checking for existence.",
+      "issue_key": "0c8f7efb-e7ae-4029-a7e3-8becf029fa7d"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S1788",
+      "path": "src/plugin/timezone/index.js",
+      "message": "Default parameters should be last.",
+      "issue_key": "82304eac-696a-4922-8065-d6b1325dbb41"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7755",
+      "path": "lib/helpers/shouldBypassProxy.js",
+      "message": "Prefer `String#at(…)` over `String#charAt(….length - index)`.",
+      "issue_key": "f36d685e-ba6b-454e-bea8-4fd4d8509284"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S2589",
+      "path": "lib/adapters/fetch.js",
+      "message": "This always evaluates to truthy. Consider refactoring this code.",
+      "issue_key": "f1931000-a142-45ca-b926-b970bf895e43"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S5869",
+      "path": "lib/adapters/http.js",
+      "message": "Remove duplicates in this character class.",
+      "issue_key": "218b1eb3-74ee-4f62-83ca-548522f827f9"
+    },
+    {
+      "project": "bench-dayjs",
+      "rule": "javascript:S7760",
+      "path": "src/plugin/duration/index.js",
+      "message": "Prefer default parameters over reassignment.",
+      "issue_key": "ff78657e-9650-46de-b559-75b1b64e5bf8"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S3358",
+      "path": "lib/helpers/estimateDataURLDecodedBytes.js",
+      "message": "Extract this nested ternary operation into an independent statement.",
+      "issue_key": "c17db784-1262-468c-b16e-78aa92ab81a7"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S7740",
+      "path": "lib/core/AxiosHeaders.js",
+      "message": "Do not assign `this` to `self`.",
+      "issue_key": "99bcddf1-2a2e-47aa-8d02-7583ed9279d6"
+    },
+    {
+      "project": "bench-axios",
+      "rule": "javascript:S2486",
+      "path": "lib/adapters/http.js",
+      "message": "Handle this exception, don't catch it at all, or explain in a comment why it is ignored.",
+      "issue_key": "9a652daa-439f-4ae4-9028-31d6f6490ae2"
+    }
+  ]
+}

@@ -103,8 +103,9 @@ class LlmPatchProtocolTest(unittest.TestCase):
                 return False
 
             def read(self):
-                return b'{"choices":[{"message":{"content":"{\\"old_string\\":\\"a\\",\\"new_string\\":\\"b\\"}"}}]}'
+                return b'{"choices":[{"message":{"content":"{\\"old_string\\":\\"a\\",\\"new_string\\":\\"b\\"}"}}],"usage":{"total_tokens":37}}'
 
+        observed = []
         with (
             patch.dict(
                 os.environ,
@@ -122,11 +123,21 @@ class LlmPatchProtocolTest(unittest.TestCase):
                 source="a\n",
                 path="src/a.js",
                 message="unused",
+                on_usage=observed.append,
             )
         self.assertEqual((old, new), ("a", "b"))
+        self.assertEqual(observed, [37])
         request = urlopen.call_args.args[0]
         self.assertEqual(request.full_url, "https://llm.example/chat/completions")
         self.assertIn("Bearer k", request.headers["Authorization"])
+
+    def test_fixed_model_timeout_is_a_scored_model_failure(self):
+        with (
+            patch.dict(os.environ, {"CLEARDEBT_LLM_API_KEY": "k"}, clear=False),
+            patch("cleardebt.b_fix.urllib.request.urlopen", side_effect=TimeoutError("timed out")),
+        ):
+            with self.assertRaisesRegex(ModelOutputError, "模型请求失败"):
+                propose_patch(rule="javascript:S1128", source="a\n", path="src/a.js")
 
 
 if __name__ == "__main__":

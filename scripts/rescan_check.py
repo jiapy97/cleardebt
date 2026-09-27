@@ -29,6 +29,7 @@ from cleardebt.rescan import verdict
 from list_issues import fetch_issues, fingerprint, issue_path, line_span, load_token
 
 TEMP_PREFIX = "cleardebt-rescan-"
+SCANNER_CACHE_VOLUME = "cleardebt-sonar-scanner-cache"
 FIXED_RULE = "javascript:S1128"
 
 
@@ -138,6 +139,10 @@ def scan_temp_project(
                 "--rm",
                 f"--cpus={cpus}",
                 f"--memory={memory}",
+                # The container is removed after every rescan. Keep Sonar's
+                # downloaded analyzer cache across runs without sharing work.
+                "-v",
+                f"{SCANNER_CACHE_VOLUME}:/opt/sonar-scanner/.sonar/cache",
                 "-e",
                 f"SONAR_HOST_URL={sonar_url}",
                 "-e",

@@ -171,8 +171,14 @@ def execute(
         "agent_patch_count": result.get("agent_patch_count") or 0,
         "agent_full_count": result.get("agent_full_count") or 0,
         "agent_usage_tokens": result.get("agent_usage_tokens") or 0,
+        "fixed_usage_tokens": result.get("fixed_usage_tokens"),
+        "tests_passed": result.get("tests_passed"),
         "tests_skipped": bool(result.get("tests_skipped")),
+        "tests_executed": bool(result.get("tests_executed")),
+        "uncovered_lines": result.get("uncovered_lines") or [],
         "rescan_ok": bool(result.get("rescan_ok")),
+        "rescan_executed": bool(result.get("rescan_executed")),
+        "rescan_added": result.get("rescan_added") or [],
         "checkpoints": steps,
     }
     if payload.get("proposed_old") and payload.get("level") in {"L1", "L2", "L3"}:
@@ -424,6 +430,7 @@ def _initial_state(issue: dict, work: Path) -> dict:
         "rejections": [],
         "rescan_removed": [],
         "rescan_added": [],
+        "rescan_executed": False,
         "uncovered_lines": [],
         "project": issue["project"],
         "session_id": issue.get("session_id") or 0,

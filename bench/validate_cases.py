@@ -3,6 +3,7 @@
 
 from __future__ import annotations
 
+import argparse
 import json
 import sys
 from pathlib import Path
@@ -39,6 +40,16 @@ def validate_case_file(path: Path) -> dict:
         for field in required_fields:
             if field not in issue:
                 return {"valid": False, "error": f"用例 {i+1} 缺少字段: {field}"}
+        if issue["project"] not in data["repos"]:
+            return {"valid": False, "error": f"用例 {i+1} 的项目不在 repos 中"}
+
+    identities = [((issue["project"], issue["issue_key"]) if issue.get("issue_key") else
+                  (issue["project"], issue["rule"], issue["path"])) for issue in issues]
+    ambiguous = len(identities) - len(set(identities))
+    if ambiguous:
+        return {"valid": False, "error": f"{ambiguous} 条用例无法与其他告警区分；请用 Sonar issue_key 重新生成"}
+    if data.get("generated") == "expanded_oss_cases_v3" and any(not x.get("issue_key") for x in issues):
+        return {"valid": False, "error": "v3 用例必须包含 Sonar issue_key"}
 
     # 统计信息
     from collections import Counter
@@ -56,11 +67,11 @@ def validate_case_file(path: Path) -> dict:
 
 
 def check_sonar_availability() -> bool:
-    """Check if Sonar projects are accessible."""
+    """Check that every frozen v3 issue still exists in its Sonar project."""
     try:
         from cleardebt.controls import load_controls
         from cleardebt.issue_graph import sonar_base_url
-        from list_issues import load_token, fetch_issues
+        from list_issues import load_token, fetch_issues, issue_path
 
         controls = load_controls()
         if not controls.get("configured"):
@@ -70,29 +81,41 @@ def check_sonar_availability() -> bool:
         token = load_token(None)
         base_url = sonar_base_url()
 
-        # 尝试拉取一个项目
-        try:
-            issues = list(fetch_issues(base_url, token, "bench-dayjs"))
-            if issues:
-                return True
+        manifest = json.loads((ROOT / "bench" / "oss_smell_cases_v3.json").read_text(encoding="utf-8"))
+        missing = []
+        for project in manifest["repos"]:
+            available = {
+                (row.get("key"), row.get("rule"), issue_path(row.get("component") or "", project))
+                for row in fetch_issues(base_url, token, project)
+            }
+            for issue in manifest["issues"]:
+                if issue["project"] == project and (
+                    issue["issue_key"], issue["rule"], issue["path"]
+                ) not in available:
+                    missing.append(issue["issue_key"])
+        if missing:
+            print(f"  ⚠️  {len(missing)} 条冻结告警在 Sonar 中不可用；前 3 个 key: {missing[:3]}")
             return False
-        except Exception as e:
-            print(f"  ⚠️  Sonar连接失败: {e}")
-            return False
+        print(f"  ✓ {manifest['count']} 条冻结告警均可定位")
+        return True
     except Exception as e:
         print(f"  ⚠️  检查失败: {e}")
         return False
 
 
 def main() -> int:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--include-legacy", action="store_true", help="同时审计 v1/v2 历史用例")
+    parser.add_argument("--offline", action="store_true", help="只验证冻结文件，不访问 Sonar")
+    args = parser.parse_args()
     print("=" * 60)
     print("评测集验证")
     print("=" * 60)
 
-    case_files = [
-        ROOT / "bench" / "oss_smell_cases_v1.json",
-        ROOT / "bench" / "oss_smell_cases_v2.json",
-    ]
+    case_files = ([ROOT / "bench" / "oss_smell_cases_v1.json",
+                   ROOT / "bench" / "oss_smell_cases_v2.json"] if args.include_legacy else [])
+    v3 = ROOT / "bench" / "oss_smell_cases_v3.json"
+    case_files.append(v3)
 
     all_valid = True
     for case_file in case_files:
@@ -114,9 +137,9 @@ def main() -> int:
     print("\n" + "-" * 60)
     print("Sonar可用性检查")
     print("-" * 60)
-    sonar_ok = check_sonar_availability()
-    if sonar_ok:
-        print("  ✓ Sonar API可访问")
+    sonar_ok = True if args.offline else check_sonar_availability()
+    if args.offline:
+        print("  未检查（--offline）")
 
     print("\n" + "=" * 60)
     if all_valid and sonar_ok:
@@ -129,7 +152,7 @@ def main() -> int:
         print("✗ 部分检查失败，请修复后再运行评测")
     print("=" * 60)
 
-    return 0 if all_valid else 1
+    return 0 if all_valid and sonar_ok else 1
 
 
 if __name__ == "__main__":

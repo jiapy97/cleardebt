@@ -1,150 +1,49 @@
-# 评测集说明
+# 成对修复评测
 
-## 评测集版本
+## 用例与判卷
 
-### v1: oss_smell_cases_v1.json
-- **用例数**: 59条
-- **项目**: dayjs (30条) + axios (29条)
-- **规则数**: 37种
-- **特点**: 初始手工挑选的评测集
-- **用途**: 小规模快速验证
+当前输入是 `oss_smell_cases_v3.json`：dayjs 45 条、axios 75 条，共 120 条，48 种规则。每条用例保存 Sonar issue key 和固定仓库 SHA，因此同一文件里的多条告警可以分别执行。v1 是历史小样本；v2 虽有 120 行，但没有 issue key，按项目、规则和路径只能区分 100 条，不用于正式评测。
 
-### v2: oss_smell_cases_v2.json ⭐ 推荐
-- **用例数**: 120条
-- **项目**: dayjs (51条) + axios (69条)
-- **规则数**: 47种
-- **特点**: 
-  - 自动采样生成，覆盖更广
-  - 规则分布均衡（每规则最多5条）
-  - 包含 CODE_SMELL (115条) + BUG (5条)
-  - 种子固定(seed=42)，结果可复现
-- **用途**: 正式评测和对比实验
+一条告警分别交给固定 AI 修复和自主 Agent。两臂使用同一模型、同一仓库提交、独立的新 checkpoint，顺序执行；评测不创建修复请求。只有两臂都完成，执行模式、起点、仓库 SHA 和对应检查闸门匹配时，才记为有效配对。环境或执行器错误单列无效原因；进入修复后得到 L3 则仍计入有效配对。
 
-## 快速开始
+- **dayjs `full`**：补丁防作弊、Sonar 重扫、项目测试和改动行覆盖率。目标告警消失、没有新增告警、测试及覆盖率通过，才记 L1。
+- **axios `rescan-only`**：补丁防作弊和 Sonar 重扫；测试按配置跳过。其 L1 单独报告，不能称为测试通过。
 
-### 1. 生成或更新评测集
+报告每个闸门的 L1 数量、Agent 独有成功和固定流程独有成功；测试状态区分实际通过、失败、跳过和未知。新增告警只在重扫确实运行时统计。token 仅在模型接口返回 usage 时统计；历史固定流程没有同口径 token，不能据此比较费用。
+
+## 命令
 
 ```bash
-# 预览采样结果（不生成文件）
-.venv/bin/python bench/generate_cases.py --preview
+# 验证当前冻结文件与 Sonar 可用性
+.venv/bin/python bench/validate_cases.py
 
-# 生成120条用例（默认）
-.venv/bin/python bench/generate_cases.py
+# 只查冻结文件结构
+.venv/bin/python bench/validate_cases.py --offline
 
-# 自定义参数
-.venv/bin/python bench/generate_cases.py \
-  --target 150 \
-  --per-rule-max 6 \
-  --out bench/oss_smell_cases_v3.json
+# 从 Sonar 重新生成含 issue key 的用例；不会调用模型
+.venv/bin/python bench/generate_cases.py --target 120 --per-rule-max 5
+
+# 新运行先从少量配对开始；默认读取 v3
+.venv/bin/python bench/run_autonomous_compare.py --per-project 2
+
+# 正式运行会调用模型与 Sonar，结果保存在 var/bench/
+.venv/bin/python bench/run_autonomous_compare.py --per-project 120
+
+# 中断后保留已完成配对，核对冻结清单前缀并从下一题续跑
+CLEARDEBT_SCANNER_CPUS=2.0 .venv/bin/python bench/run_autonomous_compare.py \
+  --per-project 120 --resume var/bench/autonomous-compare-RUN_ID.json
+
+# 一次只统计一份结果；若要研究历史 v5，省略 --input 即可
+.venv/bin/python bench/calculate_metrics.py --input var/bench/autonomous-compare-RUN_ID.json
+.venv/bin/python bench/calculate_metrics.py --input var/bench/autonomous-compare-RUN_ID.json --json
 ```
 
-### 2. 运行评测
+`--per-project` 是每个项目内的终止序号，不是总用例数。旧文件可用 `BENCH_CASE_FILE=oss_smell_cases_v1.json` 指定，变量值只写文件名。`validate_cases.py --include-legacy --offline` 会审计 v1/v2，并明确报告 v2 的模糊重复项。
 
-```bash
-# 使用v2评测集运行对比评测（推荐）
-BENCH_CASE_FILE=bench/oss_smell_cases_v2.json \
-  .venv/bin/python bench/run_autonomous_compare.py --per-project 30
+历史 v5 的 30 对试跑来自 v1，有效 27 对，详见 `autonomous_v5_report_2026-09-27.md`。v3 的结果需要重新运行；不能把不同版本或重跑记录直接相加。
 
-# 或者修改脚本中的 CASES 变量指向 v2
-# 然后直接运行
-.venv/bin/python bench/run_autonomous_compare.py --per-project 30
-```
+## 重扫耗时
 
-### 3. 查看结果
+2026-09-27 的 v6 运行中，旧配置的 Sonar 重扫约 38–41 秒，其中扫描器容器本身约 35–38 秒。扫描器原先每次使用一次性容器，分析器下载缓存随容器一起丢失；续跑进程挂载持久 Docker 卷 `cleardebt-sonar-scanner-cache`，遵循 [SonarScanner CLI 官方缓存示例](https://docs.sonarsource.com/sonarqube-server/analyzing-source-code/scanners/sonarscanner)。同时将扫描器限额从 1 CPU 提到 2 CPU。新配置首次扫描约 23 秒，缓存热后约 20 秒；这是两项调整的合并效果，不能单独归因。结果文件的 `segments` 标记配置切换位置；配对质量指标仍可合并，耗时须按段查看。
 
-```bash
-# 评测结果保存在
-ls -lh var/bench/
-
-# 查看最新的评测报告
-cat var/bench/autonomous-compare-*.json | tail -1 | jq '.summary'
-```
-
-## 评测指标
-
-每次评测会收集以下指标：
-
-### 成功率指标
-- `valid_pairs`: 有效配对数（通过所有校验）
-- `fixed_l1`: 固定流程达到L1的数量
-- `agent_l1`: 自主Agent达到L1的数量
-- **修复成功率** = L1数量 / 有效配对数
-
-### 验证指标
-- `rescan_ok`: 重扫通过（原问题消失）
-- `rescan_removed`: 消失的问题列表
-- `rescan_added`: 引入的新问题列表
-- `tests_passed`: 测试是否通过
-- `tests_skipped`: 是否跳过测试
-
-### 成本和耗时指标
-- `agent_tool_calls`: Agent工具调用总次数
-- `agent_reported_tokens`: Agent消耗的token总数
-- `agent_seconds`: Agent总耗时（秒）
-- `fixed_seconds`: 固定流程总耗时（秒）
-
-### 详细追踪
-- `patches`: 提交的补丁数量
-- `full_checks`: 完整检查次数
-- `attempts`: 重试次数
-- `base_commit`: 代码库SHA（确保版本一致）
-
-## 采样策略
-
-`generate_cases.py` 使用以下策略确保评测集质量：
-
-1. **过滤**: 只选择AI可修复的告警（排除机械改写）
-2. **均衡**: 每个规则最多采样N条（默认5条），避免某些规则过度代表
-3. **随机**: 使用固定种子(seed=42)随机打乱，确保可复现
-4. **多样性**: 覆盖尽可能多的不同规则类型
-
-## 扩展评测集
-
-### 添加新项目
-
-1. 在Sonar中扫描新项目
-2. 在控制台绑定项目（只读模式）
-3. 更新 `oss_smell_cases_v1.json` 的 `repos` 字段
-4. 运行 `generate_cases.py` 重新生成
-
-示例：
-```json
-"repos": {
-  "bench-dayjs": {
-    "url": "https://github.com/iamkun/dayjs",
-    "sha": "436bde0bcded312781cbe45dc2b0ef079a36d8e3",
-    "gate": "full"
-  },
-  "bench-lodash": {
-    "url": "https://github.com/lodash/lodash",
-    "sha": "...",
-    "gate": "rescan-only"
-  }
-}
-```
-
-### 增加用例数量
-
-```bash
-# 生成200条用例
-.venv/bin/python bench/generate_cases.py --target 200 --per-rule-max 8
-```
-
-## 限制和注意事项
-
-1. **仓库版本冻结**: 评测使用固定的commit SHA，确保可复现
-2. **只读模式**: 评测项目必须设置为只读，防止意外修改
-3. **测试闸门**: 
-   - dayjs: 完整测试+覆盖率检查
-   - axios: 仅Sonar重扫（测试需要外部服务）
-4. **不创建MR**: 评测只调用 `execute()`，不会开merge request
-5. **资源消耗**: 每条用例会调用Sonar API重扫，注意API限流
-
-## 下一步改进
-
-- [ ] 增加3-4个新开源项目（目标：4-6个项目）
-- [ ] 扩展到150-200条用例
-- [ ] 添加安全漏洞类型（VULNERABILITY）的用例
-- [ ] 支持Python/Java项目的评测
-- [ ] 添加人工采纳率追踪（PR合并统计）
-- [ ] 创建可视化Dashboard展示成功率趋势
+当前扫描器镜像是 `linux/amd64`，而 Docker 宿主机是 `linux/arm64`。若还需提速，可在独立试跑中比较原镜像与官方原生架构 CLI；先核对两者的规则、告警和耗时，再决定是否切换正式评测。缩小 `sonar.sources` 到单个改动文件会漏掉其他新增告警，不能用于当前完整性闸门。

@@ -299,8 +299,10 @@ class AgentTools:
             "proposed_old": (first_edit or ("", ""))[0], "proposed_new": (first_edit or ("", ""))[1],
             "before": primary_item["before"] if primary_item else self.state.get("before") or "",
             "after": primary_item["after"] if primary_item else self.state.get("after") or "",
-            "rescan_ok": False, "rescan_removed": [], "rescan_added": [],
-            "tests_passed": False, "tests_skipped": False, "uncovered_lines": [],
+            "rescan_ok": False, "rescan_executed": False,
+            "rescan_removed": [], "rescan_added": [],
+            "tests_passed": False, "tests_skipped": False, "tests_executed": False,
+            "uncovered_lines": [],
             "agent_verified": False, "model_error": "", "rejections": [],
         }
         result = {"files": [name for name, *_ in prepared], "changed_files": len(candidates)}

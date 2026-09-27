@@ -107,6 +107,7 @@ class ModelRetryGraphTest(unittest.TestCase):
 
             def propose(**kwargs):
                 models.append(kwargs.get("model"))
+                kwargs["on_usage"](11 if kwargs.get("model") == "cheap" else 17)
                 if kwargs.get("model") == "cheap":
                     return first
                 return second
@@ -136,6 +137,7 @@ class ModelRetryGraphTest(unittest.TestCase):
         self.assertEqual(result["level"], "L1")
         self.assertIn("retry_fix", result["history"])
         self.assertEqual(rescan.calls["n"], 2)
+        self.assertEqual(result["fixed_usage_tokens"], 28)
 
     def test_parse_failure_retries_then_l3(self):
         with tempfile.TemporaryDirectory() as directory:

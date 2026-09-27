@@ -29,8 +29,11 @@ def fetch_all_issues(token: str, projects: dict[str, dict]) -> list[dict]:
     all_issues = []
     for project_key in projects:
         for issue in fetch_issues(sonar_base_url(), token, project_key):
+            if not issue.get("key"):
+                raise ValueError(f"{project_key} 有告警缺少 Sonar key，不能生成精确用例")
             path = issue_path(issue.get("component", ""), project_key)
             all_issues.append({
+                "issue_key": issue.get("key", ""),
                 "project": project_key,
                 "rule": issue["rule"],
                 "path": path,
@@ -75,27 +78,21 @@ def sample_balanced(issues: list[dict], target: int, per_rule_max: int = 5) -> l
     3. Shuffle and take target count
     """
     import random
-    random.seed(42)  # 可复现
+    randomizer = random.Random(42)
 
     # 按规则分组
     by_rule: dict[str, list[dict]] = defaultdict(list)
-    for issue in issues:
+    for issue in sorted(issues, key=lambda item: (item["project"], item["rule"], item["path"], item["message"], item.get("issue_key", ""))):
         by_rule[issue["rule"]].append(issue)
 
     # 从每个规则中采样
     sampled = []
     for rule, rule_issues in by_rule.items():
-        random.shuffle(rule_issues)
+        randomizer.shuffle(rule_issues)
         sampled.extend(rule_issues[:per_rule_max])
 
-    # 如果还不够，继续采样
-    if len(sampled) < target:
-        remaining = [issue for issue in issues if issue not in sampled]
-        random.shuffle(remaining)
-        sampled.extend(remaining[:target - len(sampled)])
-
     # 打乱并截取
-    random.shuffle(sampled)
+    randomizer.shuffle(sampled)
     return sampled[:target]
 
 
@@ -120,7 +117,7 @@ def main() -> int:
                         help="目标用例数量（默认120，会被采样策略调整）")
     parser.add_argument("--per-rule-max", type=int, default=5,
                         help="每个规则最多采样数量（默认5）")
-    parser.add_argument("--out", type=Path, default=ROOT / "bench" / "oss_smell_cases_v2.json",
+    parser.add_argument("--out", type=Path, default=ROOT / "bench" / "oss_smell_cases_v3.json",
                         help="输出文件路径")
     parser.add_argument("--preview", action="store_true",
                         help="只预览分布，不生成文件")
@@ -171,7 +168,7 @@ def main() -> int:
 
     # 生成输出
     output = {
-        "generated": "expanded_oss_cases_v2",
+        "generated": "expanded_oss_cases_v3",
         "repos": projects,
         "count": len(sampled),
         "sampling_strategy": f"balanced: max {args.per_rule_max} per rule, seed=42",
@@ -181,6 +178,7 @@ def main() -> int:
                 "rule": issue["rule"],
                 "path": issue["path"],
                 "message": issue["message"],
+                "issue_key": issue.get("issue_key", ""),
             }
             for issue in sampled
         ],
