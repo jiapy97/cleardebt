@@ -13,3 +13,4 @@ deploy/llm/.token
 .scannerwork/
 **/.scannerwork/
 .env
+*.log
