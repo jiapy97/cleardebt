@@ -17,3 +17,4 @@ tree-sitter-javascript==0.25.0
 tree-sitter-typescript==0.23.2
 uvicorn==0.53.0
 pytest==8.3.4
+langsmith==0.14.0

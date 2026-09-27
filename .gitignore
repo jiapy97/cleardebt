@@ -12,3 +12,4 @@ deploy/deepseek/.token
 deploy/llm/.token
 .scannerwork/
 **/.scannerwork/
+.env
