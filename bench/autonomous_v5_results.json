@@ -1,0 +1,920 @@
+{
+  "generated_at": "2026-09-27",
+  "agent_protocol": "v5",
+  "model": "deepseek-flash",
+  "source_run_ids": [
+    "b84596577577",
+    "3dd222ff9795"
+  ],
+  "method": "fresh paired fixed AI vs autonomous Agent; frozen public repository commits; no merge requests",
+  "summary": {
+    "attempted": 30,
+    "valid": 27,
+    "fixed_l1": 22,
+    "agent_l1": 24,
+    "agent_only_l1": 2,
+    "fixed_only_l1": 0,
+    "fixed_seconds": 1347.2,
+    "agent_seconds": 1451.1,
+    "agent_tool_calls": 133,
+    "agent_reported_tokens": 287162
+  },
+  "by_project": {
+    "bench-dayjs": {
+      "attempted": 15,
+      "valid": 14,
+      "fixed_l1": 10,
+      "agent_l1": 11,
+      "agent_only_l1": 1,
+      "fixed_only_l1": 0,
+      "fixed_seconds": 752.1,
+      "agent_seconds": 873.5,
+      "agent_tool_calls": 81,
+      "agent_reported_tokens": 189635
+    },
+    "bench-axios": {
+      "attempted": 15,
+      "valid": 13,
+      "fixed_l1": 12,
+      "agent_l1": 13,
+      "agent_only_l1": 1,
+      "fixed_only_l1": 0,
+      "fixed_seconds": 595.1,
+      "agent_seconds": 577.6,
+      "agent_tool_calls": 52,
+      "agent_reported_tokens": 97527
+    }
+  },
+  "cases": [
+    {
+      "source_run_id": "b84596577577",
+      "project": "bench-dayjs",
+      "rule": "javascript:S1940",
+      "path": "src/index.js",
+      "gate": "full",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+        "seconds": 52.5,
+        "tests_skipped": false,
+        "rescan_ok": true
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+        "seconds": 51.8,
+        "tests_skipped": false,
+        "rescan_ok": true,
+        "tool_calls": 4,
+        "patches": 1,
+        "full_checks": 1,
+        "reported_tokens": 6957
+      }
+    },
+    {
+      "source_run_id": "b84596577577",
+      "project": "bench-dayjs",
+      "rule": "javascript:S2486",
+      "path": "src/plugin/customParseFormat/index.js",
+      "gate": "full",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L3",
+        "reason": "重扫没通过：原来的告警还在，或者出现了新告警。",
+        "seconds": 46.5,
+        "tests_skipped": false,
+        "rescan_ok": false
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L3",
+        "reason": "自主 Agent 达到 token 上限。",
+        "seconds": 91.8,
+        "tests_skipped": false,
+        "rescan_ok": false,
+        "tool_calls": 10,
+        "patches": 2,
+        "full_checks": 2,
+        "reported_tokens": 30161
+      }
+    },
+    {
+      "source_run_id": "b84596577577",
+      "project": "bench-dayjs",
+      "rule": "javascript:S3358",
+      "path": "src/locale/bn-bd.js",
+      "gate": "full",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+        "seconds": 49.0,
+        "tests_skipped": false,
+        "rescan_ok": true
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+        "seconds": 51.2,
+        "tests_skipped": false,
+        "rescan_ok": true,
+        "tool_calls": 4,
+        "patches": 1,
+        "full_checks": 1,
+        "reported_tokens": 8920
+      }
+    },
+    {
+      "source_run_id": "b84596577577",
+      "project": "bench-dayjs",
+      "rule": "javascript:S4138",
+      "path": "src/plugin/timezone/index.js",
+      "gate": "full",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+        "seconds": 49.7,
+        "tests_skipped": false,
+        "rescan_ok": true
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+        "seconds": 53.2,
+        "tests_skipped": false,
+        "rescan_ok": true,
+        "tool_calls": 4,
+        "patches": 1,
+        "full_checks": 1,
+        "reported_tokens": 8066
+      }
+    },
+    {
+      "source_run_id": "b84596577577",
+      "project": "bench-dayjs",
+      "rule": "javascript:S1301",
+      "path": "src/locale/zh-cn.js",
+      "gate": "full",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+        "seconds": 51.9,
+        "tests_skipped": false,
+        "rescan_ok": true
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+        "seconds": 53.0,
+        "tests_skipped": false,
+        "rescan_ok": true,
+        "tool_calls": 4,
+        "patches": 1,
+        "full_checks": 1,
+        "reported_tokens": 7024
+      }
+    },
+    {
+      "source_run_id": "b84596577577",
+      "project": "bench-dayjs",
+      "rule": "javascript:S1788",
+      "path": "src/plugin/timezone/index.js",
+      "gate": "full",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+        "seconds": 55.5,
+        "tests_skipped": false,
+        "rescan_ok": true
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+        "seconds": 52.3,
+        "tests_skipped": false,
+        "rescan_ok": true,
+        "tool_calls": 4,
+        "patches": 1,
+        "full_checks": 1,
+        "reported_tokens": 7629
+      }
+    },
+    {
+      "source_run_id": "b84596577577",
+      "project": "bench-dayjs",
+      "rule": "javascript:S5843",
+      "path": "src/constant.js",
+      "gate": "full",
+      "valid": false,
+      "exclusion": "harness_error",
+      "fixed": {
+        "status": "harness_error",
+        "level": null,
+        "reason": "TimeoutError: The read operation timed out",
+        "seconds": 122.4,
+        "tests_skipped": null,
+        "rescan_ok": null
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L3",
+        "reason": "自主 Agent 达到 token 上限。",
+        "seconds": 12.6,
+        "tests_skipped": false,
+        "rescan_ok": false,
+        "tool_calls": 11,
+        "patches": 0,
+        "full_checks": 0,
+        "reported_tokens": 34387
+      }
+    },
+    {
+      "source_run_id": "b84596577577",
+      "project": "bench-dayjs",
+      "rule": "javascript:S6035",
+      "path": "src/plugin/customParseFormat/index.js",
+      "gate": "full",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L3",
+        "reason": "重扫没通过：原来的告警还在，或者出现了新告警。",
+        "seconds": 49.5,
+        "tests_skipped": false,
+        "rescan_ok": false
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L3",
+        "reason": "自主 Agent 达到 token 上限。",
+        "seconds": 105.3,
+        "tests_skipped": false,
+        "rescan_ok": false,
+        "tool_calls": 13,
+        "patches": 1,
+        "full_checks": 2,
+        "reported_tokens": 32215
+      }
+    },
+    {
+      "source_run_id": "b84596577577",
+      "project": "bench-dayjs",
+      "rule": "javascript:S6557",
+      "path": "src/plugin/negativeYear/index.js",
+      "gate": "full",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+        "seconds": 51.9,
+        "tests_skipped": false,
+        "rescan_ok": true
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+        "seconds": 53.6,
+        "tests_skipped": false,
+        "rescan_ok": true,
+        "tool_calls": 4,
+        "patches": 1,
+        "full_checks": 1,
+        "reported_tokens": 5342
+      }
+    },
+    {
+      "source_run_id": "b84596577577",
+      "project": "bench-dayjs",
+      "rule": "javascript:S6582",
+      "path": "src/index.js",
+      "gate": "full",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+        "seconds": 55.0,
+        "tests_skipped": false,
+        "rescan_ok": true
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+        "seconds": 51.7,
+        "tests_skipped": false,
+        "rescan_ok": true,
+        "tool_calls": 4,
+        "patches": 1,
+        "full_checks": 1,
+        "reported_tokens": 5786
+      }
+    },
+    {
+      "source_run_id": "b84596577577",
+      "project": "bench-axios",
+      "rule": "javascript:S1121",
+      "path": "lib/adapters/adapters.js",
+      "gate": "rescan-only",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 46.7,
+        "tests_skipped": true,
+        "rescan_ok": true
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 44.3,
+        "tests_skipped": true,
+        "rescan_ok": true,
+        "tool_calls": 4,
+        "patches": 1,
+        "full_checks": 1,
+        "reported_tokens": 6680
+      }
+    },
+    {
+      "source_run_id": "b84596577577",
+      "project": "bench-axios",
+      "rule": "javascript:S2486",
+      "path": "lib/adapters/http.js",
+      "gate": "rescan-only",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 43.4,
+        "tests_skipped": true,
+        "rescan_ok": true
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 44.8,
+        "tests_skipped": true,
+        "rescan_ok": true,
+        "tool_calls": 4,
+        "patches": 1,
+        "full_checks": 1,
+        "reported_tokens": 8247
+      }
+    },
+    {
+      "source_run_id": "b84596577577",
+      "project": "bench-axios",
+      "rule": "javascript:S3358",
+      "path": "lib/adapters/adapters.js",
+      "gate": "rescan-only",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 45.1,
+        "tests_skipped": true,
+        "rescan_ok": true
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 47.1,
+        "tests_skipped": true,
+        "rescan_ok": true,
+        "tool_calls": 4,
+        "patches": 1,
+        "full_checks": 1,
+        "reported_tokens": 8742
+      }
+    },
+    {
+      "source_run_id": "b84596577577",
+      "project": "bench-axios",
+      "rule": "javascript:S2589",
+      "path": "lib/adapters/fetch.js",
+      "gate": "rescan-only",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 44.5,
+        "tests_skipped": true,
+        "rescan_ok": true
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 43.1,
+        "tests_skipped": true,
+        "rescan_ok": true,
+        "tool_calls": 4,
+        "patches": 1,
+        "full_checks": 1,
+        "reported_tokens": 8484
+      }
+    },
+    {
+      "source_run_id": "b84596577577",
+      "project": "bench-axios",
+      "rule": "javascript:S3403",
+      "path": "lib/adapters/adapters.js",
+      "gate": "rescan-only",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 43.0,
+        "tests_skipped": true,
+        "rescan_ok": true
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 45.7,
+        "tests_skipped": true,
+        "rescan_ok": true,
+        "tool_calls": 4,
+        "patches": 1,
+        "full_checks": 1,
+        "reported_tokens": 7504
+      }
+    },
+    {
+      "source_run_id": "b84596577577",
+      "project": "bench-axios",
+      "rule": "javascript:S3800",
+      "path": "lib/adapters/fetch.js",
+      "gate": "rescan-only",
+      "valid": false,
+      "exclusion": "harness_error",
+      "fixed": {
+        "status": "harness_error",
+        "level": null,
+        "reason": "SystemExit: 拉不下来分支：Cloning into '0e4def6afcb1f705f303d895165661d345ef5f9d0257c36854085ef171f7ada3'...\nfatal: unable to access 'https://github.com/axios/axios.git/': LibreSSL SSL_connect: SSL_ERROR_SYSCALL in connection to github.com:443 \n",
+        "seconds": 2.6,
+        "tests_skipped": null,
+        "rescan_ok": null
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L3",
+        "reason": "自主 Agent 达到 token 上限。",
+        "seconds": 9.9,
+        "tests_skipped": false,
+        "rescan_ok": false,
+        "tool_calls": 7,
+        "patches": 0,
+        "full_checks": 0,
+        "reported_tokens": 30900
+      }
+    },
+    {
+      "source_run_id": "b84596577577",
+      "project": "bench-axios",
+      "rule": "javascript:S4138",
+      "path": "lib/helpers/cookies.js",
+      "gate": "rescan-only",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 46.6,
+        "tests_skipped": true,
+        "rescan_ok": true
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 44.0,
+        "tests_skipped": true,
+        "rescan_ok": true,
+        "tool_calls": 4,
+        "patches": 1,
+        "full_checks": 1,
+        "reported_tokens": 7249
+      }
+    },
+    {
+      "source_run_id": "b84596577577",
+      "project": "bench-axios",
+      "rule": "javascript:S5869",
+      "path": "lib/adapters/http.js",
+      "gate": "rescan-only",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 45.7,
+        "tests_skipped": true,
+        "rescan_ok": true
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 47.7,
+        "tests_skipped": true,
+        "rescan_ok": true,
+        "tool_calls": 4,
+        "patches": 1,
+        "full_checks": 1,
+        "reported_tokens": 7346
+      }
+    },
+    {
+      "source_run_id": "b84596577577",
+      "project": "bench-axios",
+      "rule": "javascript:S6325",
+      "path": "lib/helpers/sanitizeHeaderValue.js",
+      "gate": "rescan-only",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 56.1,
+        "tests_skipped": true,
+        "rescan_ok": true
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 41.3,
+        "tests_skipped": true,
+        "rescan_ok": true,
+        "tool_calls": 4,
+        "patches": 1,
+        "full_checks": 1,
+        "reported_tokens": 7160
+      }
+    },
+    {
+      "source_run_id": "b84596577577",
+      "project": "bench-axios",
+      "rule": "javascript:S6353",
+      "path": "lib/helpers/shouldBypassProxy.js",
+      "gate": "rescan-only",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L3",
+        "reason": "重扫没通过：原来的告警还在，或者出现了新告警。",
+        "seconds": 49.4,
+        "tests_skipped": false,
+        "rescan_ok": false
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 44.6,
+        "tests_skipped": true,
+        "rescan_ok": true,
+        "tool_calls": 4,
+        "patches": 1,
+        "full_checks": 1,
+        "reported_tokens": 7612
+      }
+    },
+    {
+      "source_run_id": "3dd222ff9795",
+      "project": "bench-dayjs",
+      "rule": "javascript:S6594",
+      "path": "src/index.js",
+      "gate": "full",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+        "seconds": 51.2,
+        "tests_skipped": false,
+        "rescan_ok": true
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+        "seconds": 52.0,
+        "tests_skipped": false,
+        "rescan_ok": true,
+        "tool_calls": 4,
+        "patches": 1,
+        "full_checks": 1,
+        "reported_tokens": 8151
+      }
+    },
+    {
+      "source_run_id": "3dd222ff9795",
+      "project": "bench-dayjs",
+      "rule": "javascript:S6635",
+      "path": "src/plugin/duration/index.js",
+      "gate": "full",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L3",
+        "reason": "重扫没通过：原来的告警还在，或者出现了新告警。",
+        "seconds": 77.1,
+        "tests_skipped": false,
+        "rescan_ok": false
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+        "seconds": 55.7,
+        "tests_skipped": false,
+        "rescan_ok": true,
+        "tool_calls": 7,
+        "patches": 1,
+        "full_checks": 1,
+        "reported_tokens": 22835
+      }
+    },
+    {
+      "source_run_id": "3dd222ff9795",
+      "project": "bench-dayjs",
+      "rule": "javascript:S7721",
+      "path": "src/plugin/objectSupport/index.js",
+      "gate": "full",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L3",
+        "reason": "重扫没通过：原来的告警还在，或者出现了新告警。",
+        "seconds": 56.8,
+        "tests_skipped": false,
+        "rescan_ok": false
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L3",
+        "reason": "自主 Agent 达到 token 上限。",
+        "seconds": 99.0,
+        "tests_skipped": false,
+        "rescan_ok": false,
+        "tool_calls": 11,
+        "patches": 2,
+        "full_checks": 2,
+        "reported_tokens": 30539
+      }
+    },
+    {
+      "source_run_id": "3dd222ff9795",
+      "project": "bench-dayjs",
+      "rule": "javascript:S7722",
+      "path": "src/plugin/customParseFormat/index.js",
+      "gate": "full",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+        "seconds": 56.5,
+        "tests_skipped": false,
+        "rescan_ok": true
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+        "seconds": 52.6,
+        "tests_skipped": false,
+        "rescan_ok": true,
+        "tool_calls": 4,
+        "patches": 1,
+        "full_checks": 1,
+        "reported_tokens": 8934
+      }
+    },
+    {
+      "source_run_id": "3dd222ff9795",
+      "project": "bench-dayjs",
+      "rule": "javascript:S1301",
+      "path": "src/locale/zh-hk.js",
+      "gate": "full",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+        "seconds": 49.0,
+        "tests_skipped": false,
+        "rescan_ok": true
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫和测试都过了。可以开合并请求，这一步先不开。",
+        "seconds": 50.3,
+        "tests_skipped": false,
+        "rescan_ok": true,
+        "tool_calls": 4,
+        "patches": 1,
+        "full_checks": 1,
+        "reported_tokens": 7076
+      }
+    },
+    {
+      "source_run_id": "3dd222ff9795",
+      "project": "bench-axios",
+      "rule": "javascript:S6551",
+      "path": "lib/helpers/buildURL.js",
+      "gate": "rescan-only",
+      "valid": false,
+      "exclusion": "not_eligible",
+      "fixed": {
+        "status": "completed",
+        "level": "skip",
+        "reason": "不在可修规则清单里，不修：Objects and classes converted or coerced to strings should define a \"toString()\" method。",
+        "seconds": 5.7,
+        "tests_skipped": false,
+        "rescan_ok": false
+      },
+      "agent": {
+        "status": "completed",
+        "level": "skip",
+        "reason": "不在可修规则清单里，不修：Objects and classes converted or coerced to strings should define a \"toString()\" method。",
+        "seconds": 5.4,
+        "tests_skipped": false,
+        "rescan_ok": false,
+        "tool_calls": 0,
+        "patches": 0,
+        "full_checks": 0,
+        "reported_tokens": 0
+      }
+    },
+    {
+      "source_run_id": "3dd222ff9795",
+      "project": "bench-axios",
+      "rule": "javascript:S6557",
+      "path": "lib/helpers/shouldBypassProxy.js",
+      "gate": "rescan-only",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 44.1,
+        "tests_skipped": true,
+        "rescan_ok": true
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 42.1,
+        "tests_skipped": true,
+        "rescan_ok": true,
+        "tool_calls": 4,
+        "patches": 1,
+        "full_checks": 1,
+        "reported_tokens": 7655
+      }
+    },
+    {
+      "source_run_id": "3dd222ff9795",
+      "project": "bench-axios",
+      "rule": "javascript:S6582",
+      "path": "lib/adapters/fetch.js",
+      "gate": "rescan-only",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 42.3,
+        "tests_skipped": true,
+        "rescan_ok": true
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 44.4,
+        "tests_skipped": true,
+        "rescan_ok": true,
+        "tool_calls": 4,
+        "patches": 1,
+        "full_checks": 1,
+        "reported_tokens": 6560
+      }
+    },
+    {
+      "source_run_id": "3dd222ff9795",
+      "project": "bench-axios",
+      "rule": "javascript:S6594",
+      "path": "lib/helpers/shouldBypassProxy.js",
+      "gate": "rescan-only",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 45.9,
+        "tests_skipped": true,
+        "rescan_ok": true
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 45.6,
+        "tests_skipped": true,
+        "rescan_ok": true,
+        "tool_calls": 4,
+        "patches": 1,
+        "full_checks": 1,
+        "reported_tokens": 8500
+      }
+    },
+    {
+      "source_run_id": "3dd222ff9795",
+      "project": "bench-axios",
+      "rule": "javascript:S6644",
+      "path": "lib/helpers/progressEventReducer.js",
+      "gate": "rescan-only",
+      "valid": true,
+      "exclusion": "",
+      "fixed": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 42.3,
+        "tests_skipped": true,
+        "rescan_ok": true
+      },
+      "agent": {
+        "status": "completed",
+        "level": "L1",
+        "reason": "重扫过了。这个仓库没有 Node 测试栈，测试闸已跳过。可以开合并请求。",
+        "seconds": 42.9,
+        "tests_skipped": true,
+        "rescan_ok": true,
+        "tool_calls": 4,
+        "patches": 1,
+        "full_checks": 1,
+        "reported_tokens": 5788
+      }
+    }
+  ]
+}

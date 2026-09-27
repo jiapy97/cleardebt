@@ -92,5 +92,7 @@ def _git(repo: Path, args: list[str], token: str, *, provider: str = "gitlab") -
         text=True,
     )
     if completed.returncode != 0:
-        detail = (completed.stderr or completed.stdout or "").replace(token, "***")
+        detail = completed.stderr or completed.stdout or ""
+        if token:
+            detail = detail.replace(token, "***")
         raise SystemExit(f"拉不下来分支：{detail[-500:]}")

@@ -300,6 +300,39 @@ class AgentLoopTest(unittest.TestCase):
         self.assertEqual(requests[0]["tool_choice"], "required")
         self.assertNotIn("thinking", requests[0])
 
+    def test_malformed_tool_arguments_get_one_bounded_retry(self):
+        class Response:
+            def __init__(self, payload):
+                self.payload = payload
+
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *_):
+                return False
+
+            def read(self):
+                return json.dumps(self.payload).encode()
+
+        requests = []
+
+        def open_request(request, timeout):
+            requests.append(json.loads(request.data))
+            args = '{"path":' if len(requests) == 1 else '{"path":"a.js"}'
+            return Response({"choices": [{"message": {"tool_calls": [{
+                "id": f"call-{len(requests)}", "type": "function",
+                "function": {"name": "read_file", "arguments": args},
+            }]}}], "usage": {"total_tokens": 15}})
+
+        with patch("cleardebt.agent_model.llm_credentials", return_value={
+            "token": "fake", "base_url": "https://example.invalid", "model": "fake",
+        }), patch("cleardebt.agent_model.urllib.request.urlopen", side_effect=open_request):
+            call = choose_tool([{"role": "user", "content": "fix"}], [])
+        self.assertEqual(call["arguments"], {"path": "a.js"})
+        self.assertEqual(call["usage"]["total_tokens"], 30)
+        self.assertEqual(len(requests), 2)
+        self.assertIn("完整的 JSON 对象", requests[1]["messages"][-1]["content"])
+
     def test_multiple_native_tool_calls_are_queued(self):
         class Response:
             def __enter__(self):

@@ -545,7 +545,11 @@ def agent_model(state: IssueState) -> dict:
 
             record(session_id, state.get("fingerprint") or "", kind="error", tool="模型",
                    summary=f"选择工具失败：{error}")
-        return {"model_error": str(error), "agent_call": {}, "history": ["agent_model"]}
+        return {
+            "model_error": str(error), "agent_call": {},
+            "agent_usage_tokens": int(state.get("agent_usage_tokens") or 0) + int(getattr(error, "usage_tokens", 0)),
+            "history": ["agent_model"],
+        }
     pending = call.get("pending_calls") or []
     offered = {tool["function"]["name"] for tool in available_tools}
     if any(item.get("name") not in offered for item in [call, *pending]):

@@ -43,15 +43,35 @@ def execute(
     sca_to_version: str = "",
     issue_key: str = "",
     session_id: int | None = None,
+    benchmark_read_only: bool = False,
+    benchmark_sha: str = "",
 ) -> dict:
     project = (project or "").strip()
     if not project:
         raise SystemExit("没有写项目，不会跑。")
-    from cleardebt.controls import backlog_gate, load_controls
+    from cleardebt.controls import backlog_gate, gate, gitlab_credentials, load_controls, project_switches
     from cleardebt.sca import is_sca_rule
 
     settings = load_controls()
-    if pull_request:
+    if benchmark_sha and not benchmark_read_only:
+        raise SystemExit("冻结提交只允许在只读评测入口使用。")
+    if benchmark_read_only:
+        public_bench_repos = {
+            "bench-dayjs": ("https://github.com/iamkun/dayjs", "436bde0bcded312781cbe45dc2b0ef079a36d8e3"),
+            "bench-axios": ("https://github.com/axios/axios", "5fc40e1c7478d342ec64c4e865ed4cd1a334207c"),
+        }
+        saved = gitlab_credentials(project)
+        if (
+            not os.environ.get("CLEARDEBT_BENCH_RUN_ID")
+            or bool(pull_request)
+            or public_bench_repos.get(project) != ((saved or {}).get("url"), benchmark_sha)
+            or not (saved or {}).get("read_only")
+        ):
+            raise SystemExit("只读评测只允许已绑定的公开冻结仓库。")
+        refused = gate(settings, project)
+        if not refused and not project_switches(settings, project)["backlog_fix"]:
+            refused = f"{project} 的 backlog 修复关掉了。"
+    elif pull_request:
         from cleardebt.request_fix import request_fix_gate
 
         refused = request_fix_gate(settings, project)
@@ -97,11 +117,12 @@ def execute(
     with probe_context as probe_root:
         probe = Path(probe_root) / "repo" if probe_root else None
         if probe:
-            _prepare_work_dir(probe, issue, git_branch=git_branch)
+            _prepare_work_dir(probe, issue, git_branch=git_branch, pinned_sha=benchmark_sha)
         issue["fingerprint"] = execution_fingerprint(
             issue["sonar_fingerprint"], project,
             git_branch=git_branch, pull_request=pull_request,
             agent_mode=bool(issue["agent_mode"]), base_commit=issue.get("base_commit") or "",
+            benchmark_run_id=os.environ.get("CLEARDEBT_BENCH_RUN_ID", ""),
         )
         with issue_lock(issue["fingerprint"]):
             with PostgresSaver.from_conn_string(DB_URI) as checkpointer:
@@ -117,7 +138,7 @@ def execute(
                             shutil.rmtree(work)
                         shutil.move(str(probe), str(work))
                     else:
-                        _prepare_work_dir(work, issue, git_branch=git_branch)
+                        _prepare_work_dir(work, issue, git_branch=git_branch, pinned_sha=benchmark_sha)
                     result = graph.invoke(_initial_state(issue, work), config)
                 elif action == "resume":
                     if issue["agent_mode"] and not work.exists():
@@ -150,6 +171,8 @@ def execute(
         "agent_patch_count": result.get("agent_patch_count") or 0,
         "agent_full_count": result.get("agent_full_count") or 0,
         "agent_usage_tokens": result.get("agent_usage_tokens") or 0,
+        "tests_skipped": bool(result.get("tests_skipped")),
+        "rescan_ok": bool(result.get("rescan_ok")),
         "checkpoints": steps,
     }
     if payload.get("proposed_old") and payload.get("level") in {"L1", "L2", "L3"}:
@@ -182,6 +205,7 @@ def execution_fingerprint(
     pull_request: str | None = None,
     agent_mode: bool = False,
     base_commit: str = "",
+    benchmark_run_id: str = "",
 ) -> str:
     """Identity for checkpoints/work/MRs, scoped to one repo and ref.
 
@@ -199,7 +223,9 @@ def execution_fingerprint(
     if agent_mode:
         # A protocol change must not reuse a completed checkpoint that stopped
         # before the model could call a tool under the previous adapter.
-        raw += f"\nagent:v4\n{base_commit}"
+        raw += f"\nagent:v5\n{base_commit}"
+    if benchmark_run_id:
+        raw += f"\nbenchmark:{benchmark_run_id}"
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
@@ -343,7 +369,7 @@ def _sca_issue(
     }
 
 
-def _prepare_work_dir(work: Path, issue: dict, git_branch: str | None = None) -> None:
+def _prepare_work_dir(work: Path, issue: dict, git_branch: str | None = None, pinned_sha: str = "") -> None:
     from cleardebt.checkout import checkout_branch, checkout_default
     from cleardebt.controls import gitlab_credentials, unbound_reason
     from cleardebt.sca import is_sca_rule
@@ -356,6 +382,19 @@ def _prepare_work_dir(work: Path, issue: dict, git_branch: str | None = None) ->
         checkout_branch(work, saved, git_branch)
     else:
         checkout_default(work, saved)
+    if pinned_sha:
+        current = subprocess.run(
+            ["git", "rev-parse", "HEAD"], cwd=work, text=True, capture_output=True, check=True,
+        ).stdout.strip()
+        if current != pinned_sha:
+            subprocess.run(
+                ["git", "fetch", "--depth", "1", "origin", pinned_sha],
+                cwd=work, text=True, capture_output=True, check=True, timeout=120,
+            )
+            subprocess.run(
+                ["git", "checkout", "--detach", pinned_sha],
+                cwd=work, text=True, capture_output=True, check=True, timeout=30,
+            )
     target = work / issue["path"]
     if not target.is_file():
         kind = "依赖清单" if is_sca_rule(issue.get("rule") or "") else "源文件"

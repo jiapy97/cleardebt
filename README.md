@@ -55,17 +55,26 @@ flowchart TD
 
 控制台的「Agent可修规则清单」页面列出清单里 Agent 已接入语言的规则（加上密钥规则），只列规则键、名称和语言，不统计告警数。
 
-## 评测：OSS 真实异味集
+## 评测：自主 Agent 对照
 
-`bench/oss_smell_v1.json`——dayjs + axios 冻结 SHA（`436bde0`/`5fc40e1`），fresh run（开跑前清 checkpoint，无重放），环境误杀不计分母：
+**评测集**：120 条冻结用例（[`bench/oss_smell_cases_v2.json`](bench/oss_smell_cases_v2.json)），覆盖 47 种规则类型，来自 dayjs 与 axios 的固定 SHA（`436bde0`、`5fc40e1`）。用同一条告警分别运行固定 AI 修复和自主工具循环，每一臂使用独立的新 checkpoint；仅统计仓库版本、检查闸门和执行模式均匹配的成对结果。脚本只调用单告警执行器，不会创建修复请求。
 
-| 仓库 | 判分口径 | 条数 | L1 | L1 率 |
-|---|---|---|---|---|
-| dayjs | 重扫 + 测试双闸 | 30 | 16 | 53% |
-| axios | 重扫闸（套件需外网，测试闸跳过并审计） | 29 | 18 | 62% |
-| 合计 | — | 59 | 34 | 58% |
+```bash
+# 验证评测集
+.venv/bin/python bench/validate_cases.py
 
-诚实声明：n=59（60 条里 1 条只拿到环境误杀结果，未计分），选样按规则轮采（非随机）；模型 DeepSeek；基线锁版本可当回归集（`bench/run_oss_bench.py`）。玩具仓历史：27 条 L1 67%。
+# 运行评测（建议从小批量开始）
+.venv/bin/python bench/run_autonomous_compare.py --per-project 10
+
+# 重新生成或扩展评测集
+.venv/bin/python bench/generate_cases.py --target 150 --per-rule-max 6
+```
+
+**评测指标**：修复成功率（重扫通过）、编译和测试通过率、新问题引入率、单次修复成本（token）和耗时。详细说明见 [bench/README.md](bench/README.md)。
+
+dayjs 运行 Sonar 重扫、测试和覆盖率检查。axios 的测试需要外部服务，两臂均跳过测试并在结果中标记。脚本把逐条结果和汇总写入 `var/bench/`；样本少时只作为链路验证，不据此声称总体成功率。
+
+**历史评测**：2026-09-27 的 v5 成对评测预定 30 条、有效 27 条：自主 Agent L1 24 条，固定流程 L1 22 条。dayjs 的 14 条有效配对跑完整测试闸；axios 的 13 条仅跑 Sonar 闸。逐条数据、排除原因、耗时和限制见 [自主 Agent v5 评测报告](bench/autonomous_v5_report_2026-09-27.md)。早期 4 条链路试跑见 [v4 记录](bench/autonomous_pilot_2026-09-27.md)，不与 v5 汇总。旧版 59 条用例集见 [`bench/oss_smell_cases_v1.json`](bench/oss_smell_cases_v1.json)。
 
 ## 启动
 
@@ -112,7 +121,7 @@ python3.12 scripts/up.py
 
 **1. OOM 连环杀人案**——现象：Sonar 一天挂 6 次，指派/评测批量 L3。定位：退出码 0 极具迷惑性，查 `OOMKilled` 标志实锤内存杀手，Docker 虚拟机 7.75G 被 19 个容器 + 双路 scanner 吃光。解决：scanner 容器限 CPU/内存、bench 降单路、scan 链路加 `ensure_sonar` 自愈（挂了自动 `docker start` 等就绪）。固化：资源上限全部环境变量化。
 
-**2. Checkpoint 重放污染评测**——现象：axios 8 条 0 秒“测试没通过”，跳闸开关明明开着。定位：LangGraph 按指纹存状态，同一 issue 第二次跑 resume 旧结果而非重跑，一次删出 670 行旧状态实锤。解决：bench 开跑前整表清状态。固化：`--fresh` 开关进回归脚本，评测五戒之一。
+**2. Checkpoint 重放污染评测**——现象：重复运行的告警立即返回旧检查结果。定位：LangGraph 按指纹存状态，同一 issue 第二次跑会 resume 旧结果。现在成对评测为每个运行和模式生成独立 checkpoint 身份，并检查执行动作必须为 `start`。
 
 **3. 1G 内存勒死扫描器**——现象：重扫 `EXECUTION FAILURE` 且无 ERROR 日志。定位：三遍对照实验（限 1G 挂、不限制过、限 CPU+2G 过），embedded Node 在 arm64 转译下内存超线。解决：默认 2G+1 核，环境变量可调。教训：资源上限必须实测，不能拍脑袋。
 

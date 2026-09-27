@@ -79,6 +79,29 @@ class RunOneProjectTest(unittest.TestCase):
         self.assertNotEqual(old_protocol, execution_fingerprint(
             "same-sonar-fp", "alpha", agent_mode=True, base_commit="one",
         ))
+        self.assertNotEqual(base, execution_fingerprint(
+            "same-sonar-fp", "alpha", benchmark_run_id="fresh-run",
+        ))
+        self.assertNotEqual(
+            execution_fingerprint("same-sonar-fp", "alpha", benchmark_run_id="run-a"),
+            execution_fingerprint("same-sonar-fp", "alpha", benchmark_run_id="run-b"),
+        )
+
+    def test_read_only_benchmark_rejects_any_other_binding(self):
+        settings = {"configured": True, "enabled": True, "whitelist": ["bench-dayjs"]}
+        with (
+            patch.dict("os.environ", {"CLEARDEBT_BENCH_RUN_ID": "test-run"}),
+            patch("run_issue._find_issue") as find,
+            patch("cleardebt.controls.load_controls", return_value=settings),
+            patch("cleardebt.controls.gitlab_credentials", return_value={
+                "url": "https://github.com/another/repo", "read_only": True,
+            }),
+        ):
+            with self.assertRaises(SystemExit) as refused:
+                execute("javascript:S1940", "bench-dayjs", benchmark_read_only=True,
+                        benchmark_sha="436bde0bcded312781cbe45dc2b0ef079a36d8e3")
+        self.assertIn("只读评测", str(refused.exception))
+        find.assert_not_called()
 
     def test_missing_or_unlisted_project_does_not_run(self):
         settings = {"configured": True, "enabled": True, "whitelist": ["alpha"]}
